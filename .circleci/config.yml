@@ -1,13 +1,17 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/4zp6
     docker:
-      - image: debian:stretch
+      - image: node:10-browsers
     steps:
       - checkout
       - run:
-          name: Front End
+          name: Install node modules with npm
           commands:
             - cd frontend/mobilityai/
             - npm install
+      - run:
+          name: Run tests with npm
+          commands:
             - CI=true npm test
