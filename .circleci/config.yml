@@ -6,8 +6,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Greeting
-          command: echo Hello, world.
+          name: Front End
+          commands:
+            - cd frontend/mobilityai/
+            - npm install
+            - CI=true npm test
       - run:
-          name: Print the Current Time
-          command: date
+          name: Back end
+          command: echo TODO: back end tests
