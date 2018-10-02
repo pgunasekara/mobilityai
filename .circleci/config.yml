@@ -11,6 +11,3 @@ jobs:
             - cd frontend/mobilityai/
             - npm install
             - CI=true npm test
-      - run:
-          name: Back end
-          command: date
