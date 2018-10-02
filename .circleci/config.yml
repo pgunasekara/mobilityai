@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/4zp6
     docker:
-      - image: node:6-browsers
+      - image: circleci/node:6-browsers
     steps:
       - checkout
       - run:
