@@ -7,11 +7,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Go to front end
-          command: cd frontend/mobilityai/
-      - run:
           name: Install node modules with npm
-          command: npm install
+          command: cd frontend/mobilityai && npm install frontend/
       - run:
           name: Run tests with npm
-          command: CI=true npm test
+          command: cd frontend/mobilityai && CI=true npm test
