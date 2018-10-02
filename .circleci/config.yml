@@ -13,4 +13,4 @@ jobs:
             - CI=true npm test
       - run:
           name: Back end
-          command: echo TODO: back end tests
+          command: echo TODO back end tests
