@@ -3,15 +3,6 @@ import pandas as pd
 import sys
 
 """
-Used for testing purposes, returns a sample (time,action) list	
-"""
-def get_test_partitions():
-	return [["2018-11-11T17:56:25.078","STANDING"],
-		["2018-11-11T17:56:28.078","SITTING"],
-		["2018-11-11T17:56:30.326","CRYING"],
-		["2018-11-11T17:56:31.078","STANDING"]]
-
-"""
 Attempt to extract filename from the command line, ask user for it 
 if none found, and then do basic validation.
 """
@@ -27,13 +18,7 @@ def get_file_name(pos,msg):
 
 	# validate that this is proper file
 	return fname
-
-"""
-Read CSV and put it into Pandas DF object
-"""
-def get_file_contents(fn):
-	return pd.read_csv(fn) 
-
+	
 """
 Convert a date string to a datetime object for easier comparison
 
@@ -52,10 +37,8 @@ with.
 assumption made that the first pointer in the tagging_data is 
 less than everything timestamp in the csv data.
 """
-def find_prev_source(ln,ptr,data):
-	dt = ln[0] # get datetime
-
-	while dt >= data[ptr][0]:
+def find_prev_source(dt,ptr,data):
+	while dt >= data['start_time'][ptr]:
 		if ptr == len(data) - 1:
 			return ptr
 		ptr += 1
@@ -66,12 +49,14 @@ def find_prev_source(ln,ptr,data):
 Given the source CSV and the tagging data csv, tag the source csv
 """
 def perform_tagging(source,tagging_data):
+	tagged_array = []
 	tag_ptr = 0
 	src_ptr = 0
 	while src_ptr < len(source):
 		tag_ptr = find_prev_source(source[src_ptr],tag_ptr,tagging_data)
-		source[src_ptr].append(tagging_data[tag_ptr][1])
+		tagged_array.append(tagging_data['state'][tag_ptr])
 		src_ptr += 1
+	return tagged_array
 
 def main():
 	msg1= "Path to source csv file that you will be attaching actions to:"
@@ -84,12 +69,12 @@ def main():
 	contents = pd.read_csv(fname1)
 	tagging_data = pd.read_csv(fname2)
 
-
-	contents['occurence_time'] = [timestamp_to_datetime(i) for i in contents['occurence_time']]
+	clean_timestamps = [timestamp_to_datetime(i) for i in contents['occurence_time']]
 	tagging_data['start_time'] = [timestamp_to_datetime(i) for i in tagging_data['start_time']]
 
-	getTaggedData = perform_tagging(contents,tagging_data)
-	contents.to_csv(fname,index=False)
+	tagged_data = perform_tagging(clean_timestamps,tagging_data)
+	contents['state'] = tagged_data
+	contents.to_csv(fname3,index=False)
 
 
 if __name__ == '__main__':
