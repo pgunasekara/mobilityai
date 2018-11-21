@@ -38,6 +38,8 @@ assumption made that the first pointer in the tagging_data is
 less than everything timestamp in the csv data.
 """
 def find_prev_source(dt,ptr,data):
+	ptr = ptr if ptr >= 0 else 0
+
 	while dt >= data['start_time'][ptr]:
 		if ptr == len(data) - 1:
 			return ptr
@@ -54,7 +56,10 @@ def perform_tagging(source,tagging_data):
 	src_ptr = 0
 	while src_ptr < len(source):
 		tag_ptr = find_prev_source(source[src_ptr],tag_ptr,tagging_data)
-		tagged_array.append(tagging_data['state'][tag_ptr])
+		if tag_ptr == -1:
+			tagged_array.append(tagging_data['state'][0])
+		else:
+			tagged_array.append(tagging_data['state'][tag_ptr])
 		src_ptr += 1
 	return tagged_array
 
@@ -69,7 +74,7 @@ def main():
 	contents = pd.read_csv(fname1)
 	tagging_data = pd.read_csv(fname2)
 
-	clean_timestamps = [epoch_to_datetime(i) for i in contents['epoch']]
+	clean_timestamps = [epoch_to_datetime(i) for i in contents['epoch (ms)']]
 	tagging_data['start_time'] = [epoch_to_datetime(i) for i in tagging_data['start_time']]
 
 	tagged_data = perform_tagging(clean_timestamps,tagging_data)
