@@ -18,16 +18,16 @@ def get_file_name(pos,msg):
 
 	# validate that this is proper file
 	return fname
-	
+
 """
 Convert a date string to a datetime object for easier comparison
 
 """
-def timestamp_to_datetime(ts):
+def epoch_to_datetime(ts):
 	# figure out how to fit milliseconds
 	try:
-		return datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f')
-	except ValueError:
+		return datetime.fromtimestamp(int(ts) / 1000.0)
+	except OverflowError:
 		return ts
 
 """
@@ -69,8 +69,8 @@ def main():
 	contents = pd.read_csv(fname1)
 	tagging_data = pd.read_csv(fname2)
 
-	clean_timestamps = [timestamp_to_datetime(i) for i in contents['occurence_time']]
-	tagging_data['start_time'] = [timestamp_to_datetime(i) for i in tagging_data['start_time']]
+	clean_timestamps = [epoch_to_datetime(i) for i in contents['epoch']]
+	tagging_data['start_time'] = [epoch_to_datetime(i) for i in tagging_data['start_time']]
 
 	tagged_data = perform_tagging(clean_timestamps,tagging_data)
 	contents['state'] = tagged_data
