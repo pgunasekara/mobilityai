@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using mobilityAI.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-// using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 
 namespace mobilityAI {

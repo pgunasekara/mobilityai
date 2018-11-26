@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
 
+/// <summary>
+/// Endpoints for retrieving all data/range of data/writing data to/from the database
+///</summary>
 
 namespace mobilityAI.Controllers
 {
@@ -21,18 +24,31 @@ namespace mobilityAI.Controllers
         {
             _context = context;
         }
+        
+        /// <summary>
+        /// Endpoint for retrieiving all the data in Accelerometer table
+        /// </summary>
         [HttpGet]
         public ActionResult<List<Accelerometer>> GetAllAccelerometer()
         {
             return _context.AccelerometerData.ToList();
         }
 
+        /// <summary>
+        /// Endpoint for retrieiving all the data in Gyroscope table
+        /// </summary>
         [HttpGet]
         public ActionResult<List<Gyroscope>> GetAllGyroscope()
         {
             return _context.GyroscopeData.ToList();
         }
 
+        /// <summary>
+        /// Endpoint for adding a row of data into Accelerometer table
+        /// </summary>
+        /// <param name="a">
+        /// Row that is being added into the table
+        /// </param>
         [HttpPost("SetAccelerometer", Name = "SetAccelerometer")]
         public IActionResult AddItem(Accelerometer a)
         {
@@ -43,15 +59,31 @@ namespace mobilityAI.Controllers
         }
 
         //api/sensordata/setgyroscope
+        /// <summary>
+        /// Endpoint for adding a row of data into Gyroscope table
+        /// </summary>
+        /// <param name="g">
+        /// Row that is being added into the table
+        /// </param>
         [HttpPost("SetGyroscope", Name = "SetGyroscope")]
-        public IActionResult AddItem(Gyroscope a)
+        public IActionResult AddItem(Gyroscope g)
         {
-            _context.GyroscopeData.Add(a);
+            _context.GyroscopeData.Add(g);
             _context.SaveChanges();
 
-            return CreatedAtRoute("GetGyroscope", new { id = 0 }, a);
+            return CreatedAtRoute("GetGyroscope", new { id = 0 }, g);
         }
 
+        /// <summary>
+        /// Endpoint for retrieving a range of data from the Accelerometer table.
+        /// Query using the parameters to retrieve all rows that belong to the range specified
+        /// </summary>
+        /// <param name="start">
+        /// The starting point of the Epoch time of which the range will begin at
+        /// </param>
+        /// <param name="end">
+        /// The ending point of the Epoch time of which the range will end at
+        /// </param>
         [HttpGet("GetRangeAccelerometer", Name = "GetRangeAccelerometer")]
         public JsonResult GetRangeAccelerometer(long start, long end)
         {
@@ -61,6 +93,16 @@ namespace mobilityAI.Controllers
             return new JsonResult(dataRange.ToList());
         }
 
+        /// <summary>
+        /// Endpoint for retrieving a range of data from the Gyroscope table.
+        /// Query using the parameters to retrieve all rows that belong to the range specified
+        /// </summary>
+        /// <param name="start">
+        /// The starting point of the Epoch time of which the range will begin at
+        /// </param>
+        /// <param name="end">
+        /// The ending point of the Epoch time of which the range will end at
+        /// </param>
         [HttpGet("GetRangeGyroscope", Name = "GetRangeGyroscope")]
         public JsonResult GetRangeGyroscope(long start, long end)
         {
@@ -71,6 +113,15 @@ namespace mobilityAI.Controllers
         }
 
         //AddData function might need to be async (unsure as of now)
+        /// <summary>
+        /// Taking the list of lines files, converting each line to an Accelerometer/Gyroscope object,adding it into the database
+        /// </summary>
+        /// <param name="AccelerometerFile">
+        /// The file input for Accelerometer
+        /// </param>
+        /// <param name="GyroscopeFile">
+        /// The file input for Gyroscope
+        /// </param>
         [HttpPost("AddData", Name = "AddData")]
         public IActionResult AddData(IFormFile AccelerometerFile, IFormFile GyroscopeFile)
         {
@@ -111,7 +162,7 @@ namespace mobilityAI.Controllers
 
             return Ok();
         }
-
+        //Reading the file to be parsed, returns a list of lines
         private List<string> readData(IFormFile fileName)
         {
             var result = new List<string>();
