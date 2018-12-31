@@ -1,6 +1,8 @@
 package com.ai.mobility.mobilityai;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.util.Log;
 
 import com.mbientlab.metawear.Data;
@@ -11,6 +13,7 @@ import com.mbientlab.metawear.android.BtleService;
 import com.mbientlab.metawear.builder.RouteBuilder;
 import com.mbientlab.metawear.builder.RouteComponent;
 import com.mbientlab.metawear.data.Acceleration;
+import com.mbientlab.metawear.data.AngularVelocity;
 import com.mbientlab.metawear.module.Accelerometer;
 import com.mbientlab.metawear.module.GyroBmi160;
 import com.mbientlab.metawear.module.Led;
@@ -45,8 +48,71 @@ public class MetaMotionService {
     //Count footsteps
 
 
+    /**
+     * Connect to board and populate sensor component variables
+     * @param macAddr MAC address of device to connect
+     * @param remoteDevice BluetoothDevice to connect
+     */
     public void connect(String macAddr, BluetoothDevice remoteDevice) {
+        board.connectAsync().continueWithTask(task -> {
+            if (task.isFaulted()) {
+                Log.i("MobilityAI", "Failed to configure app", task.getError());
+            } else {
+
+                Log.i("MobilityAI", "App Configured, connected: " + MW_MAC_ADDRESS);
+
+                //Retrieve Modules
+                led = board.getModule(Led.class);
+                accelerometer = board.getModule(Accelerometer.class);
+                gyroscope = board.getModule(GyroBmi160.class);
+            }
+
+            return null;
+        });
+
+//            @Override
+//            public Void then(Task<Void> task) throws Exception {
+//
+//
+////                    //Configure accelerometer to set sampling rate to 25Hz
+////                    accelerometer.configure()
+////                            .odr(25f)       // Set sampling frequency to 25Hz, or closest valid ODR
+////                            .commit();
+////
+////                    //Add route to log accelerometer data
+////                    return accelerometer.acceleration().addRouteAsync(new RouteBuilder() {
+////                        @Override
+////                        public void configure(RouteComponent source) {
+////                            source.stream(new Subscriber() {
+////                                @Override
+////                                public void apply(Data data, Object... env) {
+////                                    Log.i(TAG, "Accelerometer: " + data.value(Acceleration.class).toString());
+////                                }
+////                            });
+////                        }
+////                    });
+//
+//                }
+//            }
+//        });
+    }
+
+    public void disconnect() {
+
+    }
+
+    private void retrieveBoard() {
+        //TODO: FIX THIS
+        /*final BluetoothManager btManager=
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);*/
+        final BluetoothDevice remoteDevice; //=
+                //btManager.getAdapter().getRemoteDevice(MW_MAC_ADDRESS);
+
+        // Create a MetaWear board object for the Bluetooth Device
+        board = null; //serviceBinder.getMetaWearBoard(remoteDevice);
+
         board.connectAsync().onSuccessTask(new Continuation<Void, Task<Route>>() {
+            //Route to log accelerometer data
             @Override
             public Task<Route> then(Task<Void> task) throws Exception {
                 Log.i("MobilityAI", "Connected: "+MW_MAC_ADDRESS);
@@ -54,7 +120,8 @@ public class MetaMotionService {
                 //Retrieve Modules
                 led = board.getModule(Led.class);
                 accelerometer = board.getModule(Accelerometer.class);
-                gyroscope = board.getModule(GyroBmi160.class);
+
+                logging = board.getModule(Logging.class);
 
                 //Configure accelerometer to set sampling rate to 25Hz
                 accelerometer.configure()
@@ -65,22 +132,55 @@ public class MetaMotionService {
                 return accelerometer.acceleration().addRouteAsync(new RouteBuilder() {
                     @Override
                     public void configure(RouteComponent source) {
-                        source.stream(new Subscriber() {
+                        // For streaming, replace with:
+                        // source.stream(new Subscriber() {
+                        source.log(new Subscriber() {
                             @Override
                             public void apply(Data data, Object... env) {
-                                Log.i(TAG, "Accelerometer: " + data.value(Acceleration.class).toString());
+                                long epoch = data.timestamp().getTimeInMillis();
+                                Log.i(TAG, "Accelerometer: " + epoch + " " +data.value(Acceleration.class).toString());
+
+                            }
+                        });
+                    }
+                });
+            }
+        }).onSuccessTask(new Continuation<Route, Task<Route>>() {
+            //Route to log Gyroscope data
+            @Override
+            public Task<Route> then(Task<Route> task) throws Exception {
+                gyroscope = board.getModule(GyroBmi160.class);
+
+                gyroscope.configure()
+                        .odr(GyroBmi160.OutputDataRate.ODR_25_HZ)
+                        .range(GyroBmi160.Range.FSR_2000)
+                        .commit();
+
+                Log.i(TAG, "Gryoscope Init: " + gyroscope.toString());
+
+
+                return gyroscope.angularVelocity().addRouteAsync(new RouteBuilder() {
+                    @Override
+                    public void configure(RouteComponent source) {
+                        source.log(new Subscriber() {
+                            @Override
+                            public void apply(Data data, Object... env) {
+                                Log.i(TAG, "Gyroscope: " + data.value(AngularVelocity.class).toString());
                             }
                         });
                     }
                 });
             }
         }).continueWith(new Continuation<Route, Object>() {
+            //If any of the setup tasks fail, then print error here
             @Override
             public Void then(Task<Route> task) throws Exception {
                 if(task.isFaulted()) {
                     Log.i("MobilityAI", "Failed to configure app", task.getError());
+                    board.tearDown();
                 } else {
                     Log.i("MobilityAI", "App configured");
+                    Log.i(TAG, "MAC Address: "+board.getMacAddress());
                 }
 
                 return null;
