@@ -246,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         m_leScanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
+                Log.i(TAG, "Scan Result: ");
                 if(result.getScanRecord() != null && result.getScanRecord().getServiceUuids() != null) {
                     boolean valid = true;
                     for(ParcelUuid it : result.getScanRecord().getServiceUuids()) {
@@ -265,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     }
                 }
 
-                super.onScanResult(callbackType, result);
+            super.onScanResult(callbackType, result);
             }
         };
 
