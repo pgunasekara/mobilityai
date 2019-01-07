@@ -11,7 +11,7 @@ jobs:
     steps:
     - script: |
         echo Frontend Tests
-  - job: Machine Learning
+  - job: Machine_Learning
     pool:
       vmImage: 'vs2017-win2016'
     steps:
