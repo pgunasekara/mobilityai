@@ -4,7 +4,7 @@
 
 # MobilityAI
 
-### TODO: Add badges
+[![Build Status](https://dev.azure.com/rebecca-tran/rebecca-tran/_apis/build/status/pgunasekara.4zp6?branchName=master)](https://dev.azure.com/rebecca-tran/rebecca-tran/_build/latest?definitionId=1?branchName=master)
 
 ## Introduction
 
