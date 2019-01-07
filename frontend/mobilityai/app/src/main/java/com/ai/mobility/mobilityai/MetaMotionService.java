@@ -101,6 +101,10 @@ public class MetaMotionService {
 
     }
 
+    public void setBatteryLevel(int id) {
+
+    }
+
     private void retrieveBoard() {
         //TODO: FIX THIS
         /*final BluetoothManager btManager=

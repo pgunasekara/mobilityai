@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import com.ai.mobility.mobilityai.MetaMotionDeviceAdapter.OnItemClickListener;
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
@@ -105,12 +106,25 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         m_bleList = (RecyclerView) findViewById(R.id.bleList);
         m_bleList.setLayoutManager(new LinearLayoutManager(this));
         m_deviceList = new ArrayList<>();
-        m_adapter = new MetaMotionDeviceAdapter(this, m_deviceList);
+        m_adapter = new MetaMotionDeviceAdapter(this,
+                m_deviceList,
+                new MetaMotionDeviceAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(MetaMotionDevice device) {
+                        //Open a new intent
+                        Intent intent = new Intent(getBaseContext(), DeviceInfoActivity.class);
+                        intent.putExtra("EXTRA_MAC_ADDR", device.getMacAddr());
+                        intent.putExtra("EXTRA_RSSI", device.getRssi());
+                        intent.putExtra("EXTRA_USER", device.getAssignedUser());
+                        intent.putExtra("EXTRA_NAME", device.getName());
+                        intent.putExtra("EXTRA_LAST_SYNC", device.getLastSync());
+                        startActivity(intent);
+
+                    }
+                });
         m_bleList.setAdapter(m_adapter);
 
         m_handler = new Handler();
-
-        createListData();
 
         //Enabling BLE
         //Get the Bluetooth adapter
@@ -135,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         if(m_isScanReady)   startBleScan();
 
-        //scanLeDevice(true);
+
 
         // Bind the service when the activity is created
         getApplicationContext().bindService(new Intent(this, BtleService.class),
@@ -246,7 +260,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         m_leScanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
-                Log.i(TAG, "Scan Result: ");
                 if(result.getScanRecord() != null && result.getScanRecord().getServiceUuids() != null) {
                     boolean valid = true;
                     for(ParcelUuid it : result.getScanRecord().getServiceUuids()) {
@@ -260,7 +273,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                             @Override
                             public void run() {
                                 Log.i(TAG, "Updating with: "+result.getDevice().getAddress());
-                                m_adapter.update(new MetaMotionDevice("MetaMotion A", "John Smith", result.getDevice().getAddress(), 50, "Jan 5, 2019", result.getRssi()));
+                                m_adapter.update(new MetaMotionDevice(
+                                        "MetaMotion A",
+                                        "John Smith",
+                                        result.getDevice().getAddress(),
+                                        50,
+                                        "Jan 5, 2019",
+                                        result.getRssi()));
                             }
                         });
                     }
