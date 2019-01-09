@@ -1,6 +1,9 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View, FlatList} from 'react-native';
 
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 import PatientListItem from './PatientListItem';
 
 export default class PatientList extends React.Component {
@@ -10,15 +13,15 @@ export default class PatientList extends React.Component {
         var patients = [
             {
                 key: "1",
-                picture: "https://previews.123rf.com/images/starush/starush1110/starush111000003/10793777-senior-funny-bald-man-in-yellow-t-shirt-is-shows-gestures-and-grimaces.jpg",
-                name: "Joe",
-                bandId: ""
+                firstName: "Joe",
+                lastName: "Johnson",
+                bandId: "",
             },
             {
                 key: "2",
-                picture: "https://awomansview.typepad.com/.a/6a00e5537b38b6883301b7c6f4ac35970b-600wi",
-                name: "Ruth",
-                bandId: ""
+                firstName: "Ruth",
+                lastName: "Reynolds",
+                bandId: "",
             }
         ]
         return (
@@ -27,13 +30,31 @@ export default class PatientList extends React.Component {
                     data = {patients}
                     renderItem = {({item, index}) => (
                         <PatientListItem
+                            navigation = {this.props.navigation}
                             picture = {item.picture}
-                            name = {item.name}
-                            first = {index == 0}
+                            firstName = {item.firstName}
+                            lastName = {item.lastName}
+                            firstRow = {index == 0}
                         />
                     )}
                 />
+                <View style={{flex:1, backgroundColor: '#f3f3f3'}}>
+                    {/* Rest of the app comes ABOVE the action button component !*/}
+                    <ActionButton buttonColor="rgba(231,76,60,1)">
+                        <ActionButton.Item buttonColor='#9b59b6' title="New Task" onPress={() => console.log("notes tapped!")}>
+                            <Icon name="md-create" style={styles.actionButtonIcon} />
+                        </ActionButton.Item>
+                    </ActionButton>
+                </View>
             </View>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    actionButtonIcon: {
+      fontSize: 20,
+      height: 22,
+      color: 'white',
+    },
+  });
