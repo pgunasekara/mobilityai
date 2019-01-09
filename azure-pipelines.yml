@@ -22,5 +22,7 @@ jobs:
         script: |
           echo Machine Learning Tests
           cd machine_learning
-          pip install
+          pip install pipenv
+          pipenv shell
+          pipenv install
           pytest
