@@ -13,11 +13,11 @@ import Homescreen from './App/Screens/Homescreen';
 import PatientData from './App/Screens/PatientData';
 import PatientListItem from './App/Screens/PatientListItem';
 
-
 const AppNavigator = createStackNavigator({
   Home: {screen: Homescreen},
   PatientListItem: {screen: PatientListItem},
   PatientData: {screen: PatientData},
+
 });
 
 const AppContainer = createAppContainer(AppNavigator);
