@@ -15,5 +15,12 @@ jobs:
     pool:
       vmImage: 'vs2017-win2016'
     steps:
-    - script: |
-        echo Machine Learning Tests
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.6'
+        architecture: 'x64'
+        script: |
+          echo Machine Learning Tests
+          cd machine_learning
+          pip install
+          pytest
