@@ -30,13 +30,15 @@ public class MetaMotionService {
     private Accelerometer accelerometer;
     private GyroBmi160 gyroscope;
     private Logging logging;
+    private String macAddr;
 
     //Testing
     private final String MW_MAC_ADDRESS= "D1:87:11:D8:F3:C0";
     private static final String TAG = "MobilityAI";
 
-    public MetaMotionService() {
+    public MetaMotionService(BtleService.LocalBinder serviceBinder) {
         //Connect to boards
+        this.serviceBinder = serviceBinder;
     }
 
     //Connect
@@ -54,12 +56,15 @@ public class MetaMotionService {
      * @param remoteDevice BluetoothDevice to connect
      */
     public void connect(String macAddr, BluetoothDevice remoteDevice) {
+        board = serviceBinder.getMetaWearBoard(remoteDevice);
+        this.macAddr = macAddr;
+
         board.connectAsync().continueWithTask(task -> {
             if (task.isFaulted()) {
                 Log.i("MobilityAI", "Failed to configure app", task.getError());
             } else {
 
-                Log.i("MobilityAI", "App Configured, connected: " + MW_MAC_ADDRESS);
+                Log.i("MobilityAI", "App Configured, connected: " + this.macAddr);
 
                 //Retrieve Modules
                 led = board.getModule(Led.class);

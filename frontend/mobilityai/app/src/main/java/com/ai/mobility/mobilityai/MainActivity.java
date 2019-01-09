@@ -266,8 +266,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         valid &= m_filterServiceUuids.contains(it);
                     }
 
-                    Log.i(TAG, "Valid: "+valid);
-
                     if(valid) {
                         m_handler.post(new Runnable() {
                             @Override
