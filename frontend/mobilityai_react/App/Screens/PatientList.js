@@ -24,6 +24,7 @@ export default class PatientList extends React.Component {
                 bandId: "",
             }
         ]
+        const {navigate} = this.props.navigation;
         return (
             <View style={{alignSelf: "stretch"}}>
                 <FlatList
@@ -41,7 +42,8 @@ export default class PatientList extends React.Component {
                 <View style={{flex:1, backgroundColor: '#f3f3f3'}}>
                     {/* Rest of the app comes ABOVE the action button component !*/}
                     <ActionButton buttonColor="rgba(231,76,60,1)">
-                        <ActionButton.Item buttonColor='#9b59b6' title="New Task" onPress={() => console.log("notes tapped!")}>
+                        <ActionButton.Item buttonColor='#9b59b6' title="New Patient" 
+                            onPress={() => navigate('PatientForm', {}) }>
                             <Icon name="md-create" style={styles.actionButtonIcon} />
                         </ActionButton.Item>
                     </ActionButton>
