@@ -75,14 +75,12 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 25,
         flex: 0,
-        backgroundColor: 'red'
     },
     textContainer: {
         flex: 1,
         textAlign: "center",
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'green'
     },
     text: {
         // fontWeight: "bold",
