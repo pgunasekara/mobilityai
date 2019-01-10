@@ -7,27 +7,42 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import PatientListItem from './PatientListItem';
 
 export default class PatientList extends React.Component {
-    
+    constructor(props){
+        super(props);
+        this.state = {
+            patients : [
+                {
+                    key: "1",
+                    firstName: "Joe",
+                    lastName: "Johnson",
+                    bandId: "",
+                },
+                {
+                    key: "2",
+                    firstName: "Ruth",
+                    lastName: "Reynolds",
+                    bandId: "",
+                }
+            ]
+        }
+
+    }
+
+
+
     render() {
         //TODO: API request to fetch data
-        var patients = [
-            {
-                key: "1",
-                firstName: "Joe",
-                lastName: "Johnson",
-                bandId: "",
-            },
-            {
-                key: "2",
-                firstName: "Ruth",
-                lastName: "Reynolds",
-                bandId: "",
-            }
-        ]
+        /*
+        fetch(url)
+        .then(response => response.json())
+        .then(data => this.setState({patients: data}))
+        */
+
+        const {navigate} = this.props.navigation;
         return (
             <View style={{alignSelf: "stretch"}}>
                 <FlatList
-                    data = {patients}
+                    data = {this.state.patients}
                     renderItem = {({item, index}) => (
                         <PatientListItem
                             navigation = {this.props.navigation}
@@ -40,10 +55,10 @@ export default class PatientList extends React.Component {
                 />
                 <View style={{flex:1, backgroundColor: '#f3f3f3'}}>
                     {/* Rest of the app comes ABOVE the action button component !*/}
-                    <ActionButton buttonColor="rgba(231,76,60,1)">
-                        <ActionButton.Item buttonColor='#9b59b6' title="New Task" onPress={() => console.log("notes tapped!")}>
-                            <Icon name="md-create" style={styles.actionButtonIcon} />
-                        </ActionButton.Item>
+                    <ActionButton buttonColor="rgba(231,76,60,1)"
+                        onPress={() => navigate('PatientForm', {}) }
+                        degrees={0}>
+                        <Icon name="md-create" style={styles.actionButtonIcon} />
                     </ActionButton>
                 </View>
             </View>
