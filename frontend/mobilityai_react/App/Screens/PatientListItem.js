@@ -16,13 +16,10 @@ export default class PatientListItem extends Component {
         };
     }
 
-    
-
     render() {
         const {navigate} = this.props.navigation;
         return (
-            <View style={this.state.firstRow ?  styles.firstRow : styles.row}>
-                <TouchableHighlight
+            <TouchableHighlight
                     onPress={() => {navigate('PatientData',
                             {
                                 id: "someID",
@@ -30,8 +27,10 @@ export default class PatientListItem extends Component {
                                 lastName: this.state.lastName
                             }
                     );}}
+                    underlayColor="rgba(0, 0, 0, 0.1)"
                 >
-                    <View style={this.state.rowContent}>
+                <View style={this.state.firstRow ?  styles.firstRow : styles.row}>
+                    <View style={styles.rowContent}>
                         <Avatar
                             size="medium"
                             rounded
@@ -43,8 +42,8 @@ export default class PatientListItem extends Component {
                             <Text style={styles.text}>{this.state.firstName + " " + this.state.lastName}</Text>
                         </View>
                     </View>
-                </TouchableHighlight>
-            </View>
+                </View>
+            </TouchableHighlight>
         );
     }
 }
@@ -74,7 +73,6 @@ const styles = StyleSheet.create({
         width: 50, 
         height: 50,
         borderRadius: 25,
-        flex: 0,
     },
     textContainer: {
         flex: 1,
