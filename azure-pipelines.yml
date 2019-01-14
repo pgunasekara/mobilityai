@@ -16,7 +16,7 @@ jobs:
     - script: |
         cd frontend/mobilityai_react
         npm install
-        npm test
+        npm run test-ci
   - job: Machine_Learning
     pool:
       vmImage: 'vs2017-win2016'
