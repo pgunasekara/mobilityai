@@ -1,0 +1,1 @@
+This directory contains the files necessary to build our capstone presentation poster.

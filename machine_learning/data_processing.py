@@ -1,3 +1,7 @@
+"""
+These functions are copied from the Google Colab notebook.
+We need to turn this into a library that can also be imported by the Colab notebook.
+"""
 import sys
 import pandas as pd
 from sklearn import preprocessing
