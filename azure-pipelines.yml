@@ -9,8 +9,15 @@ jobs:
     pool:
       vmImage: 'vs2017-win2016'
     steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '9.7.1'
+      displayName: 'Install Node'
     - script: |
         echo Frontend Tests
+        cd frontend/mobilityai_react
+        npm install
+        npm run test
   - job: Machine_Learning
     pool:
       vmImage: 'vs2017-win2016'
