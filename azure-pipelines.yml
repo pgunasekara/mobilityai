@@ -13,12 +13,10 @@ jobs:
       inputs:
         versionSpec: '9.7.1'
       displayName: 'Install Node'
-    - script: cd frontend/mobilityai_react
-      displayName: 'Enter frontend folder'
-    - script: npm install
-      displayName: 'Install dependencies'
-    - script: npm run test
-      displayName: 'Run unit tests'
+    - script: |
+        cd frontend/mobilityai_react
+        npm install
+        npm test
   - job: Machine_Learning
     pool:
       vmImage: 'vs2017-win2016'
