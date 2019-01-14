@@ -14,10 +14,12 @@ jobs:
         versionSpec: '9.7.1'
       displayName: 'Install Node'
     - script: |
+        echo 'Frontend Tests'
         cd frontend/mobilityai_react
+        dir
         npm install
-        npm install --only=dev
-        npx jest
+        npm run test -- --verbose
+        echo 'Done tests :)'
   - job: Machine_Learning
     pool:
       vmImage: 'vs2017-win2016'
