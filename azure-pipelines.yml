@@ -15,11 +15,11 @@ jobs:
       displayName: 'Install Node'
     - script: |
         echo 'Frontend Tests'
-        cd frontend/mobilityai_react
         dir
         npm install
-        npm run test -- --verbose
+        npm run test -- --verbose --notify
         echo 'Done tests :)'
+      workingDirectory: frontend/mobilityai_react
   - job: Machine_Learning
     pool:
       vmImage: 'vs2017-win2016'
