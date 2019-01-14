@@ -9,7 +9,8 @@ export default class PatientForm extends React.Component {
             lastName: "",
             baselineWalk: 4,
             baselineSit : 12,
-            baselineLay : 8
+            baselineLay : 8,
+            baselineStand: 4
         }
     }
 
@@ -39,6 +40,13 @@ export default class PatientForm extends React.Component {
                         <Field onChangeText={(lastName) => this.setState({lastName})}
                             placeholder="Enter Last Name..."
                             value={this.state.lastName}/>
+                        <Text style={styles.sliderText}>Daily time spent standing: {this.state.baselineStand} hours</Text>
+                        <SliderField onChange={(baselineStand) => this.setState({baselineStand})}
+                            onSlidingComplete={(baselineStand) => this.setState({baselineStand})}
+                            maximumValue={24} 
+                            step={0.25}
+                            value={this.state.baselineStand}
+                        />
                         <Text style={styles.sliderText}>Daily time spent walking: {this.state.baselineWalk} hours</Text>
                         <SliderField onChange={(baselineWalk) => this.setState({baselineWalk})}
                             onSlidingComplete={(baselineWalk) => this.setState({baselineWalk})}
@@ -53,7 +61,7 @@ export default class PatientForm extends React.Component {
                             step={0.25}
                             value={this.state.baselineSit}
                         />
-                        <Text style={styles.sliderText}>Daily time spent laying down: {this.state.baselineLay} hours</Text>
+                        <Text style={styles.sliderText}>Daily time spent lying down: {this.state.baselineLay} hours</Text>
                         <SliderField onChange={(baselineLay) => this.setState({baselineLay})}
                             onSlidingComplete={(baselineLay) => this.setState({baselineLay})}
                             maximumValue={24} 
