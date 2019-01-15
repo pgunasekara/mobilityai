@@ -1,0 +1,268 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<View
+  style={
+    Object {
+      "alignItems": "center",
+      "flex": 1,
+      "flexDirection": "row",
+    }
+  }
+>
+  <RCTScrollView
+    contentContainerStyle={
+      Object {
+        "flex": 1,
+        "justifyContent": "space-evenly",
+      }
+    }
+  >
+    <View>
+      <Text
+        style={
+          Object {
+            "color": "#555333",
+            "fontSize": 35,
+            "fontWeight": "bold",
+            "marginTop": 20,
+            "textAlign": "center",
+          }
+        }
+      >
+        Create New Patient
+      </Text>
+      <View
+        style={
+          Object {
+            "paddingBottom": 100,
+          }
+        }
+      >
+        <TextInput
+          allowFontScaling={true}
+          onChangeText={[Function]}
+          placeholder="Enter First Name..."
+          style={
+            Object {
+              "borderColor": "gray",
+              "borderRadius": 5,
+              "borderWidth": 1,
+              "height": 50,
+              "margin": 15,
+              "paddingLeft": 6,
+            }
+          }
+          underlineColorAndroid="transparent"
+          value=""
+        />
+        <TextInput
+          allowFontScaling={true}
+          onChangeText={[Function]}
+          placeholder="Enter Last Name..."
+          style={
+            Object {
+              "borderColor": "gray",
+              "borderRadius": 5,
+              "borderWidth": 1,
+              "height": 50,
+              "margin": 15,
+              "paddingLeft": 6,
+            }
+          }
+          underlineColorAndroid="transparent"
+          value=""
+        />
+        <Text
+          style={
+            Object {
+              "color": "#555333",
+              "fontSize": 15,
+              "fontWeight": "500",
+              "paddingLeft": 20,
+            }
+          }
+        >
+          Daily time spent standing: 
+          4
+           hours
+        </Text>
+        <RCTSlider
+          disabled={false}
+          enabled={true}
+          maximumValue={24}
+          minimumValue={0}
+          onAfterChange={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onSlidingComplete={[Function]}
+          onStartShouldSetResponder={[Function]}
+          step={0.25}
+          style={
+            Array [
+              Object {
+                "height": 40,
+              },
+              Object {
+                "alignSelf": "center",
+                "width": 350,
+              },
+            ]
+          }
+          value={4}
+        />
+        <Text
+          style={
+            Object {
+              "color": "#555333",
+              "fontSize": 15,
+              "fontWeight": "500",
+              "paddingLeft": 20,
+            }
+          }
+        >
+          Daily time spent walking: 
+          4
+           hours
+        </Text>
+        <RCTSlider
+          disabled={false}
+          enabled={true}
+          maximumValue={24}
+          minimumValue={0}
+          onAfterChange={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onSlidingComplete={[Function]}
+          onStartShouldSetResponder={[Function]}
+          step={0.25}
+          style={
+            Array [
+              Object {
+                "height": 40,
+              },
+              Object {
+                "alignSelf": "center",
+                "width": 350,
+              },
+            ]
+          }
+          value={4}
+        />
+        <Text
+          style={
+            Object {
+              "color": "#555333",
+              "fontSize": 15,
+              "fontWeight": "500",
+              "paddingLeft": 20,
+            }
+          }
+        >
+          Daily time spent sitting: 
+          12
+           hours
+        </Text>
+        <RCTSlider
+          disabled={false}
+          enabled={true}
+          maximumValue={24}
+          minimumValue={0}
+          onAfterChange={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onSlidingComplete={[Function]}
+          onStartShouldSetResponder={[Function]}
+          step={0.25}
+          style={
+            Array [
+              Object {
+                "height": 40,
+              },
+              Object {
+                "alignSelf": "center",
+                "width": 350,
+              },
+            ]
+          }
+          value={12}
+        />
+        <Text
+          style={
+            Object {
+              "color": "#555333",
+              "fontSize": 15,
+              "fontWeight": "500",
+              "paddingLeft": 20,
+            }
+          }
+        >
+          Daily time spent lying down: 
+          8
+           hours
+        </Text>
+        <RCTSlider
+          disabled={false}
+          enabled={true}
+          maximumValue={24}
+          minimumValue={0}
+          onAfterChange={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onSlidingComplete={[Function]}
+          onStartShouldSetResponder={[Function]}
+          step={0.25}
+          style={
+            Array [
+              Object {
+                "height": 40,
+              },
+              Object {
+                "alignSelf": "center",
+                "width": 350,
+              },
+            ]
+          }
+          value={8}
+        />
+        <View
+          accessibilityRole="button"
+          accessibilityStates={Array []}
+          accessible={true}
+          isTVSelectable={true}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            Object {
+              "opacity": 1,
+            }
+          }
+        >
+          <View
+            style={
+              Array [
+                Object {},
+              ]
+            }
+          >
+            <Text
+              style={
+                Array [
+                  Object {
+                    "color": "#007AFF",
+                    "fontSize": 18,
+                    "padding": 8,
+                    "textAlign": "center",
+                  },
+                ]
+              }
+            >
+              Submit
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  </RCTScrollView>
+</View>
+`;

@@ -46,7 +46,6 @@ export default class PatientList extends React.Component {
                     renderItem = {({item, index}) => (
                         <PatientListItem
                             navigation = {this.props.navigation}
-                            picture = {item.picture}
                             firstName = {item.firstName}
                             lastName = {item.lastName}
                             firstRow = {index == 0}
