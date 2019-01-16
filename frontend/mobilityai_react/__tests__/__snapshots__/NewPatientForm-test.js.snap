@@ -13,8 +13,8 @@ exports[`renders correctly 1`] = `
   <RCTScrollView
     contentContainerStyle={
       Object {
-        "flex": 1,
-        "justifyContent": "space-evenly",
+        "flexGrow": 1,
+        "justifyContent": "space-between",
       }
     }
   >
@@ -221,6 +221,1337 @@ exports[`renders correctly 1`] = `
           }
           value={8}
         />
+        <View
+          style={
+            Object {
+              "paddingTop": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "color": "#555333",
+                "fontSize": 15,
+                "fontWeight": "500",
+                "paddingLeft": 20,
+              }
+            }
+          >
+            Type of condition that brought them to therapy
+          </Text>
+          <View>
+            <RCTPicker
+              items={
+                Array [
+                  Object {
+                    "label": "Orthopedic",
+                    "textColor": undefined,
+                    "value": "Orthopedic",
+                  },
+                  Object {
+                    "label": "Neurologic",
+                    "textColor": undefined,
+                    "value": "Neurologic",
+                  },
+                  Object {
+                    "label": "Cardiopulmonary",
+                    "textColor": undefined,
+                    "value": "Cardiopulmonary",
+                  },
+                  Object {
+                    "label": "Major Medical Condition",
+                    "textColor": undefined,
+                    "value": "Major Medical Condition",
+                  },
+                  Object {
+                    "label": "Other",
+                    "textColor": undefined,
+                    "value": "Other",
+                  },
+                ]
+              }
+              onChange={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              selectedIndex={0}
+              style={
+                Array [
+                  Object {
+                    "height": 216,
+                  },
+                  undefined,
+                ]
+              }
+            />
+          </View>
+        </View>
+        <View
+          style={
+            Object {
+              "paddingTop": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "color": "#555333",
+                "fontSize": 15,
+                "fontWeight": "500",
+                "paddingLeft": 20,
+              }
+            }
+          >
+            Body parts involved
+          </Text>
+          <View>
+            <View
+              accessible={true}
+              isTVSelectable={true}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                Object {
+                  "backgroundColor": "#fafafa",
+                  "borderColor": "#ededed",
+                  "borderRadius": 3,
+                  "borderWidth": 1,
+                  "margin": 5,
+                  "marginLeft": 10,
+                  "marginRight": 10,
+                  "opacity": 1,
+                  "padding": 10,
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <Text
+                  allowFontScaling={false}
+                  style={
+                    Array [
+                      Object {
+                        "color": "#bfbfbf",
+                        "fontSize": 24,
+                      },
+                      Object {
+                        "minWidth": 24,
+                      },
+                      Object {
+                        "fontFamily": "FontAwesome",
+                        "fontStyle": "normal",
+                        "fontWeight": "normal",
+                      },
+                      Object {},
+                    ]
+                  }
+                >
+                  
+                </Text>
+                <Text
+                  style={
+                    Object {
+                      "color": "#43484d",
+                      "fontWeight": "bold",
+                      "marginLeft": 10,
+                      "marginRight": 10,
+                    }
+                  }
+                  testID="checkboxTitle"
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                >
+                  Neck
+                </Text>
+              </View>
+            </View>
+            <View
+              accessible={true}
+              isTVSelectable={true}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                Object {
+                  "backgroundColor": "#fafafa",
+                  "borderColor": "#ededed",
+                  "borderRadius": 3,
+                  "borderWidth": 1,
+                  "margin": 5,
+                  "marginLeft": 10,
+                  "marginRight": 10,
+                  "opacity": 1,
+                  "padding": 10,
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <Text
+                  allowFontScaling={false}
+                  style={
+                    Array [
+                      Object {
+                        "color": "#bfbfbf",
+                        "fontSize": 24,
+                      },
+                      Object {
+                        "minWidth": 24,
+                      },
+                      Object {
+                        "fontFamily": "FontAwesome",
+                        "fontStyle": "normal",
+                        "fontWeight": "normal",
+                      },
+                      Object {},
+                    ]
+                  }
+                >
+                  
+                </Text>
+                <Text
+                  style={
+                    Object {
+                      "color": "#43484d",
+                      "fontWeight": "bold",
+                      "marginLeft": 10,
+                      "marginRight": 10,
+                    }
+                  }
+                  testID="checkboxTitle"
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                >
+                  Middle back/ribs
+                </Text>
+              </View>
+            </View>
+            <View
+              accessible={true}
+              isTVSelectable={true}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                Object {
+                  "backgroundColor": "#fafafa",
+                  "borderColor": "#ededed",
+                  "borderRadius": 3,
+                  "borderWidth": 1,
+                  "margin": 5,
+                  "marginLeft": 10,
+                  "marginRight": 10,
+                  "opacity": 1,
+                  "padding": 10,
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <Text
+                  allowFontScaling={false}
+                  style={
+                    Array [
+                      Object {
+                        "color": "#bfbfbf",
+                        "fontSize": 24,
+                      },
+                      Object {
+                        "minWidth": 24,
+                      },
+                      Object {
+                        "fontFamily": "FontAwesome",
+                        "fontStyle": "normal",
+                        "fontWeight": "normal",
+                      },
+                      Object {},
+                    ]
+                  }
+                >
+                  
+                </Text>
+                <Text
+                  style={
+                    Object {
+                      "color": "#43484d",
+                      "fontWeight": "bold",
+                      "marginLeft": 10,
+                      "marginRight": 10,
+                    }
+                  }
+                  testID="checkboxTitle"
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                >
+                  Lower back
+                </Text>
+              </View>
+            </View>
+            <View
+              accessible={true}
+              isTVSelectable={true}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                Object {
+                  "backgroundColor": "#fafafa",
+                  "borderColor": "#ededed",
+                  "borderRadius": 3,
+                  "borderWidth": 1,
+                  "margin": 5,
+                  "marginLeft": 10,
+                  "marginRight": 10,
+                  "opacity": 1,
+                  "padding": 10,
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <Text
+                  allowFontScaling={false}
+                  style={
+                    Array [
+                      Object {
+                        "color": "#bfbfbf",
+                        "fontSize": 24,
+                      },
+                      Object {
+                        "minWidth": 24,
+                      },
+                      Object {
+                        "fontFamily": "FontAwesome",
+                        "fontStyle": "normal",
+                        "fontWeight": "normal",
+                      },
+                      Object {},
+                    ]
+                  }
+                >
+                  
+                </Text>
+                <Text
+                  style={
+                    Object {
+                      "color": "#43484d",
+                      "fontWeight": "bold",
+                      "marginLeft": 10,
+                      "marginRight": 10,
+                    }
+                  }
+                  testID="checkboxTitle"
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                >
+                  Shoulder, arm or elbow
+                </Text>
+              </View>
+            </View>
+            <View
+              accessible={true}
+              isTVSelectable={true}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                Object {
+                  "backgroundColor": "#fafafa",
+                  "borderColor": "#ededed",
+                  "borderRadius": 3,
+                  "borderWidth": 1,
+                  "margin": 5,
+                  "marginLeft": 10,
+                  "marginRight": 10,
+                  "opacity": 1,
+                  "padding": 10,
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <Text
+                  allowFontScaling={false}
+                  style={
+                    Array [
+                      Object {
+                        "color": "#bfbfbf",
+                        "fontSize": 24,
+                      },
+                      Object {
+                        "minWidth": 24,
+                      },
+                      Object {
+                        "fontFamily": "FontAwesome",
+                        "fontStyle": "normal",
+                        "fontWeight": "normal",
+                      },
+                      Object {},
+                    ]
+                  }
+                >
+                  
+                </Text>
+                <Text
+                  style={
+                    Object {
+                      "color": "#43484d",
+                      "fontWeight": "bold",
+                      "marginLeft": 10,
+                      "marginRight": 10,
+                    }
+                  }
+                  testID="checkboxTitle"
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                >
+                  Hand or wrist
+                </Text>
+              </View>
+            </View>
+            <View
+              accessible={true}
+              isTVSelectable={true}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                Object {
+                  "backgroundColor": "#fafafa",
+                  "borderColor": "#ededed",
+                  "borderRadius": 3,
+                  "borderWidth": 1,
+                  "margin": 5,
+                  "marginLeft": 10,
+                  "marginRight": 10,
+                  "opacity": 1,
+                  "padding": 10,
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <Text
+                  allowFontScaling={false}
+                  style={
+                    Array [
+                      Object {
+                        "color": "#bfbfbf",
+                        "fontSize": 24,
+                      },
+                      Object {
+                        "minWidth": 24,
+                      },
+                      Object {
+                        "fontFamily": "FontAwesome",
+                        "fontStyle": "normal",
+                        "fontWeight": "normal",
+                      },
+                      Object {},
+                    ]
+                  }
+                >
+                  
+                </Text>
+                <Text
+                  style={
+                    Object {
+                      "color": "#43484d",
+                      "fontWeight": "bold",
+                      "marginLeft": 10,
+                      "marginRight": 10,
+                    }
+                  }
+                  testID="checkboxTitle"
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                >
+                  Pelvis, hip, leg or knee
+                </Text>
+              </View>
+            </View>
+            <View
+              accessible={true}
+              isTVSelectable={true}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                Object {
+                  "backgroundColor": "#fafafa",
+                  "borderColor": "#ededed",
+                  "borderRadius": 3,
+                  "borderWidth": 1,
+                  "margin": 5,
+                  "marginLeft": 10,
+                  "marginRight": 10,
+                  "opacity": 1,
+                  "padding": 10,
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <Text
+                  allowFontScaling={false}
+                  style={
+                    Array [
+                      Object {
+                        "color": "#bfbfbf",
+                        "fontSize": 24,
+                      },
+                      Object {
+                        "minWidth": 24,
+                      },
+                      Object {
+                        "fontFamily": "FontAwesome",
+                        "fontStyle": "normal",
+                        "fontWeight": "normal",
+                      },
+                      Object {},
+                    ]
+                  }
+                >
+                  
+                </Text>
+                <Text
+                  style={
+                    Object {
+                      "color": "#43484d",
+                      "fontWeight": "bold",
+                      "marginLeft": 10,
+                      "marginRight": 10,
+                    }
+                  }
+                  testID="checkboxTitle"
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                >
+                  Foot or ankle
+                </Text>
+              </View>
+            </View>
+            <View
+              accessible={true}
+              isTVSelectable={true}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                Object {
+                  "backgroundColor": "#fafafa",
+                  "borderColor": "#ededed",
+                  "borderRadius": 3,
+                  "borderWidth": 1,
+                  "margin": 5,
+                  "marginLeft": 10,
+                  "marginRight": 10,
+                  "opacity": 1,
+                  "padding": 10,
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <Text
+                  allowFontScaling={false}
+                  style={
+                    Array [
+                      Object {
+                        "color": "#bfbfbf",
+                        "fontSize": 24,
+                      },
+                      Object {
+                        "minWidth": 24,
+                      },
+                      Object {
+                        "fontFamily": "FontAwesome",
+                        "fontStyle": "normal",
+                        "fontWeight": "normal",
+                      },
+                      Object {},
+                    ]
+                  }
+                >
+                  
+                </Text>
+                <Text
+                  style={
+                    Object {
+                      "color": "#43484d",
+                      "fontWeight": "bold",
+                      "marginLeft": 10,
+                      "marginRight": 10,
+                    }
+                  }
+                  testID="checkboxTitle"
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                >
+                  Other
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View
+          style={
+            Object {
+              "paddingTop": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "color": "#555333",
+                "fontSize": 15,
+                "fontWeight": "500",
+                "paddingLeft": 20,
+              }
+            }
+          >
+            Time since onset of the condition that brought them to therapy (in days)
+          </Text>
+          <TextInput
+            allowFontScaling={true}
+            keyboardType="numeric"
+            onChangeText={[Function]}
+            style={
+              Object {
+                "borderColor": "gray",
+                "borderWidth": 1,
+                "height": 40,
+              }
+            }
+            underlineColorAndroid="transparent"
+            value=""
+          />
+        </View>
+        <View
+          style={
+            Object {
+              "paddingTop": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "color": "#555333",
+                "fontSize": 15,
+                "fontWeight": "500",
+                "paddingLeft": 20,
+              }
+            }
+          >
+            Previous surgery for the primary condiition that brought them to therapy
+          </Text>
+          <View
+            style={
+              Array [
+                undefined,
+                Object {
+                  "justifyContent": "space-evenly",
+                },
+                Object {
+                  "flexDirection": "row",
+                },
+              ]
+            }
+          >
+            <View>
+              <View
+                style={
+                  Array [
+                    Object {
+                      "flexDirection": "row",
+                      "marginBottom": 5,
+                    },
+                    undefined,
+                    false,
+                  ]
+                }
+              >
+                <View>
+                  <View
+                    accessibilityLabel="radioButtonInput0"
+                    accessible={true}
+                    isTVSelectable={true}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
+                    style={
+                      Object {
+                        "alignItems": "center",
+                        "alignSelf": "center",
+                        "borderColor": "#2196f3",
+                        "borderRadius": 15,
+                        "borderWidth": 3,
+                        "height": 30,
+                        "justifyContent": "center",
+                        "opacity": 1,
+                        "width": 30,
+                      }
+                    }
+                    testID="radioButtonInputradioButton|0"
+                  >
+                    <View
+                      style={
+                        Array [
+                          Object {
+                            "borderRadius": 10,
+                          },
+                          Object {
+                            "backgroundColor": "#2196f3",
+                            "height": 20,
+                            "width": 20,
+                          },
+                          Object {
+                            "borderRadius": 10,
+                            "height": 20,
+                            "width": 20,
+                          },
+                          Object {
+                            "backgroundColor": "#2196f3",
+                          },
+                        ]
+                      }
+                    />
+                  </View>
+                </View>
+                <View
+                  accessibilityLabel="radioButtonLabel0"
+                  accessible={true}
+                  onResponderGrant={[Function]}
+                  onResponderMove={[Function]}
+                  onResponderRelease={[Function]}
+                  onResponderTerminate={[Function]}
+                  onResponderTerminationRequest={[Function]}
+                  onStartShouldSetResponder={[Function]}
+                  style={
+                    Array [
+                      undefined,
+                      Object {
+                        "alignItems": "center",
+                        "alignSelf": "center",
+                        "flexDirection": "row",
+                      },
+                    ]
+                  }
+                  testID="radioButtonLabelradioButton|0"
+                >
+                  <Text
+                    style={
+                      Array [
+                        Object {
+                          "lineHeight": 20,
+                          "paddingLeft": 10,
+                        },
+                        false,
+                        Object {
+                          "color": "#000",
+                        },
+                        undefined,
+                      ]
+                    }
+                  >
+                    Yes
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View>
+              <View
+                style={
+                  Array [
+                    Object {
+                      "flexDirection": "row",
+                      "marginBottom": 5,
+                    },
+                    undefined,
+                    false,
+                  ]
+                }
+              >
+                <View>
+                  <View
+                    accessibilityLabel="radioButtonInput1"
+                    accessible={true}
+                    isTVSelectable={true}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
+                    style={
+                      Object {
+                        "alignItems": "center",
+                        "alignSelf": "center",
+                        "borderColor": "#2196f3",
+                        "borderRadius": 15,
+                        "borderWidth": 3,
+                        "height": 30,
+                        "justifyContent": "center",
+                        "opacity": 1,
+                        "width": 30,
+                      }
+                    }
+                    testID="radioButtonInputradioButton|1"
+                  >
+                    <View
+                      style={
+                        Array [
+                          Object {
+                            "borderRadius": 10,
+                          },
+                          false,
+                          false,
+                          false,
+                        ]
+                      }
+                    />
+                  </View>
+                </View>
+                <View
+                  accessibilityLabel="radioButtonLabel1"
+                  accessible={true}
+                  onResponderGrant={[Function]}
+                  onResponderMove={[Function]}
+                  onResponderRelease={[Function]}
+                  onResponderTerminate={[Function]}
+                  onResponderTerminationRequest={[Function]}
+                  onStartShouldSetResponder={[Function]}
+                  style={
+                    Array [
+                      undefined,
+                      Object {
+                        "alignItems": "center",
+                        "alignSelf": "center",
+                        "flexDirection": "row",
+                      },
+                    ]
+                  }
+                  testID="radioButtonLabelradioButton|1"
+                >
+                  <Text
+                    style={
+                      Array [
+                        Object {
+                          "lineHeight": 20,
+                          "paddingLeft": 10,
+                        },
+                        false,
+                        Object {
+                          "color": "#000",
+                        },
+                        undefined,
+                      ]
+                    }
+                  >
+                    No
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View
+          style={
+            Object {
+              "paddingTop": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "color": "#555333",
+                "fontSize": 15,
+                "fontWeight": "500",
+                "paddingLeft": 20,
+              }
+            }
+          >
+            Severity of the primary condition that brought them to therapy
+          </Text>
+          <View>
+            <RCTPicker
+              items={
+                Array [
+                  Object {
+                    "label": "Not severe",
+                    "textColor": undefined,
+                    "value": "Not severe",
+                  },
+                  Object {
+                    "label": "Mildly severe",
+                    "textColor": undefined,
+                    "value": "Mildly severe",
+                  },
+                  Object {
+                    "label": "Moderately severe",
+                    "textColor": undefined,
+                    "value": "Moderately severe",
+                  },
+                  Object {
+                    "label": "Extremely severe",
+                    "textColor": undefined,
+                    "value": "Extremely severe",
+                  },
+                ]
+              }
+              onChange={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              selectedIndex={0}
+              style={
+                Array [
+                  Object {
+                    "height": 216,
+                  },
+                  undefined,
+                ]
+              }
+            />
+          </View>
+        </View>
+        <View
+          style={
+            Object {
+              "paddingTop": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "color": "#555333",
+                "fontSize": 15,
+                "fontWeight": "500",
+                "paddingLeft": 20,
+              }
+            }
+          >
+            Living situation
+          </Text>
+          <View>
+            <RCTPicker
+              items={
+                Array [
+                  Object {
+                    "label": "Living in the community",
+                    "textColor": undefined,
+                    "value": "community",
+                  },
+                  Object {
+                    "label": "Hospital/Nursing Home/Assisted Living Facility",
+                    "textColor": undefined,
+                    "value": "facility",
+                  },
+                ]
+              }
+              onChange={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              selectedIndex={0}
+              style={
+                Array [
+                  Object {
+                    "height": 216,
+                  },
+                  undefined,
+                ]
+              }
+            />
+          </View>
+        </View>
+        <View
+          style={
+            Object {
+              "paddingTop": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "color": "#555333",
+                "fontSize": 15,
+                "fontWeight": "500",
+                "paddingLeft": 20,
+              }
+            }
+          >
+            Which sentence is the best to describe you walking situation?
+          </Text>
+          <View>
+            <RCTPicker
+              items={
+                Array [
+                  Object {
+                    "label": "Never use a walking device or wheelchair",
+                    "textColor": undefined,
+                    "value": "Never",
+                  },
+                  Object {
+                    "label": "Use a cane, walker or other walking device at least some of the time, but never use a wheelchair",
+                    "textColor": undefined,
+                    "value": "cane",
+                  },
+                  Object {
+                    "label": "Use a walking device at least some of the time and a wheelchair at least some of the time",
+                    "textColor": undefined,
+                    "value": "walkingDevice",
+                  },
+                  Object {
+                    "label": "Use a wheelchair, never walk",
+                    "textColor": undefined,
+                    "value": "wheelchair",
+                  },
+                ]
+              }
+              onChange={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              selectedIndex={0}
+              style={
+                Array [
+                  Object {
+                    "height": 216,
+                  },
+                  undefined,
+                ]
+              }
+            />
+          </View>
+        </View>
+        <View
+          style={
+            Object {
+              "paddingTop": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "color": "#555333",
+                "fontSize": 15,
+                "fontWeight": "500",
+                "paddingLeft": 20,
+              }
+            }
+          >
+            How much DIFFICULTY do you currently have bending over from a standing position to pick up a piece of clothing from the floor without holding onto anything?
+          </Text>
+          <View>
+            <RCTPicker
+              items={
+                Array [
+                  Object {
+                    "label": "Unable",
+                    "textColor": undefined,
+                    "value": "Unable",
+                  },
+                  Object {
+                    "label": "A Lot",
+                    "textColor": undefined,
+                    "value": "A Lot",
+                  },
+                  Object {
+                    "label": "A Little",
+                    "textColor": undefined,
+                    "value": "A Little",
+                  },
+                  Object {
+                    "label": "None",
+                    "textColor": undefined,
+                    "value": "None",
+                  },
+                ]
+              }
+              onChange={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              selectedIndex={0}
+              style={
+                Array [
+                  Object {
+                    "height": 216,
+                  },
+                  undefined,
+                ]
+              }
+            />
+          </View>
+        </View>
+        <View
+          style={
+            Object {
+              "paddingTop": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              Object {
+                "color": "#555333",
+                "fontSize": 15,
+                "fontWeight": "500",
+                "paddingLeft": 20,
+              }
+            }
+          >
+            How much DIFFICULTY do you currently have chopping or slicing vegetables (eg: onions or peppers)?
+          </Text>
+          <View>
+            <RCTPicker
+              items={
+                Array [
+                  Object {
+                    "label": "Unable",
+                    "textColor": undefined,
+                    "value": "Unable",
+                  },
+                  Object {
+                    "label": "A Lot",
+                    "textColor": undefined,
+                    "value": "A Lot",
+                  },
+                  Object {
+                    "label": "A Little",
+                    "textColor": undefined,
+                    "value": "A Little",
+                  },
+                  Object {
+                    "label": "None",
+                    "textColor": undefined,
+                    "value": "None",
+                  },
+                ]
+              }
+              onChange={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              selectedIndex={0}
+              style={
+                Array [
+                  Object {
+                    "height": 216,
+                  },
+                  undefined,
+                ]
+              }
+            />
+          </View>
+        </View>
         <View
           accessibilityRole="button"
           accessibilityStates={Array []}
