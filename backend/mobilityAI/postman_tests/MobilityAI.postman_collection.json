@@ -1,0 +1,53 @@
+{
+	"info": {
+		"_postman_id": "bf7db70e-6222-4397-b2d4-940eb6931583",
+		"name": "MobilityAI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:5000/api/SensorData/AddData",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "AccelerometerFile",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "GyroscopeFile",
+							"type": "file",
+							"src": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/SensorData/AddData",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"SensorData",
+						"AddData"
+					]
+				},
+				"description": "Test for endpoint for uploading CSVs"
+			},
+			"response": []
+		}
+	]
+}
