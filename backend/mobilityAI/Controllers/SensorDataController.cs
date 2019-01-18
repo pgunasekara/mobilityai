@@ -176,5 +176,54 @@ namespace mobilityAI.Controllers
             }
             return result;
         }
+        
+        /// <summary>
+        /// Updating the device information with the device ID and the User ID
+        /// </summary>
+        /// <param name="id">
+        /// The id value of the Device
+        /// </param>
+        /// <param name="name">
+        /// The string value of the name for the device
+        /// </param>
+        /// <param name="userid">
+        /// The id value of the user
+        /// </param>
+        /// <param name="lastsync">
+        /// The timestamp of when the device was last synced
+        /// </param>
+        [HttpGet("SetDeviceInfo", Name = "SetDeviceInfo")]
+        public IActionResult SetDeviceInfo(string id, string name, int userid, string lastsync) {
+            Device data = (from a in _context.Devices
+                       where (a.Id == id)
+                       select a).SingleOrDefault();
+
+            var date = DateTime.Parse(lastsync);
+
+            data.Id = id;
+            data.FriendlyName = name;
+            data.UserID = userid;
+            data.LastSync = date;
+            
+           _context.SaveChanges();
+           return Ok();
+        }
+
+        /// <summary>
+        /// Retrieving the device information (the name of the device, the user assigned to the device and when it was last synced)
+        /// Results returned in JSON file
+        /// </summary>
+        /// <param name="macAddress">
+        /// The MacAddress of the device to retrieve the information
+        [HttpGet("GetDeviceInfo", Name = "GetDeviceInfo")]
+        public JsonResult GetDeviceInfo(string macAddress) {
+            var data = from a in _context.Devices
+                       join b in _context.Users on a.UserID equals b.Id
+                       where (a.Id == macAddress)
+                       select new {a.FriendlyName, b.Name, a.LastSync};
+
+            return new JsonResult(data);
+            
+        }
     }
-}
+}   
