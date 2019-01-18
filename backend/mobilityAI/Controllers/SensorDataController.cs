@@ -162,6 +162,7 @@ namespace mobilityAI.Controllers
 
             return Ok();
         }
+        
         //Reading the file to be parsed, returns a list of lines
         private List<string> readData(IFormFile fileName)
         {

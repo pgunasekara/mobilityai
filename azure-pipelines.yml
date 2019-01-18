@@ -1,0 +1,35 @@
+jobs:
+  - job: Backend
+    pool:
+      vmImage: 'vs2017-win2016'
+    steps:
+    - task: DotNetCoreInstaller@0
+      inputs:
+        version: '2.1.402'
+    - script: dotnet restore
+      workingDirectory: backend/mobilityAI
+      displayName: 'Install Dependencies'
+    - script: dotnet build
+      workingDirectory: backend/mobilityAI
+      displayName: 'Build'
+  - job: Frontend
+    pool:
+      vmImage: 'vs2017-win2016'
+    steps:
+    - script: |
+        echo Frontend Tests
+  - job: Machine_Learning
+    pool:
+      vmImage: 'vs2017-win2016'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.6'
+        architecture: 'x64'
+    - script: |
+        echo Machine Learning Tests
+        cd machine_learning
+        pip install pipenv
+        pipenv shell
+        pipenv install
+        pipenv run pytest

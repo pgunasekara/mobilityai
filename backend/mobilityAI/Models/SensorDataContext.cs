@@ -20,6 +20,7 @@ namespace mobilityAI.Models
                 }
             }
         }
+        
         public SensorDataContext(DbContextOptions<SensorDataContext> options) : base(options)
         {
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls;
