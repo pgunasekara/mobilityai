@@ -96,3 +96,6 @@ def process_data(accel_df, gyro_df, callback_url):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+if __name__ == '__main__':
+    app.run(port=6000)

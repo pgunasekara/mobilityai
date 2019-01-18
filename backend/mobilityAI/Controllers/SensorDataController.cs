@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using mobilityAI.Models;
 using System;
@@ -8,6 +9,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
+using System.Net.Http;
 
 /// <summary>
 /// Endpoints for retrieving all data/range of data/writing data to/from the database
@@ -19,12 +21,16 @@ namespace mobilityAI.Controllers
     [ApiController]
     public class SensorDataController : ControllerBase
     {
+        const string ML_SERVER_URL = "http://127.0.0.1:6000/";
+        const string SERVER_URL = "http://127.0.0.1:5000/";
         private readonly SensorDataContext _context;
+        private static readonly HttpClient client = new HttpClient();
+        private static ConcurrentDictionary<string, string> mlCallbackIds = new ConcurrentDictionary<string, string>();
         public SensorDataController(SensorDataContext context)
         {
             _context = context;
         }
-        
+
         /// <summary>
         /// Endpoint for retrieiving all the data in Accelerometer table
         /// </summary>
@@ -114,7 +120,7 @@ namespace mobilityAI.Controllers
 
         //AddData function might need to be async (unsure as of now)
         /// <summary>
-        /// Taking the list of lines files, converting each line to an Accelerometer/Gyroscope object,adding it into the database
+        /// Taking the list of lines files, converting each line to an Accelerometer/Gyroscope object, adding it into the database
         /// </summary>
         /// <param name="AccelerometerFile">
         /// The file input for Accelerometer
@@ -122,8 +128,11 @@ namespace mobilityAI.Controllers
         /// <param name="GyroscopeFile">
         /// The file input for Gyroscope
         /// </param>
+        /// <param name="DeviceId">
+        /// The device id from which this data came
+        /// </param>
         [HttpPost("AddData", Name = "AddData")]
-        public IActionResult AddData(IFormFile AccelerometerFile, IFormFile GyroscopeFile)
+        public async Task<IActionResult> AddData(IFormFile AccelerometerFile, IFormFile GyroscopeFile, string DeviceId)
         {
             var result = readData(AccelerometerFile);
             var AccelerometerObjects = result.Skip(1)
@@ -139,7 +148,7 @@ namespace mobilityAI.Controllers
                                                 ZAxis = Convert.ToDouble(tokens[5])
                                             })
                                             .ToList();
-                                            
+
             _context.AccelerometerData.AddRange(AccelerometerObjects);
 
             result = readData(GyroscopeFile);
@@ -160,9 +169,30 @@ namespace mobilityAI.Controllers
             _context.GyroscopeData.AddRange(GyroscopeObjects);
             _context.SaveChanges();
 
+            
+            var accelMs = new MemoryStream();
+            AccelerometerFile.OpenReadStream().CopyTo(accelMs);
+
+            var gyroMs = new MemoryStream();
+            GyroscopeFile.OpenReadStream().CopyTo(gyroMs);
+
+            var callbackId = Guid.NewGuid().ToString();
+
+            MultipartFormDataContent form = new MultipartFormDataContent();
+
+            form.Add(new StringContent(SERVER_URL + "MlCallback?Id=" + callbackId), "callback_url");
+            form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", AccelerometerFile.FileName);
+            form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", GyroscopeFile.FileName);
+
+            HttpResponseMessage response = await client.PostAsync(ML_SERVER_URL + "windowify", form);
+
+            response.EnsureSuccessStatusCode();
+
+            mlCallbackIds.TryAdd(callbackId, DeviceId);
+
             return Ok();
         }
-        
+
         //Reading the file to be parsed, returns a list of lines
         private List<string> readData(IFormFile fileName)
         {
@@ -176,7 +206,7 @@ namespace mobilityAI.Controllers
             }
             return result;
         }
-        
+
         /// <summary>
         /// Updating the device information with the device ID and the User ID
         /// </summary>
@@ -193,10 +223,11 @@ namespace mobilityAI.Controllers
         /// The timestamp of when the device was last synced
         /// </param>
         [HttpGet("SetDeviceInfo", Name = "SetDeviceInfo")]
-        public IActionResult SetDeviceInfo(string id, string name, int userid, string lastsync) {
+        public IActionResult SetDeviceInfo(string id, string name, int userid, string lastsync)
+        {
             Device data = (from a in _context.Devices
-                       where (a.Id == id)
-                       select a).SingleOrDefault();
+                           where (a.Id == id)
+                           select a).SingleOrDefault();
 
             var date = DateTime.Parse(lastsync);
 
@@ -204,9 +235,9 @@ namespace mobilityAI.Controllers
             data.FriendlyName = name;
             data.UserID = userid;
             data.LastSync = date;
-            
-           _context.SaveChanges();
-           return Ok();
+
+            _context.SaveChanges();
+            return Ok();
         }
 
         /// <summary>
@@ -215,15 +246,50 @@ namespace mobilityAI.Controllers
         /// </summary>
         /// <param name="macAddress">
         /// The MacAddress of the device to retrieve the information
+        /// </param>
         [HttpGet("GetDeviceInfo", Name = "GetDeviceInfo")]
-        public JsonResult GetDeviceInfo(string macAddress) {
+        public JsonResult GetDeviceInfo(string macAddress)
+        {
             var data = from a in _context.Devices
                        join b in _context.Users on a.UserID equals b.Id
                        where (a.Id == macAddress)
-                       select new {a.FriendlyName, b.Name, a.LastSync};
+                       select new { a.FriendlyName, b.Name, a.LastSync };
 
             return new JsonResult(data);
-            
+        }
+
+        /// <summary>
+        /// Allows the machine learning server to send back the labeled data
+        /// </summary>
+        /// <param name="Id">Callback id that's created from the server</param>
+        /// <param name="Activities">File containing timestamps and the activities performed</param>
+        [HttpGet("MlCallback", Name = "MlCallback")]
+        public IActionResult MlCallback(string Id, IFormFile Activities)
+        {
+            if (mlCallbackIds.ContainsKey(Id))
+            {
+                string deviceId;
+                if (mlCallbackIds.TryGetValue(Id, out deviceId))
+                {
+                    var actionData = readData(Activities);
+                    var ActivityObjects = actionData.Skip(1)
+                                            .Select(line => line.Split(","))
+                                            .Select(tokens => new Activity
+                                            {
+                                                DeviceId = deviceId,
+                                                Start = Convert.ToDateTime(tokens[0]),
+                                                End = DateTime.Parse(tokens[1]),
+                                                Type = Convert.ToInt16(tokens[2])
+                                            })
+                                            .ToList();
+
+                    _context.Activities.AddRange(ActivityObjects);
+                    _context.SaveChanges();
+                    return Ok();
+                }
+                return BadRequest("Could not find the device id associated to the callback id");
+            }
+            return BadRequest("Could not find the callback id: " + Id);
         }
     }
-}   
+}

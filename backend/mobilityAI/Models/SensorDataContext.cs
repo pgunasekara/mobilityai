@@ -48,5 +48,10 @@ namespace mobilityAI.Models
         {
             get; set;
         }
+
+        public DbSet<Activity> Activities
+        {
+            get; set;
+        }
     }
 }
