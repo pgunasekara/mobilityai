@@ -7,7 +7,7 @@ namespace mobilityAI.Models
     {
         public void IsServerConnected()
         {
-            using (var l_oConnection = new SqlConnection("Host=40.117.231.58;Port=5432;Username=postgres;Password=password;Database=SensorDatabase;"))
+            using (var l_oConnection = new SqlConnection("Host=127.0.0.1;Port=5432;Username=postgres;Password=password;Database=SensorDatabase;"))
             {
                 try
                 {
@@ -24,7 +24,7 @@ namespace mobilityAI.Models
         public SensorDataContext(DbContextOptions<SensorDataContext> options) : base(options)
         {
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls;
-
+            //this.Database.SetInitializer<SensorDataContext>(new DropCreateDatabaseAlways<SensorDataContext>());
             // IsServerConnected();
             this.Database.EnsureCreated();
         }

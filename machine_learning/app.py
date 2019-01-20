@@ -41,6 +41,7 @@ def windowifyData():
     # Get the name of the uploaded files
     uploaded_files = request.files.getlist("file[]")
     callback_url = request.form['callback_url']
+    #callback_id = request.form['callback_id']
     filenames = []
     accel_df = ""
     gyro_df = ""
@@ -82,14 +83,24 @@ def process_data(accel_df, gyro_df, callback_url):
     print("Starting windowify")
     accel_gyro_df = preprocess_sensor_data(accel_df, gyro_df)
     print("Complete windowify")
+
+    print("Running model")
+    newX = accel_gyro_df.drop(['epoch_length', 'epoch_end', 'epoch_start'], axis=1)
+    predictions = clf.predict(newX)
+    predictions_pd = pd.DataFrame({'type': predictions})
+    accel_gyro_df = pd.concat([accel_gyro_df, predictions_pd], axis=1)
+    accel_gyro_df = accel_gyro_df[['epoch_start', 'epoch_end', 'type']]
+    accel_gyro_df["epoch_start"] = pd.to_numeric(accel_gyro_df["epoch_start"], downcast='integer')
+    accel_gyro_df["epoch_end"] = pd.to_numeric(accel_gyro_df["epoch_end"], downcast='integer')
+
     file_name = str(uuid.uuid1()) + ".csv"
-    accel_gyro_df.to_csv(file_name, sep='\t')
+    accel_gyro_df.to_csv(file_name, sep=',', index=False)
     print("Saved csv")
 
-    files = {'upload_file': open(file_name,'rb')}
-    values = {}
+    files = {'Activities': open(file_name,'rb')}
+    #values = {'Id': callback_id}
 
-    r = requests.post(callback_url, files=files, data=values)
+    r = requests.post(callback_url, files=files, verify=False)
 
     os.remove(file_name) 
 

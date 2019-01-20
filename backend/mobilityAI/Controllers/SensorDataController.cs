@@ -180,7 +180,8 @@ namespace mobilityAI.Controllers
 
             MultipartFormDataContent form = new MultipartFormDataContent();
 
-            form.Add(new StringContent(SERVER_URL + "MlCallback?Id=" + callbackId), "callback_url");
+            form.Add(new StringContent(SERVER_URL + "api/SensorData/MlCallback?Id=" + callbackId), "callback_url");
+            //form.Add(new StringContent(callbackId), "callback_id");
             form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", AccelerometerFile.FileName);
             form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", GyroscopeFile.FileName);
 
@@ -263,7 +264,7 @@ namespace mobilityAI.Controllers
         /// </summary>
         /// <param name="Id">Callback id that's created from the server</param>
         /// <param name="Activities">File containing timestamps and the activities performed</param>
-        [HttpGet("MlCallback", Name = "MlCallback")]
+        [HttpPost("MlCallback", Name = "MlCallback")]
         public IActionResult MlCallback(string Id, IFormFile Activities)
         {
             if (mlCallbackIds.ContainsKey(Id))
@@ -276,9 +277,10 @@ namespace mobilityAI.Controllers
                                             .Select(line => line.Split(","))
                                             .Select(tokens => new Activity
                                             {
+                                                Id = Guid.NewGuid().ToString(),
                                                 DeviceId = deviceId,
-                                                Start = Convert.ToDateTime(tokens[0]),
-                                                End = DateTime.Parse(tokens[1]),
+                                                Start = Convert.ToInt64(tokens[0]),
+                                                End = Convert.ToInt64(tokens[1]),
                                                 Type = Convert.ToInt16(tokens[2])
                                             })
                                             .ToList();
