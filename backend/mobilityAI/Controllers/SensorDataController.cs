@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
 using System.Net.Http;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Endpoints for retrieving all data/range of data/writing data to/from the database
@@ -43,7 +44,7 @@ namespace mobilityAI.Controllers
         /// <summary>
         /// Endpoint for retrieiving all the data in Gyroscope table
         /// </summary>
-        [HttpGet]
+        [HttpGet("GetAllGyroscope", Name = "GetAllGyroscope")]
         public ActionResult<List<Gyroscope>> GetAllGyroscope()
         {
             return _context.GyroscopeData.ToList();
@@ -292,6 +293,24 @@ namespace mobilityAI.Controllers
                 return BadRequest("Could not find the device id associated to the callback id");
             }
             return BadRequest("Could not find the callback id: " + Id);
+        }
+
+        /// <summary>
+        /// Gets processed activity data for a specific device in a specific time range
+        /// </summary>
+        /// <param name="Start">Epoch for beginning of time range</param>
+        /// <param name="End"Epoch for end of time rante></param>
+        /// <param name="DeviceId">Device Id for the data you want to query</param>
+        /// <returns></returns>
+        [HttpGet("GetActivityData", Name="GetActivityData")]
+        public IActionResult GetActivityData(long Start, long End, string DeviceId)
+        {
+            var data = (from activities in _context.Activities
+                        where activities.Start >= Start && activities.End <= End && activities.DeviceId == DeviceId
+                        select new { activities.Start, activities.End, activities.Type }).ToList();
+            // return new JsonResult(data);
+            Console.WriteLine("The number of rows is: " + data);
+            return Ok(JsonConvert.SerializeObject(data));
         }
     }
 }
