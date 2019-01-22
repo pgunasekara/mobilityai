@@ -6,11 +6,16 @@ const { Group, Shape, Surface } = ART;
 
 import * as d3 from 'd3'
 import * as scale from 'd3-scale'
+import { Icon } from 'react-native-elements'
+import FontAwesome5 from 'react-native-vector-icons'
+// import Icon from 'react-native-vector-icons/FontAwesome5';
 
 const colours = ['#e8e8ff', '#adaccd', '#7583ae', '#4f5d87', '#4a4258'];
 const data = [50, 10, 40, 95, 4, 24, 0, 85, 34, 0, 35, 53, 53];
 const data1 = [20, 35, 49, 24, 50, 20, 40, 19, 24, 50, 20, 40, 19];
 const data2 = [30, 25, 29, 50, 60, 22, 60, 19, 45, 60, 40, 43, 39];
+
+const icon = (<FontAwesome5 name={'chair'} />);
 
 export default class PatientData extends Component {
     constructor(props) {
@@ -121,23 +126,23 @@ export default class PatientData extends Component {
 
                     <View style={styles.flexDir}>
                         <TouchableHighlight onPress={this._onPressButton.bind(this, 0, data)} underlayColor="white">
-                            <Circle activity='Standing' color={colours[0]} />
+                            <Circle activity='Standing' activityIcon='male' iconLib='font-awesome' color={colours[0]} />
                         </TouchableHighlight>
 
                         <TouchableHighlight onPress={this._onPressButton.bind(this, 1, data1)} underlayColor="white">
-                            <Circle activity='Sitting' color={colours[1]} />
+                            <Circle activity='Sitting' activityIcon='airline-seat-recline-normal' iconLib='MaterialIcons' color={colours[1]} />
                         </TouchableHighlight>
 
                         <TouchableHighlight onPress={this._onPressButton.bind(this, 2, data2)} underlayColor="white">
-                            <Circle activity='Lying Down' color={colours[2]} />
+                            <Circle activity='Lying Down' activityIcon='bed' iconLib='font-awesome' color={colours[2]} />
                         </TouchableHighlight>
 
                         <TouchableHighlight onPress={this._onPressButton.bind(this, 3, data)} underlayColor="white">
-                            <Circle activity='Walking' color={colours[3]} />
+                            <Circle activity='Walking' activityIcon='directions-walk' iconLib='MaterialIcons' color={colours[3]} />
                         </TouchableHighlight>
 
                         <TouchableHighlight onPress={this._onPressButton.bind(this, 4, data2)} underlayColor="white">
-                            <Circle activity='Miscellaneous' color={colours[4]} />
+                            <Circle activity='Miscellaneous' activityIcon='question' iconLib='font-awesome' color={colours[4]} />
                         </TouchableHighlight>
                     </View>
 
@@ -152,10 +157,7 @@ export default class PatientData extends Component {
 
 class BarGraph extends Component {
     render() {
-
-        // const fill = 'rgb(134, 65, 244)';
         const fill = this.props.color;
-        // const data = [50, 10, 40, 95, 4, 24, 0, 85, 34, 0, 35, 53, 53];// 24, 50, 20, 80, 89, 24, 50, 20, 80, 89, 24, 50, 20, 80, 89];
         const time = ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM'];
 
         const contentInset = { top: 30, bottom: 30 }
@@ -199,8 +201,17 @@ class Circle extends Component {
     render() {
         return (
             <View>
-                <View style={[styles.circle, { borderColor: this.props.color }]}>
-
+                <View style={[styles.center,  { color: this.props.color }]}>
+                    
+                    <Icon
+                        raised
+                        reverse
+                        name={this.props.activityIcon}
+                        type={this.props.iconLib}
+                        // iconStyle={color=this.props.color}
+                        color={this.props.color}
+                        size={28}
+                    />
                 </View>
                 <Text style={styles.textFont}>{this.props.activity}</Text>
             </View>
