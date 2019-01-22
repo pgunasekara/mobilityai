@@ -182,7 +182,6 @@ namespace mobilityAI.Controllers
             MultipartFormDataContent form = new MultipartFormDataContent();
 
             form.Add(new StringContent(SERVER_URL + "api/SensorData/MlCallback?Id=" + callbackId), "callback_url");
-            //form.Add(new StringContent(callbackId), "callback_id");
             form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", AccelerometerFile.FileName);
             form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", GyroscopeFile.FileName);
 
@@ -308,8 +307,6 @@ namespace mobilityAI.Controllers
             var data = (from activities in _context.Activities
                         where activities.Start >= Start && activities.End <= End && activities.DeviceId == DeviceId
                         select new { activities.Start, activities.End, activities.Type }).ToList();
-            // return new JsonResult(data);
-            Console.WriteLine("The number of rows is: " + data);
             return Ok(JsonConvert.SerializeObject(data));
         }
     }
