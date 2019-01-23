@@ -1,6 +1,6 @@
 # Description
 
-MobilityAI is a team from McMaster University researching Human Activity Recognition (HAR) in conjunction with Juravinski Hospital. We are using a wireless sensor band to record patient mobility data and extract activity information using machine learning. We currently have 3 positions available, focusing on Frontend, Backend and Machine Learning respectively.
+MobilityAI is a team from McMaster University researching Human Activity Recognition (HAR) in conjunction with Juravinski Hospital. We are using a wireless sensor band to record patient mobility data and extract activity information using machine learning. We currently have 3 positions available, focusing on Frontend, Backend and Machine Learning respectively. This project is openly developed at https://github.com/pgunasekara/4zp6. If you would like additional information about the project, take a look at the [README](https://github.com/pgunasekara/4zp6/blob/master/README.md).
 
 ## Frontend
 
