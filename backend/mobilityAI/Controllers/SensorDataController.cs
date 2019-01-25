@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Microsoft.VisualBasic;
 using System.Net.Http;
 using Newtonsoft.Json;
+using System.Text;
+using System.Security.Cryptography;
 
 /// <summary>
 /// Endpoints for retrieving all data/range of data/writing data to/from the database
@@ -170,7 +172,7 @@ namespace mobilityAI.Controllers
             _context.GyroscopeData.AddRange(GyroscopeObjects);
             _context.SaveChanges();
 
-            
+
             var accelMs = new MemoryStream();
             AccelerometerFile.OpenReadStream().CopyTo(accelMs);
 
@@ -254,7 +256,7 @@ namespace mobilityAI.Controllers
             var data = from a in _context.Devices
                        join b in _context.Users on a.UserID equals b.Id
                        where (a.Id == macAddress)
-                       select new { a.FriendlyName, b.Name, a.LastSync };
+                       select new { a.FriendlyName, b.FirstName, b.LastName, a.LastSync };
 
             return new JsonResult(data);
         }
@@ -268,7 +270,7 @@ namespace mobilityAI.Controllers
         public IActionResult MlCallback(string Id, IFormFile Activities)
         {
             if (mlCallbackIds.ContainsKey(Id))
-            {
+            {   
                 string deviceId;
                 if (mlCallbackIds.TryGetValue(Id, out deviceId))
                 {
@@ -301,13 +303,78 @@ namespace mobilityAI.Controllers
         /// <param name="End"Epoch for end of time rante></param>
         /// <param name="DeviceId">Device Id for the data you want to query</param>
         /// <returns></returns>
-        [HttpGet("GetActivityData", Name="GetActivityData")]
+        [HttpGet("GetActivityData", Name = "GetActivityData")]
         public IActionResult GetActivityData(long Start, long End, string DeviceId)
         {
             var data = (from activities in _context.Activities
                         where activities.Start >= Start && activities.End <= End && activities.DeviceId == DeviceId
                         select new { activities.Start, activities.End, activities.Type }).ToList();
             return Ok(JsonConvert.SerializeObject(data));
+        }
+
+        /// <summary>
+        /// Once a new user signs up for the application, it will add the user's credentials to the database
+        /// </summary>
+        /// <param name="email">
+        /// The email entered by the user, which will be stored and used for future reference when the user tries to log on
+        /// </param>
+        /// <param name="firstName">
+        /// The first name entered by the user
+        /// </param>
+        /// <param name="lastName">
+        /// The last name entered by the user
+        /// </param>
+        /// <param name="password">
+        /// The password entered by the user, this information will be salted and hashed (the hashed password is stored on the database for security purposes)
+        /// </param>
+        [HttpPost("SignUpUser", Name = "SignUpUser")]
+        public IActionResult SignUpUser(string email, string firstName, string lastName, string password)
+        {
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            byte[] buffer = new byte[128];
+
+            rng.GetBytes(buffer);
+            string salt = Convert.ToBase64String(buffer);
+            var saltedPw = password + salt;
+
+            var hashedPw = generateHash(saltedPw);
+
+            User data = new User();
+
+            data.Email = email;
+            data.FirstName = firstName;
+            data.LastName = lastName;
+            data.Password = hashedPw;
+            data.Salt = salt;
+
+            _context.Users.Add(data);
+            _context.SaveChanges();
+
+            return Ok();
+
+        }
+
+        /// <summary>
+        /// Function that will take the salted password and hash it (for encryption and security purposes)
+        /// </summary>
+        /// <param name="saltedPw">
+        /// The salted password that is passed to be hashed with SHA-256 hashing algorithm
+        /// </param>
+        private string generateHash(string saltedPw)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(saltedPw));
+
+                // Convert byte array to a string   
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
     }
 }
