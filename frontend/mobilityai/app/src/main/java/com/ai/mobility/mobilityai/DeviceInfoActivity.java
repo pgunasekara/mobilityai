@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
@@ -32,9 +33,9 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     private final String TAG = "MobilityAI";
 
 
-    private TextView m_batteryPercentage, m_devName, m_macAddr, m_lastSync;
+    private TextView m_batteryPercentage, m_devName, m_macAddr, m_lastSync, m_batteryText;
     private Button m_syncButton, m_reassignButton;
-    private ProgressBar m_batteryCircle;
+    private ProgressBar m_batteryCircle, m_syncProgressBar, m_loadingBar;
 
     private MetaMotionService m_metaMotion;
     private String m_macAddress;
@@ -51,12 +52,47 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_info);
 
+        findViews();
+
+        //Hide all elements until service is connected
+        hideAllElements();
+
         m_macAddress = getIntent().getStringExtra("EXTRA_MAC_ADDR");
 
         getApplicationContext().bindService(new Intent(this, BtleService.class),
                 this, Context.BIND_AUTO_CREATE);
 
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+    }
+
+    private void hideAllElements() {
+        m_batteryPercentage.setVisibility(View.INVISIBLE);
+        m_devName.setVisibility(View.INVISIBLE);
+        m_macAddr.setVisibility(View.INVISIBLE);
+        m_lastSync.setVisibility(View.INVISIBLE);
+        m_batteryText.setVisibility(View.INVISIBLE);
+        m_syncButton.setVisibility(View.INVISIBLE);
+        m_reassignButton.setVisibility(View.INVISIBLE);
+        m_batteryCircle.setVisibility(View.INVISIBLE);
+        m_syncProgressBar.setVisibility(View.INVISIBLE);
+
+        //Show loading bar
+        m_loadingBar.setVisibility(View.VISIBLE);
+    }
+
+    private void showAllElements() {
+        m_batteryPercentage.setVisibility(View.VISIBLE);
+        m_devName.setVisibility(View.VISIBLE);
+        m_macAddr.setVisibility(View.VISIBLE);
+        m_lastSync.setVisibility(View.VISIBLE);
+        m_batteryText.setVisibility(View.VISIBLE);
+        m_syncButton.setVisibility(View.VISIBLE);
+        m_reassignButton.setVisibility(View.VISIBLE);
+        m_batteryCircle.setVisibility(View.VISIBLE);
+        m_syncProgressBar.setVisibility(View.VISIBLE);
+
+        //Hide loading bar
+        m_loadingBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -112,23 +148,14 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                             animation.setInterpolator(new DecelerateInterpolator());
                             animation.start();
                         }
+
+                        showAllElements();
                         return null;
                     }
                 }, Task.UI_THREAD_EXECUTOR);
             }
             return null;
         });
-
-//        m_metaMotion.connect(m_macAddress, remoteDevice);
-//
-//        int batteryLevel = m_metaMotion.getBoard().readBatteryLevelAsync().getResult().intValue();
-//        m_batteryPercentage.setText(batteryLevel);
-
-
-
-        //Get battery data and set
-//        int battery
-        //m_metaMotion.setBatteryLevel(R.id.batteryPercentage);
 
         //Populate Views
         findViews();
@@ -164,6 +191,12 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         m_macAddr = findViewById(R.id.devMacAddr);
         m_lastSync = findViewById(R.id.devLastSync);
         m_batteryCircle = findViewById(R.id.progressBar);
+        m_syncProgressBar = findViewById(R.id.syncProgress);
+        m_syncButton = findViewById(R.id.syncButton);
+        m_reassignButton = findViewById(R.id.reassignButton);
+        m_batteryText = findViewById(R.id.batteryIdentifier);
+        m_loadingBar = findViewById(R.id.loadingCircle);
+
     }
 
     private void programOnClick() {

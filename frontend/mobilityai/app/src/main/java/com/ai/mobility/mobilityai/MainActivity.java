@@ -20,6 +20,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -49,6 +50,7 @@ import com.mbientlab.metawear.module.Logging;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.UUID;
 
 import bolts.Continuation;
@@ -65,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     private MetaMotionService metaMotion;
 
-    private final String MW_MAC_ADDRESS= "D1:87:11:D8:F3:C0";
     private Button led_on, led_off;
 
     private static final String TAG = "MobilityAI";
@@ -92,6 +93,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private static final long SCAN_PERIOD = 10000L;
 
 
+    //TODO: Remove
+    private Random r = new Random();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,57 +103,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        commBus= (BleScannerFragment.ScannerCommunicationBus) FragmentManager.findFragmentById(5);
+        initialize();
 
-        m_refreshButton = (ImageButton) findViewById(R.id.refreshButton);
-
-        m_bleList = (RecyclerView) findViewById(R.id.bleList);
-        m_bleList.setLayoutManager(new LinearLayoutManager(this));
-        m_deviceList = new ArrayList<>();
-        m_adapter = new MetaMotionDeviceAdapter(this,
-                m_deviceList,
-                new MetaMotionDeviceAdapter.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(MetaMotionDevice device) {
-                        //Open a new intent
-                        Intent intent = new Intent(getBaseContext(), DeviceInfoActivity.class);
-                        intent.putExtra("EXTRA_MAC_ADDR", device.getMacAddr());
-                        intent.putExtra("EXTRA_RSSI", device.getRssi());
-                        intent.putExtra("EXTRA_USER", device.getAssignedUser());
-                        intent.putExtra("EXTRA_NAME", device.getName());
-                        intent.putExtra("EXTRA_LAST_SYNC", device.getLastSync());
-                        startActivity(intent);
-
-                    }
-                });
-        m_bleList.setAdapter(m_adapter);
-
-        m_handler = new Handler();
-
-        //Enabling BLE
-        //Get the Bluetooth adapter
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        m_bluetoothAdapter = bluetoothManager.getAdapter();
-        m_bluetoothLeScanner = m_bluetoothAdapter.getBluetoothLeScanner();
-
-        //Enable bluetooth if not already enabled
-        if(m_bluetoothAdapter == null || !m_bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        } else {
-            m_isScanReady = true;
-        }
-        Log.i(TAG, "m_isScanReady = "+m_isScanReady);
-
-        UUID[] filterUuids= new UUID[] {UUID.fromString("326a9000-85cb-9195-d9dd-464cfbbae75a")};//commBus.getFilterServiceUuids();
-        m_filterServiceUuids = new HashSet<>();
-        for(UUID uuid : filterUuids) {
-            m_filterServiceUuids.add(new ParcelUuid(uuid));
-        }
-
-        if(m_isScanReady)   startBleScan();
-
-
+        setUpBluetoothScanner();
 
         // Bind the service when the activity is created
         getApplicationContext().bindService(new Intent(this, BtleService.class),
@@ -157,13 +113,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     //TODO: Delete this function once Bluetooth stuff is working
-    private void createListData() {
-        MetaMotionDevice m = new MetaMotionDevice("MetaMotion A", "Rebecca Tran", "D1:87:11:D8:F3:C0", 50, "January 2, 2019", 0);
-        m_deviceList.add(m);
-        m = new MetaMotionDevice("MetaMotion B", "Teo Voinea", "D1:87:11:D8:F3:C0", 15, "January 1, 2019", 0);
-        m_deviceList.add(m);
-        m = new MetaMotionDevice("MetaMotion C", "Roberto Temelkovski", "D1:87:11:D8:F3:C0", 75, "January 1, 2019", 0);
-        m_deviceList.add(m);
+    private String getRandomName() {
+        String[] names = {"Rebecca Tran", "Roberto Temelkovski", "Teo Voinea", "梓川 咲太"};
+        int rnd = r.nextInt(names.length);
+        return names[rnd];
     }
 
     @Override
@@ -241,13 +194,17 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
     }
 
+
+    /**
+     * Bluetooth Scanning Functions
+     */
     private void startBleScan() {
         m_adapter.clear();
         m_isScanning = true;
 
         Log.i(TAG, "Started Scan");
         //Change icon to X
-//        m_refreshButton.setImageResource(R.drawable.);
+        m_refreshButton.setImageResource(R.drawable.ic_close_black_24dp);
 
         m_handler.postDelayed(new Runnable() {
             @Override
@@ -273,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 Log.i(TAG, "Updating with: "+result.getDevice().getAddress());
                                 m_adapter.update(new MetaMotionDevice(
                                         "MetaMotion A",
-                                        "John Smith",
+                                        getRandomName(),
                                         result.getDevice().getAddress(),
                                         50,
                                         "Jan 5, 2019",
@@ -297,14 +254,71 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
 
         m_isScanning = false;
-        //TODO: Change the scan button
+        m_refreshButton.setImageResource(R.drawable.ic_refresh_black_24dp);
     }
 
+    private void initialize() {
+        m_refreshButton = (ImageButton) findViewById(R.id.refreshButton);
+        m_bleList = (RecyclerView) findViewById(R.id.bleList);
+        m_bleList.setLayoutManager(new LinearLayoutManager(this));
+        m_deviceList = new ArrayList<>();
+        m_adapter = new MetaMotionDeviceAdapter(this,
+                m_deviceList,
+                new MetaMotionDeviceAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(MetaMotionDevice device) {
+                        //Open a new intent
+                        Intent intent = new Intent(getBaseContext(), DeviceInfoActivity.class);
+                        intent.putExtra("EXTRA_MAC_ADDR", device.getMacAddr());
+                        intent.putExtra("EXTRA_RSSI", device.getRssi());
+                        intent.putExtra("EXTRA_USER", device.getAssignedUser());
+                        intent.putExtra("EXTRA_NAME", device.getName());
+                        intent.putExtra("EXTRA_LAST_SYNC", device.getLastSync());
+                        startActivity(intent);
+                    }
+                });
 
-    public void openActivity(View view) {
-        Log.i(TAG, "Open Activity");
-        Intent intent = new Intent(this, DeviceInfoActivity.class);
-        startActivity(intent);
+        setButtonListeners();
+
+        m_bleList.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        m_bleList.setAdapter(m_adapter);
+
+        m_handler = new Handler();
     }
 
+    private void setUpBluetoothScanner() {
+        //Enabling BLE
+        //Get the Bluetooth adapter
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        m_bluetoothAdapter = bluetoothManager.getAdapter();
+        m_bluetoothLeScanner = m_bluetoothAdapter.getBluetoothLeScanner();
+
+        //Enable bluetooth if not already enabled
+        if(m_bluetoothAdapter == null || !m_bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        } else {
+            m_isScanReady = true;
+        }
+        Log.i(TAG, "m_isScanReady = "+m_isScanReady);
+
+        UUID[] filterUuids= new UUID[] {UUID.fromString("326a9000-85cb-9195-d9dd-464cfbbae75a")};//commBus.getFilterServiceUuids();
+        m_filterServiceUuids = new HashSet<>();
+        for(UUID uuid : filterUuids) {
+            m_filterServiceUuids.add(new ParcelUuid(uuid));
+        }
+
+        if(m_isScanReady)   startBleScan();
+    }
+
+    private void setButtonListeners() {
+        m_refreshButton.setOnClickListener(l -> {
+            if(m_isScanning) {
+                stopBleScan();
+            } else {
+                if(m_isScanReady)
+                    startBleScan();
+            }
+        });
+    }
 }
