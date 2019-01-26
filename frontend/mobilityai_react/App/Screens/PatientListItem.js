@@ -19,6 +19,7 @@ export default class PatientListItem extends Component {
     render() {
         const {navigate} = this.props.navigation;
         return (
+            // redirecting to patient's data
             <TouchableHighlight
                     onPress={() => {navigate('PatientData',
                             {
@@ -29,6 +30,8 @@ export default class PatientListItem extends Component {
                     );}}
                     underlayColor="rgba(0, 0, 0, 0.1)"
                 >
+
+                {/* Displaying the user information */}
                 <View style={this.state.firstRow ?  styles.firstRow : styles.row}>
                     <View style={styles.rowContent}>
                         <Avatar

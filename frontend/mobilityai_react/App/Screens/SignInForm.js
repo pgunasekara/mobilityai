@@ -5,11 +5,13 @@ import t from 'tcomb-form-native';
 
 const Form = t.form.Form;
 
+// Creating the form fields
 const User = t.struct({
     email: t.String,
     password: t.String,
 });
 
+// Adding error messages and password type to the field inputs
 const options = {
     fields: {
         email: {
@@ -18,6 +20,8 @@ const options = {
 
         password: {
             error: 'Please enter a valid password',
+            password: true,
+            secureTextEntry: true,
         },
     }
 }
@@ -45,13 +49,6 @@ export default class SignIn extends React.Component {
 
     }
 
-    submitForm = () => {
-        console.log("TADA");
-
-        const value = this._form.getValue(); 
-        console.log('value: ', value);
-    }
-
     render() {
         const { navigate } = this.props.navigation;
         return (
@@ -60,6 +57,7 @@ export default class SignIn extends React.Component {
                 <Text style={[styles.titleText, styles.regText, styles.boldText]}>MobilityAI</Text>
                     <Text style={styles.regText}>Sign in below to access your account</Text>
 
+                    {/* Generating the sign in form */}
                     <View style={styles.container}>
                         <View style={[styles.formStyle, styles.formBorder]}>
                             <Form ref={c => this._form = c}
@@ -69,6 +67,7 @@ export default class SignIn extends React.Component {
                         </View>
                     </View>
 
+                    {/* Button to navigate after signing in */}
                     <View style={[styles.formBorder, styles.btn]}>
                         <Button
                             title='Sign In'
@@ -77,6 +76,7 @@ export default class SignIn extends React.Component {
                         />
                     </View>
 
+                    {/* Redirect users to sign up form, if they do not have an existing account */}
                     <View >
                         <TouchableHighlight onPress={() => navigate('SignUp', {})}>
                             <View>

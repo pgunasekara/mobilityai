@@ -5,6 +5,7 @@ import t from 'tcomb-form-native';
 
 const Form = t.form.Form;
 
+//creating the input fields for the sign up form
 const User = t.struct({
     email: t.String,
     firstName: t.String,
@@ -13,6 +14,7 @@ const User = t.struct({
     // password2: t.String,
 });
 
+//Adding error messages and password type to input fields
 const options = {
     fields: {
         email: {
@@ -31,11 +33,15 @@ const options = {
 
         password: {
             error: 'Please enter a valid password',
+            password: true,
+            secureTextEntry: true,
         },
 
         password2: {
             label: 'Confirm Password',
             error: 'Ensure passwords are matching',
+            password: true,
+            secureTextEntry: true,
         },
 
     }
@@ -64,6 +70,7 @@ export default class SignUp extends React.Component {
 
     }
 
+    //TODO: Have the web request post the data that is submitted
     submitForm = () => {
         console.log("TADA");
 
@@ -79,6 +86,7 @@ export default class SignUp extends React.Component {
                     <Text style={[styles.titleText, styles.regText, styles.boldText]}>MobilityAI</Text>
                     <Text style={styles.regText}>Sign up below and create your account</Text>
 
+                    {/* Generating the sign up form */}
                     <View style={styles.container}>
                         <View style={[styles.formStyle, styles.formBorder]}>
                             <Form ref={c => this._form = c}
@@ -87,6 +95,7 @@ export default class SignUp extends React.Component {
                             />
                         </View>
                     </View>
+                    {/* Button for users to submit their information */}
                     <View style={[styles.container, styles.btn]}>
                         <Button
                             title='Sign Up'
@@ -95,8 +104,7 @@ export default class SignUp extends React.Component {
                         />
                     </View>
 
-                    {/* </ScrollView> */}
-
+                    {/* Redirecting to users to sign in page, if they already have an existing account */}
                     <View >
                         <TouchableHighlight onPress={() => navigate('SignIn', {})}>
                             <View>

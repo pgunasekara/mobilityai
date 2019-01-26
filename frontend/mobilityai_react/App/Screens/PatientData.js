@@ -10,12 +10,11 @@ import { Icon } from 'react-native-elements'
 import FontAwesome5 from 'react-native-vector-icons'
 // import Icon from 'react-native-vector-icons/FontAwesome5';
 
-const colours = ['#e8e8ff', '#adaccd', '#7583ae', '#4f5d87', '#4a4258'];
+const colours = ['#3498DB', '#1ABC9C', '#9B59B6', '#F1C40F', '#E74C3C'];
 const data = [50, 10, 40, 95, 4, 24, 0, 85, 34, 0, 35, 53, 53];
 const data1 = [20, 35, 49, 24, 50, 20, 40, 19, 24, 50, 20, 40, 19];
 const data2 = [30, 25, 29, 50, 60, 22, 60, 19, 45, 60, 40, 43, 39];
 
-const icon = (<FontAwesome5 name={'chair'} />);
 
 export default class PatientData extends Component {
     constructor(props) {
@@ -29,18 +28,16 @@ export default class PatientData extends Component {
             data: data,
         }
         // this.onPress = this.onPress.bind(this);
-
         //this.props.navigate = props.navigate;
-    }
-
-    // 
+    } 
 
     _onPressButton(i, newData) {
         this.setState({ barColour: colours[i] });
         this.setState({ data: newData });
     }
 
-    // static navigationOptions = ({ this.props.navigate }) => ({
+    // TODO: Have Nav Header display patient name
+    //  static navigationOptions = ({ this.props.navigate }) => ({
     //     title: firstName + " " + lastName,
     //      headerTitleStyle : {textAlign: 'center',alignSelf:'center'},
     //         headerStyle:{
@@ -88,8 +85,7 @@ export default class PatientData extends Component {
 
         const sectionAngles = d3.pie().value(d => d.movement)(userActivities);
 
-
-
+        // Creating the pie chart
         const path = d3.arc()
             .outerRadius(100) //must be less than 1/2 the chart's height/width
             .padAngle(.05) //defines the amount of whitespace between sections
@@ -101,11 +97,11 @@ export default class PatientData extends Component {
                     <Text style={styles.titleFont}>{firstName + " " + lastName}</Text>
 
                     <View style={styles.textInline}>
-                        {/* TODO: Center it, maybe */}
                         <Text style={styles.center}>Daily User Activity</Text> 
                         <GetDate />
                     </View>
 
+                    {/* Displaying the pie chart of all the activities */}
                     <View style={styles.center}>
                         <Surface width={width} height={height}>
                             <Group x={width / 2} y={height / 2}>
@@ -124,6 +120,7 @@ export default class PatientData extends Component {
                         </Surface>
                     </View>
 
+                    {/* Displaying the circle buttons for each activity */}
                     <View style={styles.flexDir}>
                         <TouchableHighlight onPress={this._onPressButton.bind(this, 0, data)} underlayColor="white">
                             <Circle activity='Standing' activityIcon='male' iconLib='font-awesome' color={colours[0]} />
@@ -155,6 +152,7 @@ export default class PatientData extends Component {
     }
 }
 
+// displaying the bar graph for the movement of the activity 
 class BarGraph extends Component {
     render() {
         const fill = this.props.color;
@@ -165,7 +163,8 @@ class BarGraph extends Component {
         return (
             <ScrollView horizontal={true} style={styles.bargraph}>
                 <View style={{ width: 500 }}>
-                    {/* <YAxis
+                    {/* TODO: Display Y Axis
+                        <YAxis
                         data={data}
                         contentInset={contentInset}
                         svg={{
@@ -197,18 +196,18 @@ class BarGraph extends Component {
     }
 }
 
+// Creating the circle buttons for the activity
 class Circle extends Component {
     render() {
         return (
             <View>
                 <View style={[styles.center,  { color: this.props.color }]}>
-                    
+                    {/* Displaying corresponding icons with the activity */}
                     <Icon
                         raised
                         reverse
                         name={this.props.activityIcon}
                         type={this.props.iconLib}
-                        // iconStyle={color=this.props.color}
                         color={this.props.color}
                         size={28}
                     />
@@ -219,6 +218,7 @@ class Circle extends Component {
     }
 }
 
+// Getting the current date
 class GetDate extends Component {
     render() {
         const date = new Date().getDate().toString();
@@ -280,7 +280,6 @@ const styles = StyleSheet.create({
     textInline: {
         flex: 1,
         flexDirection: 'row',
-        // flexWrap: 'wrap',
         justifyContent: 'space-between'
     }
 
