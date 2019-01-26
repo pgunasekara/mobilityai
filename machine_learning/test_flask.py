@@ -24,15 +24,18 @@ def test_hello_world(client):
 def test_windowify(client):
     files = []
     try:
+        # Load real training data as an example file to post to the server
         files = [open(fpath, 'rb') for fpath in ['./training_sets/untagged_sets/rebecca-test1-accel-test.csv', './training_sets/untagged_sets/rebecca-test1-gyro-test.csv']]
+        # Create the request
         rv = client.post('/windowify', data={
             "file[]": files,
-            "callback_url": "http://127.0.0.1/yeet"
+            "callback_url": "http://127.0.0.1/complete?id=1234"
         })
         # Wait for windowify
         time.sleep(10)
         csvFile = [x for x in os.listdir() if ".csv" in x]
         rvcsv = pd.read_csv(csvFile[0])
+        # We know this file is supposed to have 407 rows
         assert rvcsv.shape[0] + 1 == 407
     finally:
         for fp in files:

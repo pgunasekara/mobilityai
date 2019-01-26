@@ -1,0 +1,146 @@
+{
+	"info": {
+		"_postman_id": "bf7db70e-6222-4397-b2d4-940eb6931583",
+		"name": "MobilityAI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:5000/api/SensorData/AddData",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "AccelerometerFile",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "GyroscopeFile",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "DeviceId",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/SensorData/AddData",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"SensorData",
+						"AddData"
+					]
+				},
+				"description": "Test for endpoint for uploading CSVs"
+			},
+			"response": []
+		},
+		{
+			"name": "GetActivityData",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/SensorData/GetActivityData?Start=1542812667573&End=1542812801472&DeviceId=123",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"SensorData",
+						"GetActivityData"
+					],
+					"query": [
+						{
+							"key": "Start",
+							"value": "1542812667573"
+						},
+						{
+							"key": "End",
+							"value": "1542812801472"
+						},
+						{
+							"key": "DeviceId",
+							"value": "123"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test MlCallback",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "Id",
+							"value": "1",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "Activities",
+							"type": "file",
+							"src": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/SensorData/MlCallback?Id=1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"SensorData",
+						"MlCallback"
+					],
+					"query": [
+						{
+							"key": "Id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

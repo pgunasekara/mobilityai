@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using mobilityAI.Models;
 using System;
@@ -8,6 +9,10 @@ using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Text;
+using System.Security.Cryptography;
 
 /// <summary>
 /// Endpoints for retrieving all data/range of data/writing data to/from the database
@@ -19,12 +24,16 @@ namespace mobilityAI.Controllers
     [ApiController]
     public class SensorDataController : ControllerBase
     {
+        const string ML_SERVER_URL = "http://127.0.0.1:6000/";
+        const string SERVER_URL = "http://127.0.0.1:5000/";
         private readonly SensorDataContext _context;
+        private static readonly HttpClient client = new HttpClient();
+        private static ConcurrentDictionary<string, string> mlCallbackIds = new ConcurrentDictionary<string, string>();
         public SensorDataController(SensorDataContext context)
         {
             _context = context;
         }
-        
+
         /// <summary>
         /// Endpoint for retrieiving all the data in Accelerometer table
         /// </summary>
@@ -37,7 +46,7 @@ namespace mobilityAI.Controllers
         /// <summary>
         /// Endpoint for retrieiving all the data in Gyroscope table
         /// </summary>
-        [HttpGet]
+        [HttpGet("GetAllGyroscope", Name = "GetAllGyroscope")]
         public ActionResult<List<Gyroscope>> GetAllGyroscope()
         {
             return _context.GyroscopeData.ToList();
@@ -114,7 +123,7 @@ namespace mobilityAI.Controllers
 
         //AddData function might need to be async (unsure as of now)
         /// <summary>
-        /// Taking the list of lines files, converting each line to an Accelerometer/Gyroscope object,adding it into the database
+        /// Taking the list of lines files, converting each line to an Accelerometer/Gyroscope object, adding it into the database
         /// </summary>
         /// <param name="AccelerometerFile">
         /// The file input for Accelerometer
@@ -122,8 +131,11 @@ namespace mobilityAI.Controllers
         /// <param name="GyroscopeFile">
         /// The file input for Gyroscope
         /// </param>
+        /// <param name="DeviceId">
+        /// The device id from which this data came
+        /// </param>
         [HttpPost("AddData", Name = "AddData")]
-        public IActionResult AddData(IFormFile AccelerometerFile, IFormFile GyroscopeFile)
+        public async Task<IActionResult> AddData(IFormFile AccelerometerFile, IFormFile GyroscopeFile, string DeviceId)
         {
             var result = readData(AccelerometerFile);
             var AccelerometerObjects = result.Skip(1)
@@ -139,7 +151,7 @@ namespace mobilityAI.Controllers
                                                 ZAxis = Convert.ToDouble(tokens[5])
                                             })
                                             .ToList();
-                                            
+
             _context.AccelerometerData.AddRange(AccelerometerObjects);
 
             result = readData(GyroscopeFile);
@@ -160,8 +172,30 @@ namespace mobilityAI.Controllers
             _context.GyroscopeData.AddRange(GyroscopeObjects);
             _context.SaveChanges();
 
+
+            var accelMs = new MemoryStream();
+            AccelerometerFile.OpenReadStream().CopyTo(accelMs);
+
+            var gyroMs = new MemoryStream();
+            GyroscopeFile.OpenReadStream().CopyTo(gyroMs);
+
+            var callbackId = Guid.NewGuid().ToString();
+
+            MultipartFormDataContent form = new MultipartFormDataContent();
+
+            form.Add(new StringContent(SERVER_URL + "api/SensorData/MlCallback?Id=" + callbackId), "callback_url");
+            form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", AccelerometerFile.FileName);
+            form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", GyroscopeFile.FileName);
+
+            HttpResponseMessage response = await client.PostAsync(ML_SERVER_URL + "windowify", form);
+
+            response.EnsureSuccessStatusCode();
+
+            mlCallbackIds.TryAdd(callbackId, DeviceId);
+
             return Ok();
         }
+
         //Reading the file to be parsed, returns a list of lines
         private List<string> readData(IFormFile fileName)
         {
@@ -174,6 +208,173 @@ namespace mobilityAI.Controllers
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Updating the device information with the device ID and the User ID
+        /// </summary>
+        /// <param name="id">
+        /// The id value of the Device
+        /// </param>
+        /// <param name="name">
+        /// The string value of the name for the device
+        /// </param>
+        /// <param name="userid">
+        /// The id value of the user
+        /// </param>
+        /// <param name="lastsync">
+        /// The timestamp of when the device was last synced
+        /// </param>
+        [HttpGet("SetDeviceInfo", Name = "SetDeviceInfo")]
+        public IActionResult SetDeviceInfo(string id, string name, int userid, string lastsync)
+        {
+            Device data = (from a in _context.Devices
+                           where (a.Id == id)
+                           select a).SingleOrDefault();
+
+            var date = DateTime.Parse(lastsync);
+
+            data.Id = id;
+            data.FriendlyName = name;
+            data.UserID = userid;
+            data.LastSync = date;
+
+            _context.SaveChanges();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Retrieving the device information (the name of the device, the user assigned to the device and when it was last synced)
+        /// Results returned in JSON file
+        /// </summary>
+        /// <param name="macAddress">
+        /// The MacAddress of the device to retrieve the information
+        /// </param>
+        [HttpGet("GetDeviceInfo", Name = "GetDeviceInfo")]
+        public JsonResult GetDeviceInfo(string macAddress)
+        {
+            var data = from a in _context.Devices
+                       join b in _context.Users on a.UserID equals b.Id
+                       where (a.Id == macAddress)
+                       select new { a.FriendlyName, b.FirstName, b.LastName, a.LastSync };
+
+            return new JsonResult(data);
+        }
+
+        /// <summary>
+        /// Allows the machine learning server to send back the labeled data
+        /// </summary>
+        /// <param name="Id">Callback id that's created from the server</param>
+        /// <param name="Activities">File containing timestamps and the activities performed</param>
+        [HttpPost("MlCallback", Name = "MlCallback")]
+        public IActionResult MlCallback(string Id, IFormFile Activities)
+        {
+            if (mlCallbackIds.ContainsKey(Id))
+            {   
+                string deviceId;
+                if (mlCallbackIds.TryGetValue(Id, out deviceId))
+                {
+                    var actionData = readData(Activities);
+                    var ActivityObjects = actionData.Skip(1)
+                                            .Select(line => line.Split(","))
+                                            .Select(tokens => new Activity
+                                            {
+                                                Id = Guid.NewGuid().ToString(),
+                                                DeviceId = deviceId,
+                                                Start = Convert.ToInt64(tokens[0]),
+                                                End = Convert.ToInt64(tokens[1]),
+                                                Type = Convert.ToInt16(tokens[2])
+                                            })
+                                            .ToList();
+
+                    _context.Activities.AddRange(ActivityObjects);
+                    _context.SaveChanges();
+                    return Ok();
+                }
+                return BadRequest("Could not find the device id associated to the callback id");
+            }
+            return BadRequest("Could not find the callback id: " + Id);
+        }
+
+        /// <summary>
+        /// Gets processed activity data for a specific device in a specific time range
+        /// </summary>
+        /// <param name="Start">Epoch for beginning of time range</param>
+        /// <param name="End"Epoch for end of time rante></param>
+        /// <param name="DeviceId">Device Id for the data you want to query</param>
+        /// <returns></returns>
+        [HttpGet("GetActivityData", Name = "GetActivityData")]
+        public IActionResult GetActivityData(long Start, long End, string DeviceId)
+        {
+            var data = (from activities in _context.Activities
+                        where activities.Start >= Start && activities.End <= End && activities.DeviceId == DeviceId
+                        select new { activities.Start, activities.End, activities.Type }).ToList();
+            return Ok(JsonConvert.SerializeObject(data));
+        }
+
+        /// <summary>
+        /// Once a new user signs up for the application, it will add the user's credentials to the database
+        /// </summary>
+        /// <param name="email">
+        /// The email entered by the user, which will be stored and used for future reference when the user tries to log on
+        /// </param>
+        /// <param name="firstName">
+        /// The first name entered by the user
+        /// </param>
+        /// <param name="lastName">
+        /// The last name entered by the user
+        /// </param>
+        /// <param name="password">
+        /// The password entered by the user, this information will be salted and hashed (the hashed password is stored on the database for security purposes)
+        /// </param>
+        [HttpPost("SignUpUser", Name = "SignUpUser")]
+        public IActionResult SignUpUser(string email, string firstName, string lastName, string password)
+        {
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            byte[] buffer = new byte[128];
+
+            rng.GetBytes(buffer);
+            string salt = Convert.ToBase64String(buffer);
+            var saltedPw = password + salt;
+
+            var hashedPw = generateHash(saltedPw);
+
+            User data = new User();
+
+            data.Email = email;
+            data.FirstName = firstName;
+            data.LastName = lastName;
+            data.Password = hashedPw;
+            data.Salt = salt;
+
+            _context.Users.Add(data);
+            _context.SaveChanges();
+
+            return Ok();
+
+        }
+
+        /// <summary>
+        /// Function that will take the salted password and hash it (for encryption and security purposes)
+        /// </summary>
+        /// <param name="saltedPw">
+        /// The salted password that is passed to be hashed with SHA-256 hashing algorithm
+        /// </param>
+        private string generateHash(string saltedPw)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(saltedPw));
+
+                // Convert byte array to a string   
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
     }
 }

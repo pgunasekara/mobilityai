@@ -23,10 +23,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 clf = load('model/mobilityAIModel.joblib')
 print("Loaded model")
 
+"""
+This method is used to check if the server is alive.
+"""
 @app.route("/")
 def hello():
     return "Hello World!"
 
+"""
+This method uses a callback system. The client posts 2 csv files, namely: accelerometer and gyroscope data
+collected from the band, as well a a callback url. The server then loads these 2 files and verifies they are valid.
+If the files are valid, a new thread is started with the files in memory as pandas dataframes and a 200 OK is returned.
+Once the data processing thread is complete, it posts the processed data back to the callback url as a csv file.
+"""
 @app.route("/windowify", methods=['POST'])
 def windowifyData():
     # Get the name of the uploaded files
@@ -46,6 +55,7 @@ def windowifyData():
             # Save the filename into a list, we'll use it later
             filenames.append(filename)
 
+            # Make sure the server finished transferring the files
             while not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
                 continue
 
@@ -54,30 +64,48 @@ def windowifyData():
             if "gyro" in filename:
                 gyro_df = pd.read_csv(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
+    # The request was valid only if 2 csv files were uploaded
     if accel_df is not "" and gyro_df is not "":
+        # Start a new thread to process the data
         start_new_thread(process_data, (accel_df, gyro_df, callback_url,))
-        for f in filenames:
+        for f in filenames: # We can delete the uploaded files since they're already loaded in memory as dataframes
             os.remove(os.path.join(app.config['UPLOAD_FOLDER'], f))
         return ''
     else:
         abort(401)
 
-    
+"""
+Function to process the data iin a new thread.
+When the data is done processing, the result is posted back to the callback url.
+"""
 def process_data(accel_df, gyro_df, callback_url):
     print("Starting windowify")
     accel_gyro_df = preprocess_sensor_data(accel_df, gyro_df)
     print("Complete windowify")
+
+    print("Running model")
+    newX = accel_gyro_df.drop(['epoch_length', 'epoch_end', 'epoch_start'], axis=1)
+    predictions = clf.predict(newX)
+    predictions_pd = pd.DataFrame({'type': predictions})
+    accel_gyro_df = pd.concat([accel_gyro_df, predictions_pd], axis=1)
+    accel_gyro_df = accel_gyro_df[['epoch_start', 'epoch_end', 'type']]
+    accel_gyro_df["epoch_start"] = pd.to_numeric(accel_gyro_df["epoch_start"], downcast='integer')
+    accel_gyro_df["epoch_end"] = pd.to_numeric(accel_gyro_df["epoch_end"], downcast='integer')
+
     file_name = str(uuid.uuid1()) + ".csv"
-    accel_gyro_df.to_csv(file_name, sep='\t')
+    accel_gyro_df.to_csv(file_name, sep=',', index=False)
     print("Saved csv")
 
-    files = {'upload_file': open(file_name,'rb')}
-    values = {}
+    files = {'Activities': open(file_name,'rb')}
+    #values = {'Id': callback_id}
 
-    r = requests.post(callback_url, files=files, data=values)
+    r = requests.post(callback_url, files=files, verify=False)
 
     os.remove(file_name) 
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+if __name__ == '__main__':
+    app.run(port=6000)
