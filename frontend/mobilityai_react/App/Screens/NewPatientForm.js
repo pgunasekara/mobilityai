@@ -52,7 +52,7 @@ export default class PatientForm extends React.Component {
                 alert("please enter numbers only");
             }
         }
-        this.setState({ myNumber: newText });
+        this.setState({ onsetOfCondition: newText });
     }
 
     render() {
