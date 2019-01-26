@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private static final long SCAN_PERIOD = 10000L;
 
 
-    //TODO: Remove
+    //TODO: Remove once the server side changes are made
     private Random r = new Random();
 
     @Override
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 this, Context.BIND_AUTO_CREATE);
     }
 
-    //TODO: Delete this function once Bluetooth stuff is working
+    //TODO: Delete this function once the server side endpoints return the correct data
     private String getRandomName() {
         String[] names = {"Rebecca Tran", "Roberto Temelkovski", "Teo Voinea", "梓川 咲太"};
         int rnd = r.nextInt(names.length);
