@@ -3,6 +3,11 @@ package com.ai.mobility.mobilityai;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -10,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -50,7 +56,8 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
     }
 
     public static class MetaMotionDeviceHolder extends RecyclerView.ViewHolder {
-        private TextView devName, devAssignedUser, devMacAddr, devBattery, devLastSync, devSignalStrength;
+        private TextView devName, devAssignedUser, devMacAddr, devBattery, devLastSync, devSignalStrength, devInitials;
+        private ImageView devProfileImage;
 
         public MetaMotionDeviceHolder(View itemView) {
             super(itemView);
@@ -60,15 +67,8 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
             devBattery = itemView.findViewById(R.id.devBattery);
             devLastSync = itemView.findViewById(R.id.devLastSync);
             devSignalStrength = itemView.findViewById(R.id.devSignalStrength);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //Open DeviceInfoActivity using MAC Address
-//                    Intent intent = new Intent(getBaseContext(), DeviceInfoActivity.class);
-//                    intent.putExtra("EXTRA_MAC_ADDR", );
-                }
-            });
+            devProfileImage = itemView.findViewById(R.id.userImage);
+            devInitials = itemView.findViewById(R.id.initials);
         }
 
         public void setDetails(MetaMotionDevice device) {
@@ -93,9 +93,19 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
             devName.setText(device.getName());
             devAssignedUser.setText(device.getAssignedUser());
             devMacAddr.setText(macaddrString);
+            if(device.getAssignedUser().equals("Unassigned")) {
+                devMacAddr.setTextSize(15);
+                devMacAddr.setPadding(1,1,1,1);
+            } else {
+                devMacAddr.setTextSize(0);
+                devMacAddr.setPadding(0,0,0,0);
+            }
+
             devBattery.setText(batteryLevel);
             devLastSync.setText(lastSynced);
             devSignalStrength.setText(signalString);
+            devProfileImage.setColorFilter(device.getColour());
+            devInitials.setText(device.getAssignedUser().substring(0, 1));
         }
 
         public void bind(MetaMotionDevice device, OnItemClickListener listener) {
@@ -121,6 +131,7 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
         if(pos == -1) {
             MetaMotionDevice dev = exists(device);
             if(dev == null) {
+                device.setColour(getRandomMaterialColour());
                 m_devices.add(device);
                 notifyDataSetChanged();
             } else
@@ -150,6 +161,21 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
         }
 
         return null;
+    }
+
+    private int getRandomMaterialColour() {
+        int returnColour = Color.GRAY;
+        int arrayId = m_context.getResources().getIdentifier("mdcolor_" + "400", "array", m_context.getPackageName());
+
+        if (arrayId != 0)
+        {
+            TypedArray colors = m_context.getResources().obtainTypedArray(arrayId);
+            int index = (int) (Math.random() * colors.length());
+            returnColour = colors.getColor(index, Color.BLACK);
+            colors.recycle();
+        }
+
+        return returnColour;
     }
 
 }

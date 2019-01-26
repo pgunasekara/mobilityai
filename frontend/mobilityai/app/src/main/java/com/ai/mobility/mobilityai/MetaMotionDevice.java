@@ -2,11 +2,14 @@ package com.ai.mobility.mobilityai;
 
 public class MetaMotionDevice {
     private String name;
+    private String firstName;
+    private String lastName;
     private String assignedUser;
     private String macAddr;
     private Integer battery;
     private String lastSync;
     private int rssi;
+    private int colour;
 
     public MetaMotionDevice(String name, String assignedUser, String macAddr, Integer battery, String lastSync, int rssi) {
         this.setName(name);
@@ -65,4 +68,8 @@ public class MetaMotionDevice {
     public void setRssi(int rssi) {
         this.rssi = rssi;
     }
+
+    public int getColour() { return colour; }
+
+    public void setColour(int colour) { this.colour = colour; }
 }
