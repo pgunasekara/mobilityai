@@ -1,20 +1,28 @@
 import React, { Component } from 'react';
 
-import { Alert, Text, View, ScrollView, Button, TouchableHighlight, Image, StyleSheet, ART } from 'react-native';
-import { BarChart, Grid, XAxis, YAxis } from 'react-native-svg-charts'
+import { Text, View, ScrollView, TouchableHighlight, StyleSheet, ART } from 'react-native';
 const { Group, Shape, Surface } = ART;
 
 import * as d3 from 'd3'
 import * as scale from 'd3-scale'
-import { Icon } from 'react-native-elements'
-import FontAwesome5 from 'react-native-vector-icons'
-// import Icon from 'react-native-vector-icons/FontAwesome5';
 
-const colours = ['#3498DB', '#1ABC9C', '#9B59B6', '#F1C40F', '#E74C3C'];
+
+import GetDate from './GetDate.js';
+import Circle from './PatientCircles';
+import BarGraph from './PatientBarGraphs';
+
+// const colours = ['#3498DB', '#1ABC9C', '#9B59B6', '#F1C40F', '#E74C3C'];
 const data = [50, 10, 40, 95, 4, 24, 0, 85, 34, 0, 35, 53, 53];
 const data1 = [20, 35, 49, 24, 50, 20, 40, 19, 24, 50, 20, 40, 19];
 const data2 = [30, 25, 29, 50, 60, 22, 60, 19, 45, 60, 40, 43, 39];
 
+var arrayColours = {
+    standing: '#3498DB',
+    sitting: '#1ABC9C',
+    lyingDown: '#9B59B6',
+    walking: '#F1C40F',
+    misc: '#E74C3C',
+};
 
 export default class PatientData extends Component {
     constructor(props) {
@@ -24,15 +32,15 @@ export default class PatientData extends Component {
             id: props.id,
             firstName: props.firstName,
             lastName: props.lastName,
-            barColour: colours[0],
+            barColour: arrayColours['standing'],
             data: data,
         }
         // this.onPress = this.onPress.bind(this);
         //this.props.navigate = props.navigate;
     } 
 
-    _onPressButton(i, newData) {
-        this.setState({ barColour: colours[i] });
+    _onPressButton(activityColour, newData) {
+        this.setState({ barColour: arrayColours[activityColour]});
         this.setState({ data: newData });
     }
 
@@ -45,6 +53,10 @@ export default class PatientData extends Component {
     //         },
     //     });
 
+    pieColour(i) {
+
+    }
+
 
 
     render() {
@@ -54,30 +66,29 @@ export default class PatientData extends Component {
         const lastName = navigation.getParam('lastName');
 
         const {navigate} = this.props.navigation;
-        
 
         const width = 250;
         const height = 250;
 
         const userActivities = [
             {
-                itemName: 'Standing',
+                itemName: 'standing',
                 movement: 30,
             },
             {
-                itemName: 'Sitting',
+                itemName: 'sitting',
                 movement: 100,
             },
             {
-                itemName: 'Lying Down',
+                itemName: 'lyingDown',
                 movement: 150,
             },
             {
-                itemName: 'Walking',
+                itemName: 'walking',
                 movement: 20,
             },
             {
-                itemName: 'Miscellaneous',
+                itemName: 'misc',
                 movement: 50,
             },
 
@@ -111,7 +122,7 @@ export default class PatientData extends Component {
                                             key={section.index}
                                             d={path(section)}
                                             stroke="#000"
-                                            fill={colours[section.index]}
+                                            fill={arrayColours[userActivities[section.index].itemName]}
                                             strokeWidth={1}
                                         />
                                     ))
@@ -122,24 +133,24 @@ export default class PatientData extends Component {
 
                     {/* Displaying the circle buttons for each activity */}
                     <View style={styles.flexDir}>
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 0, data)} underlayColor="white">
-                            <Circle activity='Standing' activityIcon='male' iconLib='font-awesome' color={colours[0]} />
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'standing', data)} underlayColor="white">
+                            <Circle activity='Standing' activityIcon='male' iconLib='font-awesome' color={arrayColours.standing} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 1, data1)} underlayColor="white">
-                            <Circle activity='Sitting' activityIcon='airline-seat-recline-normal' iconLib='MaterialIcons' color={colours[1]} />
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'sitting', data1)} underlayColor="white">
+                            <Circle activity='Sitting' activityIcon='airline-seat-recline-normal' iconLib='MaterialIcons' color={arrayColours.sitting} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 2, data2)} underlayColor="white">
-                            <Circle activity='Lying Down' activityIcon='bed' iconLib='font-awesome' color={colours[2]} />
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'lyingDown', data2)} underlayColor="white">
+                            <Circle activity='Lying Down' activityIcon='bed' iconLib='font-awesome' color={arrayColours.lyingDown} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 3, data)} underlayColor="white">
-                            <Circle activity='Walking' activityIcon='directions-walk' iconLib='MaterialIcons' color={colours[3]} />
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'walking', data)} underlayColor="white">
+                            <Circle activity='Walking' activityIcon='directions-walk' iconLib='MaterialIcons' color={arrayColours.walking} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 4, data2)} underlayColor="white">
-                            <Circle activity='Miscellaneous' activityIcon='question' iconLib='font-awesome' color={colours[4]} />
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'misc', data2)} underlayColor="white">
+                            <Circle activity='Miscellaneous' activityIcon='question' iconLib='font-awesome' color={arrayColours.misc} />
                         </TouchableHighlight>
                     </View>
 
@@ -152,88 +163,6 @@ export default class PatientData extends Component {
     }
 }
 
-// displaying the bar graph for the movement of the activity 
-class BarGraph extends Component {
-    render() {
-        const fill = this.props.color;
-        const time = ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM'];
-
-        const contentInset = { top: 30, bottom: 30 }
-
-        return (
-            <ScrollView horizontal={true} style={styles.bargraph}>
-                <View style={{ width: 500 }}>
-                    {/* TODO: Display Y Axis
-                        <YAxis
-                        data={data}
-                        contentInset={contentInset}
-                        svg={{
-                            fill: 'grey',
-                            fontSize: 10,
-                        }}
-                        numberOfTicks={13}
-                        formatLabel={value => `${value}ºC`}
-                    /> */}
-                    <BarChart
-                        style={{ height: 200 }}
-                        data={this.props.data}
-                        svg={{ fill }}
-                        contentInset={{ top: 30, bottom: 30 }}
-                    >
-                        <Grid />
-                    </BarChart>
-                    <XAxis
-                        style={{ marginHorizontal: -10 }}
-                        data={this.props.data}
-                        formatLabel={(value, index) => time[index]}
-                        contentInset={{ left: 30, right: 30 }}
-                        svg={{ fontSize: 10, fill: 'black' }}
-                    />
-                </View>
-            </ScrollView>
-
-        )
-    }
-}
-
-// Creating the circle buttons for the activity
-class Circle extends Component {
-    render() {
-        return (
-            <View>
-                <View style={[styles.center,  { color: this.props.color }]}>
-                    {/* Displaying corresponding icons with the activity */}
-                    <Icon
-                        raised
-                        reverse
-                        name={this.props.activityIcon}
-                        type={this.props.iconLib}
-                        color={this.props.color}
-                        size={28}
-                    />
-                </View>
-                <Text style={styles.textFont}>{this.props.activity}</Text>
-            </View>
-        )
-    }
-}
-
-// Getting the current date
-class GetDate extends Component {
-    render() {
-        const date = new Date().getDate().toString();
-        const month = new Date().getMonth() + 1;
-        const year = new Date().getFullYear();
-
-        return (
-            <View style={[styles.textInline, styles.dateButton]}>
-                <Button style={[styles.dateButton]} title={date + '/' + month + '/' + year} />
-            </View>
-        );
-
-    }
-}
-
 const styles = StyleSheet.create({
     circle: {
         width: 60,
@@ -241,11 +170,6 @@ const styles = StyleSheet.create({
         borderRadius: 100 / 2,
         borderWidth: 8,
         borderColor: "red",
-    },
-
-    bargraph: {
-        marginLeft: 10,
-        marginRight: 10,
     },
 
     flexDir: {
@@ -264,17 +188,6 @@ const styles = StyleSheet.create({
     titleFont: {
         fontSize: 35,
         textAlign: 'center',
-    },
-
-    textFont: {
-        fontSize: 10,
-        textAlign: 'center',
-        flex: 1,
-        justifyContent: 'space-between'
-    },
-
-    dateButton: {
-        justifyContent: 'flex-end',
     },
 
     textInline: {
