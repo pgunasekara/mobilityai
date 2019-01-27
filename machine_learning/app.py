@@ -41,7 +41,6 @@ def windowifyData():
     # Get the name of the uploaded files
     uploaded_files = request.files.getlist("file[]")
     callback_url = request.form['callback_url']
-    #callback_id = request.form['callback_id']
     filenames = []
     accel_df = ""
     gyro_df = ""
