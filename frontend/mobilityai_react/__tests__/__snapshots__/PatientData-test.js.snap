@@ -1,0 +1,1066 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<RCTScrollView>
+  <View>
+    <View>
+      <Text
+        style={
+          Object {
+            "fontSize": 35,
+            "textAlign": "center",
+          }
+        }
+      >
+        Pasindu Gunasekara
+      </Text>
+      <View
+        style={
+          Object {
+            "flex": 1,
+            "flexDirection": "row",
+            "justifyContent": "space-between",
+          }
+        }
+      >
+        <Text
+          style={
+            Object {
+              "alignItems": "center",
+              "flex": 1,
+              "flexDirection": "row",
+              "justifyContent": "center",
+            }
+          }
+        >
+          Daily User Activity
+        </Text>
+        <View
+          style={
+            Array [
+              Object {
+                "flex": 1,
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+              },
+              Object {
+                "justifyContent": "flex-end",
+              },
+            ]
+          }
+        >
+          <View
+            accessibilityRole="button"
+            accessibilityStates={Array []}
+            accessible={true}
+            isTVSelectable={true}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              Object {
+                "opacity": 1,
+              }
+            }
+          >
+            <View
+              style={
+                Array [
+                  Object {},
+                ]
+              }
+            >
+              <Text
+                style={
+                  Array [
+                    Object {
+                      "color": "#007AFF",
+                      "fontSize": 18,
+                      "padding": 8,
+                      "textAlign": "center",
+                    },
+                  ]
+                }
+              >
+                27/1/                   </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          Object {
+            "alignItems": "center",
+            "flex": 1,
+            "flexDirection": "row",
+            "justifyContent": "center",
+          }
+        }
+      >
+        <ARTSurfaceView
+          style={
+            Array [
+              undefined,
+              Object {
+                "height": 250,
+                "width": 250,
+              },
+            ]
+          }
+        >
+          <ARTGroup
+            opacity={1}
+            transform={
+              Array [
+                1,
+                0,
+                0,
+                1,
+                125,
+                125,
+              ]
+            }
+          >
+            <ARTShape
+              d={
+                Array [
+                  0,
+                  -76.33234009400498,
+                  -64.60165520923718,
+                  3,
+                  -65.94077674480145,
+                  -76.88016951526664,
+                  -52.740565554942364,
+                  -86.4706843233515,
+                  -37.85183484074205,
+                  -92.5593787748664,
+                  2,
+                  -23.786876802076126,
+                  -55.08343210079463,
+                  3,
+                  -31.923578363562747,
+                  -51.56973097076735,
+                  -39.18080044773504,
+                  -46.29705049143647,
+                  -45.03690786441766,
+                  -39.644380812568556,
+                  1,
+                ]
+              }
+              fill={
+                Array [
+                  0,
+                  0.9450980392156862,
+                  0.7686274509803922,
+                  0.058823529411764705,
+                  1,
+                ]
+              }
+              opacity={1}
+              stroke={
+                Array [
+                  0,
+                  0,
+                  0,
+                  1,
+                ]
+              }
+              strokeCap={1}
+              strokeDash={null}
+              strokeJoin={1}
+              strokeWidth={1}
+              transform={
+                Array [
+                  1,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                ]
+              }
+            />
+            <ARTShape
+              d={
+                Array [
+                  0,
+                  40.74345432347099,
+                  91.32344129406881,
+                  3,
+                  13.88372115393587,
+                  103.30676448060589,
+                  -16.88939069014036,
+                  102.85812453397847,
+                  -43.3883739117558,
+                  90.09688679024191,
+                  3,
+                  -69.88735713337124,
+                  77.33564904650537,
+                  -89.42483937417708,
+                  53.555983824725416,
+                  -96.8026697542052,
+                  25.08471902290888,
+                  2,
+                  -57.77790407438756,
+                  16.177570916885806,
+                  3,
+                  -53.12968140546312,
+                  32.778614723851135,
+                  -41.56528417998536,
+                  46.57818996588149,
+                  -26.033024347053477,
+                  54.05813207414515,
+                  3,
+                  -10.500764514121595,
+                  61.538074182408806,
+                  7.498461589512936,
+                  61.97558957566507,
+                  23.375799710472315,
+                  55.25913488189879,
+                  1,
+                ]
+              }
+              fill={
+                Array [
+                  0,
+                  0.10196078431372549,
+                  0.7372549019607844,
+                  0.611764705882353,
+                  1,
+                ]
+              }
+              opacity={1}
+              stroke={
+                Array [
+                  0,
+                  0,
+                  0,
+                  1,
+                ]
+              }
+              strokeCap={1}
+              strokeDash={null}
+              strokeJoin={1}
+              strokeWidth={1}
+              transform={
+                Array [
+                  1,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                ]
+              }
+            />
+            <ARTShape
+              d={
+                Array [
+                  0,
+                  2.915172261501814,
+                  -99.95749982210324,
+                  3,
+                  48.46305613285203,
+                  -98.62913598879233,
+                  87.35312418286763,
+                  -66.67687733483147,
+                  97.49279121818238,
+                  -22.25209339563144,
+                  3,
+                  107.63245825349712,
+                  22.172690543568596,
+                  86.45728312785842,
+                  67.83444899003003,
+                  45.99641322784263,
+                  88.79374961208444,
+                  2,
+                  28.628758614843928,
+                  52.7294431999144,
+                  3,
+                  52.274965520296334,
+                  39.89104573976539,
+                  64.48296652746006,
+                  12.880783290572424,
+                  58.495674730909414,
+                  -13.351256037378864,
+                  3,
+                  52.508382934358764,
+                  -39.58329536533015,
+                  29.790040421580436,
+                  -58.62184782178765,
+                  2.915172261501799,
+                  -59.92913957905428,
+                  1,
+                ]
+              }
+              fill={
+                Array [
+                  0,
+                  0.20392156862745098,
+                  0.596078431372549,
+                  0.8588235294117647,
+                  1,
+                ]
+              }
+              opacity={1}
+              stroke={
+                Array [
+                  0,
+                  0,
+                  0,
+                  1,
+                ]
+              }
+              strokeCap={1}
+              strokeDash={null}
+              strokeJoin={1}
+              strokeWidth={1}
+              transform={
+                Array [
+                  1,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                ]
+              }
+            />
+            <ARTShape
+              d={
+                Array [
+                  0,
+                  -32.39326299046274,
+                  -94.60801505597037,
+                  3,
+                  -22.89161163839705,
+                  -97.86132811733269,
+                  -12.954081890584625,
+                  -99.66472388294402,
+                  -2.9151722615017945,
+                  -99.95749982210326,
+                  2,
+                  -2.91517226150181,
+                  -59.92913957905428,
+                  3,
+                  -8.153040354263606,
+                  -59.67435054185674,
+                  -13.334903742418774,
+                  -58.73398098027303,
+                  -18.328304951796753,
+                  -57.13206838189865,
+                  1,
+                ]
+              }
+              fill={
+                Array [
+                  0,
+                  0.9058823529411765,
+                  0.2980392156862745,
+                  0.23529411764705882,
+                  1,
+                ]
+              }
+              opacity={1}
+              stroke={
+                Array [
+                  0,
+                  0,
+                  0,
+                  1,
+                ]
+              }
+              strokeCap={1}
+              strokeDash={null}
+              strokeJoin={1}
+              strokeWidth={1}
+              transform={
+                Array [
+                  1,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                ]
+              }
+            />
+            <ARTShape
+              d={
+                Array [
+                  0,
+                  -98.10004346275105,
+                  19.400553409796235,
+                  3,
+                  -103.60865970169313,
+                  -8.454089756566395,
+                  -97.01626891073597,
+                  -37.33724099921011,
+                  -79.96750044542071,
+                  -60.04330830751783,
+                  2,
+                  -48.67206821583333,
+                  -35.0860339108493,
+                  3,
+                  -58.159837981185575,
+                  -21.924404459976795,
+                  -61.91284596831728,
+                  -5.481402104008129,
+                  -59.075277782933405,
+                  10.493405303773171,
+                  1,
+                ]
+              }
+              fill={
+                Array [
+                  0,
+                  0.6078431372549019,
+                  0.34901960784313724,
+                  0.7137254901960784,
+                  1,
+                ]
+              }
+              opacity={1}
+              stroke={
+                Array [
+                  0,
+                  0,
+                  0,
+                  1,
+                ]
+              }
+              strokeCap={1}
+              strokeDash={null}
+              strokeJoin={1}
+              strokeWidth={1}
+              transform={
+                Array [
+                  1,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                ]
+              }
+            />
+          </ARTGroup>
+        </ARTSurfaceView>
+      </View>
+      <View
+        style={
+          Object {
+            "flex": 1,
+            "flexDirection": "row",
+            "justifyContent": "space-evenly",
+          }
+        }
+      >
+        <View
+          accessible={true}
+          isTVSelectable={true}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={null}
+        >
+          <View>
+            <View
+              style={
+                Array [
+                  Object {
+                    "alignItems": "center",
+                    "flex": 1,
+                    "flexDirection": "row",
+                    "justifyContent": "center",
+                  },
+                  Object {
+                    "color": "#3498DB",
+                  },
+                ]
+              }
+            >
+              <View>
+                <View
+                  style={
+                    Object {
+                      "alignItems": "center",
+                      "backgroundColor": "#3498DB",
+                      "borderRadius": 32,
+                      "height": 60,
+                      "justifyContent": "center",
+                      "margin": 7,
+                      "shadowColor": "rgba(0,0,0, .4)",
+                      "shadowOffset": Object {
+                        "height": 1,
+                        "width": 1,
+                      },
+                      "shadowOpacity": 1,
+                      "shadowRadius": 1,
+                      "width": 60,
+                    }
+                  }
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                  underlayColor="#3498DB"
+                >
+                  <Text
+                    allowFontScaling={false}
+                    style={
+                      Array [
+                        Object {
+                          "color": "white",
+                          "fontSize": 28,
+                        },
+                        Object {
+                          "backgroundColor": "transparent",
+                        },
+                        Object {
+                          "fontFamily": "FontAwesome",
+                          "fontStyle": "normal",
+                          "fontWeight": "normal",
+                        },
+                        Object {},
+                      ]
+                    }
+                    testID="iconIcon"
+                  >
+                    
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Text
+              style={
+                Object {
+                  "flex": 1,
+                  "fontSize": 10,
+                  "justifyContent": "space-between",
+                  "textAlign": "center",
+                }
+              }
+            >
+              Standing
+            </Text>
+          </View>
+        </View>
+        <View
+          accessible={true}
+          isTVSelectable={true}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={null}
+        >
+          <View>
+            <View
+              style={
+                Array [
+                  Object {
+                    "alignItems": "center",
+                    "flex": 1,
+                    "flexDirection": "row",
+                    "justifyContent": "center",
+                  },
+                  Object {
+                    "color": "#1ABC9C",
+                  },
+                ]
+              }
+            >
+              <View>
+                <View
+                  style={
+                    Object {
+                      "alignItems": "center",
+                      "backgroundColor": "#1ABC9C",
+                      "borderRadius": 32,
+                      "height": 60,
+                      "justifyContent": "center",
+                      "margin": 7,
+                      "shadowColor": "rgba(0,0,0, .4)",
+                      "shadowOffset": Object {
+                        "height": 1,
+                        "width": 1,
+                      },
+                      "shadowOpacity": 1,
+                      "shadowRadius": 1,
+                      "width": 60,
+                    }
+                  }
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                  underlayColor="#1ABC9C"
+                >
+                  <Text
+                    allowFontScaling={false}
+                    style={
+                      Array [
+                        Object {
+                          "color": "white",
+                          "fontSize": 28,
+                        },
+                        Object {
+                          "backgroundColor": "transparent",
+                        },
+                        Object {
+                          "fontFamily": "Material Icons",
+                          "fontStyle": "normal",
+                          "fontWeight": "normal",
+                        },
+                        Object {},
+                      ]
+                    }
+                    testID="iconIcon"
+                  >
+                    
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Text
+              style={
+                Object {
+                  "flex": 1,
+                  "fontSize": 10,
+                  "justifyContent": "space-between",
+                  "textAlign": "center",
+                }
+              }
+            >
+              Sitting
+            </Text>
+          </View>
+        </View>
+        <View
+          accessible={true}
+          isTVSelectable={true}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={null}
+        >
+          <View>
+            <View
+              style={
+                Array [
+                  Object {
+                    "alignItems": "center",
+                    "flex": 1,
+                    "flexDirection": "row",
+                    "justifyContent": "center",
+                  },
+                  Object {
+                    "color": "#9B59B6",
+                  },
+                ]
+              }
+            >
+              <View>
+                <View
+                  style={
+                    Object {
+                      "alignItems": "center",
+                      "backgroundColor": "#9B59B6",
+                      "borderRadius": 32,
+                      "height": 60,
+                      "justifyContent": "center",
+                      "margin": 7,
+                      "shadowColor": "rgba(0,0,0, .4)",
+                      "shadowOffset": Object {
+                        "height": 1,
+                        "width": 1,
+                      },
+                      "shadowOpacity": 1,
+                      "shadowRadius": 1,
+                      "width": 60,
+                    }
+                  }
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                  underlayColor="#9B59B6"
+                >
+                  <Text
+                    allowFontScaling={false}
+                    style={
+                      Array [
+                        Object {
+                          "color": "white",
+                          "fontSize": 28,
+                        },
+                        Object {
+                          "backgroundColor": "transparent",
+                        },
+                        Object {
+                          "fontFamily": "FontAwesome",
+                          "fontStyle": "normal",
+                          "fontWeight": "normal",
+                        },
+                        Object {},
+                      ]
+                    }
+                    testID="iconIcon"
+                  >
+                    
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Text
+              style={
+                Object {
+                  "flex": 1,
+                  "fontSize": 10,
+                  "justifyContent": "space-between",
+                  "textAlign": "center",
+                }
+              }
+            >
+              Lying Down
+            </Text>
+          </View>
+        </View>
+        <View
+          accessible={true}
+          isTVSelectable={true}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={null}
+        >
+          <View>
+            <View
+              style={
+                Array [
+                  Object {
+                    "alignItems": "center",
+                    "flex": 1,
+                    "flexDirection": "row",
+                    "justifyContent": "center",
+                  },
+                  Object {
+                    "color": "#F1C40F",
+                  },
+                ]
+              }
+            >
+              <View>
+                <View
+                  style={
+                    Object {
+                      "alignItems": "center",
+                      "backgroundColor": "#F1C40F",
+                      "borderRadius": 32,
+                      "height": 60,
+                      "justifyContent": "center",
+                      "margin": 7,
+                      "shadowColor": "rgba(0,0,0, .4)",
+                      "shadowOffset": Object {
+                        "height": 1,
+                        "width": 1,
+                      },
+                      "shadowOpacity": 1,
+                      "shadowRadius": 1,
+                      "width": 60,
+                    }
+                  }
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                  underlayColor="#F1C40F"
+                >
+                  <Text
+                    allowFontScaling={false}
+                    style={
+                      Array [
+                        Object {
+                          "color": "white",
+                          "fontSize": 28,
+                        },
+                        Object {
+                          "backgroundColor": "transparent",
+                        },
+                        Object {
+                          "fontFamily": "Material Icons",
+                          "fontStyle": "normal",
+                          "fontWeight": "normal",
+                        },
+                        Object {},
+                      ]
+                    }
+                    testID="iconIcon"
+                  >
+                    
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Text
+              style={
+                Object {
+                  "flex": 1,
+                  "fontSize": 10,
+                  "justifyContent": "space-between",
+                  "textAlign": "center",
+                }
+              }
+            >
+              Walking
+            </Text>
+          </View>
+        </View>
+        <View
+          accessible={true}
+          isTVSelectable={true}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={null}
+        >
+          <View>
+            <View
+              style={
+                Array [
+                  Object {
+                    "alignItems": "center",
+                    "flex": 1,
+                    "flexDirection": "row",
+                    "justifyContent": "center",
+                  },
+                  Object {
+                    "color": "#E74C3C",
+                  },
+                ]
+              }
+            >
+              <View>
+                <View
+                  style={
+                    Object {
+                      "alignItems": "center",
+                      "backgroundColor": "#E74C3C",
+                      "borderRadius": 32,
+                      "height": 60,
+                      "justifyContent": "center",
+                      "margin": 7,
+                      "shadowColor": "rgba(0,0,0, .4)",
+                      "shadowOffset": Object {
+                        "height": 1,
+                        "width": 1,
+                      },
+                      "shadowOpacity": 1,
+                      "shadowRadius": 1,
+                      "width": 60,
+                    }
+                  }
+                  theme={
+                    Object {
+                      "colors": Object {
+                        "divider": "#bcbbc1",
+                        "error": "#ff190c",
+                        "grey0": "#393e42",
+                        "grey1": "#43484d",
+                        "grey2": "#5e6977",
+                        "grey3": "#86939e",
+                        "grey4": "#bdc6cf",
+                        "grey5": "#e1e8ee",
+                        "greyOutline": "#bbb",
+                        "primary": "#2089dc",
+                        "searchBg": "#303337",
+                        "secondary": "#8F0CE8",
+                      },
+                    }
+                  }
+                  underlayColor="#E74C3C"
+                >
+                  <Text
+                    allowFontScaling={false}
+                    style={
+                      Array [
+                        Object {
+                          "color": "white",
+                          "fontSize": 28,
+                        },
+                        Object {
+                          "backgroundColor": "transparent",
+                        },
+                        Object {
+                          "fontFamily": "FontAwesome",
+                          "fontStyle": "normal",
+                          "fontWeight": "normal",
+                        },
+                        Object {},
+                      ]
+                    }
+                    testID="iconIcon"
+                  >
+                    
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Text
+              style={
+                Object {
+                  "flex": 1,
+                  "fontSize": 10,
+                  "justifyContent": "space-between",
+                  "textAlign": "center",
+                }
+              }
+            >
+              Miscellaneous
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View>
+        <RCTScrollView
+          horizontal={true}
+          style={
+            Object {
+              "marginLeft": 10,
+              "marginRight": 10,
+            }
+          }
+        >
+          <View>
+            <View
+              style={
+                Object {
+                  "width": 500,
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "height": 200,
+                  }
+                }
+              >
+                <View
+                  onLayout={[Function]}
+                  style={
+                    Object {
+                      "flex": 1,
+                    }
+                  }
+                />
+              </View>
+              <View
+                style={
+                  Object {
+                    "marginHorizontal": -10,
+                  }
+                }
+              >
+                <View
+                  onLayout={[Function]}
+                  style={
+                    Object {
+                      "flexGrow": 1,
+                    }
+                  }
+                >
+                  <Text
+                    style={
+                      Object {
+                        "color": "transparent",
+                        "fontSize": 10,
+                      }
+                    }
+                  >
+                    7 AM
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </RCTScrollView>
+      </View>
+    </View>
+  </View>
+</RCTScrollView>
+`;
