@@ -8,7 +8,7 @@ const fakeNavigation = {
         id: 'SomeId'
         firstName = "Pasindu"
         lastName = "Gunasekara"
-        getParam: function(param) {
+        getParam: (param) => {
             return this[param];
         }
     }
