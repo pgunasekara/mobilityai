@@ -76,19 +76,7 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
                     macaddrString = "MAC Address: " + device.getMacAddr(),
                     lastSynced ="Last Synced: " + device.getLastSync(),
                     batteryLevel = String.format("Battery Level: %d", device.getBattery());
-            int rssi = device.getRssi();
-
-            //Signal Strength indicators - https://www.netspotapp.com/what-is-rssi-level.html
-            if(rssi > -50)
-                signalString += "Excellent";
-            else if(rssi > -60 && rssi <= -50)
-                signalString += "Good";
-            else if(rssi <= -60 && rssi > -70)
-                signalString += "Fair";
-            else if(rssi <= -70)
-                signalString += "Weak";
-            else
-                signalString += "Unknown";
+            signalString += getRssiString(device.getRssi());
 
             devName.setText(device.getName());
             devAssignedUser.setText(device.getAssignedUser());
@@ -116,6 +104,24 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
                     listener.onItemClick(device);
                 }
             });
+        }
+
+        private String getRssiString(int rssi) {
+            String retVal;
+
+            //Signal Strength indicators - https://www.netspotapp.com/what-is-rssi-level.html
+            if(rssi > -50)
+                retVal = "Excellent";
+            else if(rssi > -60 && rssi <= -50)
+                retVal = "Good";
+            else if(rssi <= -60 && rssi > -70)
+                retVal = "Fair";
+            else if(rssi <= -70)
+                retVal = "Weak";
+            else
+                retVal = "Unknown";
+
+            return retVal;
         }
     }
 
@@ -177,7 +183,6 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
 
         return returnColour;
     }
-
 }
 
 
