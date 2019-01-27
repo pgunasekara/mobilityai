@@ -24,10 +24,9 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/refreshButton"
-        android:layout_width="wrap_content"
+        android:layout_width="83dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:layout_margin="@dimen/fab_margin"
-        android:onClick="openActivity" />
+        android:layout_margin="@dimen/fab_margin" />
 
 </android.support.design.widget.CoordinatorLayout>

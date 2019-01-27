@@ -34,6 +34,16 @@ import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.Logging;
 import com.mbientlab.metawear.module.Settings;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.util.Date;
+
 import bolts.Continuation;
 import bolts.Task;
 
@@ -79,6 +89,26 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Serialize and save board state
+        if(m_board != null) {
+            serializeBoard();
+            m_board.disconnectAsync();
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        //Reconnect board
+        m_board.connectAsync().continueWith(task -> {
+            deserializeBoard();
+            return null;
+        });
+    }
+
     private void hideAllElements() {
         m_batteryPercentage.setVisibility(View.INVISIBLE);
         m_devName.setVisibility(View.INVISIBLE);
@@ -114,6 +144,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         super.onDestroy();
 
         if(m_board.isConnected()) {
+            serializeBoard();
             m_board.disconnectAsync().continueWith(task -> {
                if(!task.isFaulted()) {
                    Log.i(TAG, "Disconnected " + m_macAddress);
@@ -142,6 +173,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
             } else {
 
                 Log.i("MobilityAI", "App Configured, connected: " + m_macAddress);
+
+                deserializeBoard();
 
                 //Retrieve Modules
                 m_led = m_board.getModule(Led.class);
@@ -196,6 +229,10 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
             m_stopLoggingButton.setOnClickListener(l -> {
                 //Stop accelerometer and gyroscope
                 Log.i(TAG, "STOP LOGGING");
+
+                //TOOD: Only do this if not already configured
+                configureLogging();
+
                 m_accelerometer.acceleration().stop();
                 m_accelerometer.stop();
                 m_gyroscope.angularVelocity().stop();
@@ -205,7 +242,10 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 m_logging.stop();
 
 //                Collect Log
-                m_logging.downloadAsync().continueWithTask(t -> {
+                m_logging.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
+                    m_syncProgressBar.setProgress((int)totalEntries - (int)nEntriesLeft);
+                    m_syncProgressBar.setMax((int)totalEntries);
+                }).continueWithTask(t -> {
                     if(t.isFaulted()) {
                         Toast.makeText(this, "Failed to download log file.", Toast.LENGTH_LONG).show();
                         Log.i(TAG, "Failed to download log file.");
@@ -215,8 +255,19 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                         m_logging.clearEntries();
 
                         //Save data from string builders into local file until ready to be sent to server
-                        Log.i(TAG, m_accelerometerLog.toString());
-                        Log.i(TAG, m_gyroscopeLog.toString());
+//                        Log.i(TAG, m_accelerometerLog.toString());
+//                        Log.i(TAG, m_gyroscopeLog.toString());
+
+                        //Save to file
+                        String datetime = DateFormat.getDateTimeInstance().format(new Date());
+
+                        //Accelerometer File
+                        createCSV("accelerometer-" + datetime,
+                                    m_accelerometerLog.toString());
+                        createCSV("gyroscope-" + datetime,
+                                m_gyroscopeLog.toString());
+
+                        Log.i(TAG, "Location: " + this.getFilesDir().getAbsolutePath());
                     }
 
                     //Clear everything on the board
@@ -360,10 +411,9 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         //Configure Acceleromter
         if(m_board.isConnected() && m_logging != null && m_accelerometer != null ) {
             //Append initial log line
-            m_accelerometerLog.append("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)");
-
             //Add new async route to log data
             m_accelerometer.acceleration().addRouteAsync((RouteComponent source) -> {
+                m_accelerometerLog.append("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n");
                 source.log((Data data, Object... env) -> {
                     m_accelerometerLog
                             .append(data.timestamp().getTimeInMillis()).append(",")
@@ -380,8 +430,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         //Configure Gyroscope
         if(m_board.isConnected() && m_logging != null && m_gyroscope != null) {
             //Append first line of Gyroscope
-            m_gyroscopeLog.append("epoch (ms),time (-13:00),elapsed (s),x-axis (deg/s),y-axis (deg/s),z-axis (deg/s)");
-
+            m_gyroscopeLog.append("epoch (ms),time (-13:00),elapsed (s),x-axis (deg/s),y-axis (deg/s),z-axis (deg/s)\n");
 
             //Add new async route to log data
             m_gyroscope.angularVelocity().addRouteAsync((RouteComponent source) -> {
@@ -395,6 +444,42 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                             .append(data.value(AngularVelocity.class).z()).append("\n");
                 });
             });
+        }
+    }
+
+    private void createCSV(String filename, String data) {
+        try {
+            OutputStreamWriter writer = new OutputStreamWriter(this.openFileOutput(filename, Context.MODE_PRIVATE));
+            writer.write(data);
+            writer.close();
+        } catch (IOException e) {
+            Log.i(TAG, "Write failed for: " + filename + " " + e.toString());
+        }
+    }
+
+    private void serializeBoard() {
+        try {
+            File serializeFile = new File(this.getFilesDir(), m_board.getMacAddress());
+            serializeFile.createNewFile();
+            OutputStream writer = new FileOutputStream(serializeFile, false);
+            m_board.serialize(writer);
+            writer.close();
+        } catch (IOException e) {
+            Log.i(TAG, "Write failed for: " + m_board.getMacAddress() + " " + e.toString());
+        }
+    }
+
+    private void deserializeBoard() {
+        try {
+            File serializeFile = new File(this.getFilesDir(), m_board.getMacAddress());
+            InputStream reader = new FileInputStream(serializeFile);
+            m_board.deserialize(reader);
+            reader.close();
+            serializeFile.delete();
+        } catch (IOException e) {
+            Log.i(TAG, "Failed to read - 1: " + m_board.getMacAddress() + " " + e.toString());
+        } catch (ClassNotFoundException e) {
+            Log.i(TAG, "Failed to read - 2: " + m_board.getMacAddress() + " " + e.toString());
         }
     }
 }
