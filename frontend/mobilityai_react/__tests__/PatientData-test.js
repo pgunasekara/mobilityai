@@ -4,13 +4,11 @@ import PatientData from '../App/Screens/PatientData';
 import renderer from 'react-test-renderer';
 
 const fakeNavigation = {
-    'navigate': function() {
-        id: 'SomeId'
-        firstName = "Pasindu"
-        lastName = "Gunasekara"
-        getParam: (param) => {
-            return this[param];
-        }
+    id: 'SomeId',
+    firstName: "Pasindu",
+    lastName: "Gunasekara",
+    getParam: (param) => {
+        return this[param];
     }
 };
 
