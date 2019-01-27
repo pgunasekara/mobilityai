@@ -1,31 +1,6 @@
 import React from 'react';
-import { ScrollView, Platform, TouchableHighlight, Button, StyleSheet, Text, View, FlatList } from 'react-native';
-
-import t from 'tcomb-form-native';
-
-const Form = t.form.Form;
-
-// Creating the form fields
-const User = t.struct({
-    email: t.String,
-    password: t.String,
-});
-
-// Adding error messages and password type to the field inputs
-const options = {
-    fields: {
-        email: {
-            error: 'Please enter valid email address',
-        },
-
-        password: {
-            error: 'Please enter a valid password',
-            password: true,
-            secureTextEntry: true,
-        },
-    }
-}
-
+import { ScrollView, Platform, TouchableHighlight, Button, StyleSheet, Text, View } from 'react-native';
+import { Input, Icon } from 'react-native-elements'
 
 export default class SignIn extends React.Component {
     constructor(props) {
@@ -54,15 +29,37 @@ export default class SignIn extends React.Component {
         return (
             <ScrollView>
                 <View>
-                <Text style={[styles.titleText, styles.regText, styles.boldText]}>MobilityAI</Text>
+                    <Text style={[styles.titleText, styles.regText, styles.boldText]}>MobilityAI</Text>
                     <Text style={styles.regText}>Sign in below to access your account</Text>
 
                     {/* Generating the sign in form */}
                     <View style={styles.container}>
                         <View style={[styles.formStyle, styles.formBorder]}>
-                            <Form ref={c => this._form = c}
-                                  type={User}
-                                  options={options} 
+                            <Input
+                                onChangeText={(email) => this.setState({ email })}
+                                value={this.state.email}
+                                placeholder='Email'
+                                leftIcon={
+                                    <Icon
+                                        name='email'
+                                        size={24}
+                                    />
+                                }
+                            />
+                            <Input
+                                onChangeText={(password) => this.setState({ password })}
+                                value={this.state.password}
+                                placeholder='Password'
+                                leftIcon={
+                                    <Icon
+
+                                        name='lock'
+                                        size={24}
+                                        type={'font-awesome'}
+                                    />
+                                }
+                                password={true}
+                                secureTextEntry={true}
                             />
                         </View>
                     </View>
