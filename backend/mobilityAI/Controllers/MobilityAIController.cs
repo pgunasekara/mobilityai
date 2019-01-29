@@ -138,11 +138,11 @@ namespace mobilityAI.Controllers
         /// <param name="GyroscopeFile">
         /// The file input for Gyroscope
         /// </param>
-        /// <param name="PatientID">
+        /// <param name="patientID">
         /// The patient id from which this data came from
         /// </param>
         [HttpPost("AddData", Name = "AddData")]
-        public async Task<IActionResult> AddData(IFormFile AccelerometerFile, IFormFile GyroscopeFile, int PatientId)
+        public async Task<IActionResult> AddData(IFormFile AccelerometerFile, IFormFile GyroscopeFile, int patientId)
         {
             var result = readData(AccelerometerFile);
             var AccelerometerObjects = result.Skip(1)
@@ -150,7 +150,7 @@ namespace mobilityAI.Controllers
                                             .Select(tokens => new Accelerometer
                                             {
                                                 Id = Guid.NewGuid().ToString(),
-                                                PatientId = Convert.ToInt32(PatientId),
+                                                PatientId = Convert.ToInt32(patientId),
                                                 Epoch = Convert.ToInt64(tokens[0]),
                                                 Timestamp = DateTime.Parse(tokens[1]),
                                                 Elapsed = Convert.ToDouble(tokens[2]),
@@ -168,7 +168,7 @@ namespace mobilityAI.Controllers
                                         .Select(tokens => new Gyroscope
                                         {
                                             Id = Guid.NewGuid().ToString(),
-                                            PatientId = Convert.ToInt32(PatientId),
+                                            PatientId = Convert.ToInt32(patientId),
                                             Epoch = Convert.ToInt64(tokens[0]),
                                             Timestamp = DateTime.Parse(tokens[1]),
                                             Elapsed = Convert.ToDouble(tokens[2]),
@@ -200,7 +200,7 @@ namespace mobilityAI.Controllers
 
             response.EnsureSuccessStatusCode();
 
-            mlCallbackIds.TryAdd(callbackId, PatientId);
+            mlCallbackIds.TryAdd(callbackId, patientId);
 
             return Ok();
         }
@@ -273,7 +273,7 @@ namespace mobilityAI.Controllers
         /// <summary>
         /// Allows the machine learning server to send back the labeled data
         /// </summary>
-        /// <param name="Id">Callback id that's created from tshe server</param>
+        /// <param name="Id">Callback id that's created from the server</param>
         /// <param name="Activities">File containing timestamps and the activities performed</param>
         [HttpPost("MlCallback", Name = "MlCallback")]
         public IActionResult MlCallback(string Id, IFormFile Activities)
@@ -310,13 +310,13 @@ namespace mobilityAI.Controllers
         /// </summary>
         /// <param name="Start">Epoch for beginning of time range</param>
         /// <param name="End"Epoch for end of time rante></param>
-        /// <param name="DeviceId">Device Id for the data you want to query</param>
+        /// <param name="patientId">Patient Id for the data you want to query</param>
         /// <returns></returns>
         [HttpGet("GetActivityData", Name = "GetActivityData")]
-        public IActionResult GetActivityData(long Start, long End, int PatientId)
+        public IActionResult GetActivityData(long Start, long End, int patientId)
         {
             var data = (from activities in _context.Activities
-                        where activities.Start >= Start && activities.End <= End && activities.PatientId == PatientId
+                        where activities.Start >= Start && activities.End <= End && activities.PatientId == patientId
                         select new { activities.Start, activities.End, activities.Type }).ToList();
             return Ok(JsonConvert.SerializeObject(data));
         }
