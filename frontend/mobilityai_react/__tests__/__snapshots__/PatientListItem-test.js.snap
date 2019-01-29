@@ -1,0 +1,153 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<View
+  accessible={true}
+  isTVSelectable={true}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={null}
+>
+  <View
+    style={
+      Object {
+        "borderBottomColor": "grey",
+        "borderBottomWidth": 1,
+        "paddingBottom": 15,
+        "paddingLeft": 5,
+        "paddingTop": 15,
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "flexDirection": "row",
+          "justifyContent": "space-between",
+        }
+      }
+    >
+      <View
+        accessible={true}
+        isTVSelectable={true}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          Object {
+            "backgroundColor": "transparent",
+            "borderRadius": 25,
+            "height": 50,
+            "opacity": 1,
+            "overflow": "hidden",
+            "width": 50,
+          }
+        }
+      >
+        <View
+          style={
+            Array [
+              Object {
+                "flex": 1,
+              },
+              undefined,
+            ]
+          }
+        >
+          <Image
+            onLoadEnd={[Function]}
+            style={
+              Array [
+                Object {
+                  "flex": 1,
+                  "height": null,
+                  "width": null,
+                },
+                Array [
+                  undefined,
+                  undefined,
+                ],
+              ]
+            }
+          />
+          <View
+            style={
+              Object {
+                "bottom": 0,
+                "left": 0,
+                "opacity": 1,
+                "position": "absolute",
+                "right": 0,
+                "top": 0,
+              }
+            }
+          >
+            <View
+              style={
+                Array [
+                  Array [
+                    undefined,
+                    undefined,
+                  ],
+                  Object {
+                    "alignItems": "center",
+                    "backgroundColor": "#BDBDBD",
+                    "flex": 1,
+                    "justifyContent": "center",
+                  },
+                  undefined,
+                ]
+              }
+            >
+              <Text
+                style={
+                  Array [
+                    Object {
+                      "backgroundColor": "transparent",
+                      "color": "#ffffff",
+                      "textAlign": "center",
+                    },
+                    Object {
+                      "fontSize": 25,
+                    },
+                    undefined,
+                  ]
+                }
+              >
+                JS
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          Object {
+            "alignItems": "center",
+            "flex": 1,
+            "justifyContent": "center",
+            "textAlign": "center",
+          }
+        }
+      >
+        <Text
+          style={
+            Object {
+              "fontSize": 30,
+            }
+          }
+        >
+          John Smith
+        </Text>
+      </View>
+    </View>
+  </View>
+</View>
+`;
