@@ -48,7 +48,7 @@ def windowifyData():
         # Check if the file is one of the allowed types/extensions
         if file and allowed_file(file.filename):
             # Make the filename safe, remove unsupported chars
-            filename = secure_filename(file.filename)
+            filename = secure_filename(file.filename).lower()
             # Move the file form the temporal folder to the upload
             # folder we setup
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
