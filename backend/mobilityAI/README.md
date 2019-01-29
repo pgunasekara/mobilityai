@@ -18,9 +18,10 @@ The MobilityAI backend is comprised of a PostgreSQL database and a dotnet core w
 - Retrieve all rows of data in the Accelerometer/Gyroscope tables
 - Results are returned in a list of objects of either Accelerometer or Gyroscope type
 
-### AddData(AccelerometerFile, GyroscopeFile)
+### AddData(AccelerometerFile, GyroscopeFile, PatientId)
 - Given a .CSV file in the following format: 
     - Id (data type: string, Unique Identifier)
+    - PatientId (data type: int)
     - Epoch (data type: long)
     - Timestamp (data type: DateTime)
     - Elapsed (data type: double)
@@ -29,8 +30,8 @@ The MobilityAI backend is comprised of a PostgreSQL database and a dotnet core w
     - ZAxis (data type: double)
 - Parses through the file and adds each row to the specified table
 
-### GetRangeAccelerometer(start, end) && GetRangeGyroscope(start, end)
-- Given a start and end epoch time, retrieves all the data between the range specified
+### GetRangeAccelerometer(start, end, patientId) && GetRangeGyroscope(start, end, patientId)
+- Given a patient ID, start and end epoch time, retrieves all the data between the range specified that belongs to the specific patient
 - Results are returned in a JSON file
 
 ### SetDeviceInfo(id, name, userid, lastsync)
@@ -40,3 +41,16 @@ The MobilityAI backend is comprised of a PostgreSQL database and a dotnet core w
 ### GetDeviceInfo(macAddress)
 - Given a macAddress, return the user information and the device information
 - Result is returned in a JSON file
+
+### AddPatientData(PatientData)
+- Given a JSON file, th
+
+### SignUpUser(email, firstName, lastName, password)
+- Adding a new user's credentials and information to the database for future reference and signing in
+
+### MLCallBack(Id, Activities)
+- Allows the machine learning server to send back the labeled data 
+
+### GetActivityData(Start, End, PatientId)
+- Given a patient ID, start and end epoch time, retrieves the processed activity data
+- Results are returned in a JSON file
