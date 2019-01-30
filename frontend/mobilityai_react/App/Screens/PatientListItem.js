@@ -9,6 +9,8 @@ export default class PatientListItem extends Component {
         super(props);
 
         this.state = {
+            id: props.id,
+            deviceId: props.deviceId,
             name: props.name,
             firstRow: props.firstRow,
             firstName: props.firstName,
@@ -23,7 +25,7 @@ export default class PatientListItem extends Component {
             <TouchableHighlight
                     onPress={() => {navigate('PatientData',
                             {
-                                id: "someID",
+                                id: this.state.id,
                                 firstName: this.state.firstName,
                                 lastName: this.state.lastName
                             }
