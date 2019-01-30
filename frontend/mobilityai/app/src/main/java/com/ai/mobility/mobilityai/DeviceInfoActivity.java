@@ -98,7 +98,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         if(m_board != null) {
 
             m_board.disconnectAsync().continueWithTask(task -> {
-                serializeBoard();
+//                serializeBoard();
                 return null;
             });
         }
@@ -107,7 +107,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         //Reconnect board
-        deserializeBoard();
+//        deserializeBoard();
         m_board.connectAsync().continueWith(task -> {
             Log.i(TAG, "Connected!");
             return null;
@@ -154,7 +154,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                if(!task.isFaulted()) {
                    Log.i(TAG, "Disconnected " + m_macAddress);
                }
-               serializeBoard();
+//               serializeBoard();
                return null;
             });
         }
@@ -172,7 +172,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 
         m_board = m_serviceBinder.getMetaWearBoard(remoteDevice);
 
-        deserializeBoard();
+//        deserializeBoard();
 
         m_board.connectAsync().continueWithTask(task -> {
             if (task.isFaulted()) {
@@ -219,18 +219,17 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 //Reconfigure
                 configureAccelerometer();
                 configureGyroscope();
-                configureLogging().continueWith(task1 -> {
-                    m_accelerometer.acceleration().start();
-                    m_accelerometer.start();
-                    m_gyroscope.angularVelocity().start();
-                    m_gyroscope.start();
 
-                    m_logging.start(true);
+                m_accelerometer.acceleration().start();
+                m_accelerometer.start();
+                m_gyroscope.angularVelocity().start();
+                m_gyroscope.start();
 
-                    Log.i(TAG, "Done");
+                //serializeBoard();
 
-                    return null;
-                });
+                m_logging.start(true);
+
+                Log.i(TAG, "Done");
 //
                 //Reprogram accelerometer and gyroscope
 
@@ -256,39 +255,46 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 //Stop logging
                 m_logging.stop();
 
-//                Collect Log
-                m_logging.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
-                    m_syncProgressBar.setProgress((int)totalEntries - (int)nEntriesLeft);
-                    m_syncProgressBar.setMax((int)totalEntries);
-                }).continueWithTask(t -> {
-                    if(t.isFaulted()) {
-                        Toast.makeText(this, "Failed to download log file.", Toast.LENGTH_LONG).show();
-                        Log.i(TAG, "Failed to download log file.");
-                    } else {
-                        Log.i(TAG, "Log downloaded successfully");
-                        //Clear Log
-                        m_logging.clearEntries();
+                //deserializeBoard();
 
-                        //Save data from string builders into local file until ready to be sent to server
+                configureLogging().continueWith(task1 -> {
+                    // Collect Log
+                    m_logging.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
+                        m_syncProgressBar.setProgress((int)totalEntries - (int)nEntriesLeft);
+                        m_syncProgressBar.setMax((int)totalEntries);
+                    }).continueWithTask(t -> {
+                        if(t.isFaulted()) {
+                            Toast.makeText(this, "Failed to download log file.", Toast.LENGTH_LONG).show();
+                            Log.i(TAG, "Failed to download log file.");
+                        } else {
+                            Log.i(TAG, "Log downloaded successfully");
+                            //Clear Log
+                            m_logging.clearEntries();
+
+                            //Save data from string builders into local file until ready to be sent to server
 //                        Log.i(TAG, m_accelerometerLog.toString());
 //                        Log.i(TAG, m_gyroscopeLog.toString());
 
-                        //Save to file
-                        String datetime = DateFormat.getDateTimeInstance().format(new Date());
+                            //Save to file
+                            String datetime = DateFormat.getDateTimeInstance().format(new Date());
 
-                        //Accelerometer File
+                            //Accelerometer File
 //                        createCSV("accelerometer-" + datetime,
 //                                    m_accelerometerLog.toString());
 //                        createCSV("gyroscope-" + datetime,
 //                                m_gyroscopeLog.toString());
 
-                        Log.i(TAG, "Location: " + this.getFilesDir().getAbsolutePath());
-                    }
+                            Log.i(TAG, "Location: " + this.getFilesDir().getAbsolutePath());
+                        }
 
-                    //Clear everything on the board
-                    m_board.tearDown();
+                        //Clear everything on the board
+                        m_board.tearDown();
+                        return null;
+                    });
+
                     return null;
                 });
+
             });
             return null;
         });
@@ -440,6 +446,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 //                            .append(data.value(Acceleration.class).x()).append(",")
 //                            .append(data.value(Acceleration.class).y()).append(",")
 //                            .append(data.value(Acceleration.class).z()).append("\n");
+                    Log.i(TAG, "GETTING DATA");
                     String value = data.timestamp().getTimeInMillis()+","+data.formattedTimestamp()+","+"0"+","+data.value(Acceleration.class).x()+","+data.value(Acceleration.class).y()+","+data.value(Acceleration.class).z()+"\n";
                     try {
                         FileOutputStream fosX = (FileOutputStream) env[0];
@@ -452,6 +459,11 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 });
 
             }).continueWith(task -> {
+
+                if(task.isFaulted()) {
+                    Log.i(TAG, "Task Faulted");
+                }
+
                 String datetime = DateFormat.getDateTimeInstance().format(new Date());
                 fos = openFileOutput("accelerometer-" + datetime, MODE_PRIVATE);
 
