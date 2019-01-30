@@ -404,5 +404,33 @@ namespace mobilityAI.Controllers
                 return builder.ToString();
             }
         }
+
+        /// <summary>
+        /// Returns a list of all patients
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetPatients", Name = "GetPatients")]
+        public JsonResult GetPatients() {
+            var demoPatients = new List<Patient> {
+                new Patient {
+                    DeviceId = "1",
+                    FirstName = "Joe",
+                    LastName = "Johnson"
+                },
+                new Patient {
+                    DeviceId = "2",
+                    FirstName = "Ruth",
+                    LastName = "Reynolds",
+                },
+                new Patient {
+                    DeviceId = "3",
+                    FirstName = "Marie",
+                    LastName = "Anderson"
+                }
+            };
+            _context.Patients.AddRange(demoPatients);
+            _context.SaveChanges();
+            return new JsonResult(_context.Patients.ToList());
+        }
     }
 }

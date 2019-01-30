@@ -60,12 +60,10 @@ export default class PatientData extends Component {
 
 
     render() {
-        const { navigation } = this.props.navigation;
+        const { navigation } = this.props;
         const id = navigation.getParam('id');
         const firstName = navigation.getParam('firstName');
         const lastName = navigation.getParam('lastName');
-
-        const {navigate} = this.props.navigation;
 
         const width = 250;
         const height = 250;

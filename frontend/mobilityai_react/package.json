@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest",
-    "test-ci": "jest --ci"
+    "test": "NODE_ENV=test jest",
+    "test-ci": "NODE_ENV=test jest --ci"
   },
   "dependencies": {
     "art": "^0.10.3",
@@ -21,6 +21,7 @@
     "react-native-svg-charts": "^5.2.0",
     "react-native-vector-icons": "^6.2.0",
     "react-navigation": "^3.0.9",
+    "rn-fetch-blob": "^0.10.15",
     "tcomb-form-native-builder": "^0.2.13"
   },
   "devDependencies": {
