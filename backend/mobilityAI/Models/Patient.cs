@@ -3,28 +3,24 @@ using System.Globalization;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace mobilityAI.Models {
-    public class Activity {
+namespace mobilityAI.Models
+{
+    public class Patient
+    {
         [Key]
-        public string Id {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id {
+            get; set;
+        }
+        public string DeviceId {
             get; set;
         }
         [Required]
-        [ForeignKey("Patient")]
-        public int PatientId
-        {
+        public string FirstName {
             get; set;
         }
         [Required]
-        public long Start {
-            get; set;
-        }
-        [Required]
-        public long End {
-            get; set;
-        }
-        [Required]
-        public short Type {
+        public string LastName {
             get; set;
         }
     }

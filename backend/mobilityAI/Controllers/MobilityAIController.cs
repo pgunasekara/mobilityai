@@ -16,20 +16,21 @@ using System.Security.Cryptography;
 
 /// <summary>
 /// Endpoints for retrieving all data/range of data/writing data to/from the database
+/// Endpoints to add patient data, new user sign ups
 ///</summary>
 
 namespace mobilityAI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SensorDataController : ControllerBase
+    public class MobilityAIController : ControllerBase
     {
         const string ML_SERVER_URL = "http://127.0.0.1:6000/";
         const string SERVER_URL = "http://127.0.0.1:5000/";
-        private readonly SensorDataContext _context;
+        private readonly MobilityAIContext _context;
         private static readonly HttpClient client = new HttpClient();
-        private static ConcurrentDictionary<string, string> mlCallbackIds = new ConcurrentDictionary<string, string>();
-        public SensorDataController(SensorDataContext context)
+        private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
+        public MobilityAIController(MobilityAIContext context)
         {
             _context = context;
         }
@@ -93,11 +94,14 @@ namespace mobilityAI.Controllers
         /// <param name="end">
         /// The ending point of the Epoch time of which the range will end at
         /// </param>
+        /// <param name="patientId">
+        /// The specific patient id for the range of data to be retrieved from
+        /// </param>
         [HttpGet("GetRangeAccelerometer", Name = "GetRangeAccelerometer")]
-        public JsonResult GetRangeAccelerometer(long start, long end)
+        public JsonResult GetRangeAccelerometer(long start, long end, int patientId)
         {
             var dataRange = from a in _context.AccelerometerData
-                            where (a.Epoch >= start && a.Epoch <= end)
+                            where (a.PatientId == patientId && a.Epoch >= start && a.Epoch <= end)
                             select a;
             return new JsonResult(dataRange.ToList());
         }
@@ -112,11 +116,14 @@ namespace mobilityAI.Controllers
         /// <param name="end">
         /// The ending point of the Epoch time of which the range will end at
         /// </param>
+        /// <param name="patientId">
+        /// The specific patient id for the range of data to be retrieved from
+        /// </param>
         [HttpGet("GetRangeGyroscope", Name = "GetRangeGyroscope")]
-        public JsonResult GetRangeGyroscope(long start, long end)
+        public JsonResult GetRangeGyroscope(long start, long end, int patientId)
         {
             var dataRange = from a in _context.GyroscopeData
-                            where (a.Epoch >= start && a.Epoch <= end)
+                            where (a.PatientId == patientId && a.Epoch >= start && a.Epoch <= end)
                             select a;
             return new JsonResult(dataRange.ToList());
         }
@@ -131,11 +138,11 @@ namespace mobilityAI.Controllers
         /// <param name="GyroscopeFile">
         /// The file input for Gyroscope
         /// </param>
-        /// <param name="DeviceId">
-        /// The device id from which this data came
+        /// <param name="patientID">
+        /// The patient id from which this data came from
         /// </param>
         [HttpPost("AddData", Name = "AddData")]
-        public async Task<IActionResult> AddData(IFormFile AccelerometerFile, IFormFile GyroscopeFile, string DeviceId)
+        public async Task<IActionResult> AddData(IFormFile AccelerometerFile, IFormFile GyroscopeFile, int patientId)
         {
             var result = readData(AccelerometerFile);
             var AccelerometerObjects = result.Skip(1)
@@ -143,6 +150,7 @@ namespace mobilityAI.Controllers
                                             .Select(tokens => new Accelerometer
                                             {
                                                 Id = Guid.NewGuid().ToString(),
+                                                PatientId = Convert.ToInt32(patientId),
                                                 Epoch = Convert.ToInt64(tokens[0]),
                                                 Timestamp = DateTime.Parse(tokens[1]),
                                                 Elapsed = Convert.ToDouble(tokens[2]),
@@ -160,6 +168,7 @@ namespace mobilityAI.Controllers
                                         .Select(tokens => new Gyroscope
                                         {
                                             Id = Guid.NewGuid().ToString(),
+                                            PatientId = Convert.ToInt32(patientId),
                                             Epoch = Convert.ToInt64(tokens[0]),
                                             Timestamp = DateTime.Parse(tokens[1]),
                                             Elapsed = Convert.ToDouble(tokens[2]),
@@ -191,7 +200,7 @@ namespace mobilityAI.Controllers
 
             response.EnsureSuccessStatusCode();
 
-            mlCallbackIds.TryAdd(callbackId, DeviceId);
+            mlCallbackIds.TryAdd(callbackId, patientId);
 
             return Ok();
         }
@@ -219,14 +228,14 @@ namespace mobilityAI.Controllers
         /// <param name="name">
         /// The string value of the name for the device
         /// </param>
-        /// <param name="userid">
-        /// The id value of the user
+        /// <param name="patientId">
+        /// The id value of the patient
         /// </param>
         /// <param name="lastsync">
         /// The timestamp of when the device was last synced
         /// </param>
         [HttpGet("SetDeviceInfo", Name = "SetDeviceInfo")]
-        public IActionResult SetDeviceInfo(string id, string name, int userid, string lastsync)
+        public IActionResult SetDeviceInfo(string id, string name, int patientId, string lastsync)
         {
             Device data = (from a in _context.Devices
                            where (a.Id == id)
@@ -236,7 +245,7 @@ namespace mobilityAI.Controllers
 
             data.Id = id;
             data.FriendlyName = name;
-            data.UserID = userid;
+            data.PatientID = patientId;
             data.LastSync = date;
 
             _context.SaveChanges();
@@ -254,7 +263,7 @@ namespace mobilityAI.Controllers
         public JsonResult GetDeviceInfo(string macAddress)
         {
             var data = from a in _context.Devices
-                       join b in _context.Users on a.UserID equals b.Id
+                       join b in _context.Users on a.PatientID equals b.Id
                        where (a.Id == macAddress)
                        select new { a.FriendlyName, b.FirstName, b.LastName, a.LastSync };
 
@@ -270,9 +279,9 @@ namespace mobilityAI.Controllers
         public IActionResult MlCallback(string Id, IFormFile Activities)
         {
             if (mlCallbackIds.ContainsKey(Id))
-            {   
-                string deviceId;
-                if (mlCallbackIds.TryGetValue(Id, out deviceId))
+            {
+                int patientId;
+                if (mlCallbackIds.TryGetValue(Id, out patientId))
                 {
                     var actionData = readData(Activities);
                     var ActivityObjects = actionData.Skip(1)
@@ -280,7 +289,7 @@ namespace mobilityAI.Controllers
                                             .Select(tokens => new Activity
                                             {
                                                 Id = Guid.NewGuid().ToString(),
-                                                DeviceId = deviceId,
+                                                PatientId = Convert.ToInt32(patientId),
                                                 Start = Convert.ToInt64(tokens[0]),
                                                 End = Convert.ToInt64(tokens[1]),
                                                 Type = Convert.ToInt16(tokens[2])
@@ -301,15 +310,34 @@ namespace mobilityAI.Controllers
         /// </summary>
         /// <param name="Start">Epoch for beginning of time range</param>
         /// <param name="End"Epoch for end of time rante></param>
-        /// <param name="DeviceId">Device Id for the data you want to query</param>
+        /// <param name="patientId">Patient Id for the data you want to query</param>
         /// <returns></returns>
         [HttpGet("GetActivityData", Name = "GetActivityData")]
-        public IActionResult GetActivityData(long Start, long End, string DeviceId)
+        public IActionResult GetActivityData(long Start, long End, int patientId)
         {
             var data = (from activities in _context.Activities
-                        where activities.Start >= Start && activities.End <= End && activities.DeviceId == DeviceId
+                        where activities.Start >= Start && activities.End <= End && activities.PatientId == patientId
                         select new { activities.Start, activities.End, activities.Type }).ToList();
             return Ok(JsonConvert.SerializeObject(data));
+        }
+
+        /// <summary>
+        /// Adding new patient and corresponding data to the database
+        /// </summary>
+        /// <param name="PatientData"> 
+        /// Corresponding data of the new patient to be added
+        /// </param>
+        [HttpPost("AddPatientData", Name = "AddPatientData")]
+        public IActionResult AddPatientData(string PatientData)
+        {
+            Patient_Impl data = new Patient_Impl();
+
+            data.Data = PatientData;
+
+            _context.Patients_Impl.Add(data);
+            _context.SaveChanges();
+
+            return Ok();
         }
 
         /// <summary>

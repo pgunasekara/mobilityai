@@ -1,20 +1,20 @@
 {
 	"info": {
-		"_postman_id": "bf7db70e-6222-4397-b2d4-940eb6931583",
+		"_postman_id": "ec145c7f-c7bb-43d2-ab08-f9b7a81b2bbc",
 		"name": "MobilityAI",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "http://localhost:5000/api/SensorData/AddData",
+			"name": "http://localhost:5000/api/MobilityAI/AddData?PatientId=1",
 			"request": {
 				"method": "POST",
 				"header": [
 					{
-						"key": "Content-Type",
-						"name": "Content-Type",
-						"value": "application/x-www-form-urlencoded",
-						"type": "text"
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
 					}
 				],
 				"body": {
@@ -29,16 +29,11 @@
 							"key": "GyroscopeFile",
 							"type": "file",
 							"src": ""
-						},
-						{
-							"key": "DeviceId",
-							"value": "1",
-							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/SensorData/AddData",
+					"raw": "http://localhost:5000/api/MobilityAI/AddData?PatientId=1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -46,16 +41,57 @@
 					"port": "5000",
 					"path": [
 						"api",
-						"SensorData",
+						"MobilityAI",
 						"AddData"
+					],
+					"query": [
+						{
+							"key": "PatientId",
+							"value": "1"
+						}
 					]
-				},
-				"description": "Test for endpoint for uploading CSVs"
+				}
 			},
 			"response": []
 		},
 		{
-			"name": "GetActivityData",
+			"name": "http://localhost:5000/api/MobilityAI/AddPatientData?PatientData={\"age\" : \"32\", \"hometown\" : \"Missoula, MT\", \"gender\" : \"female\" }",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/MobilityAI/AddPatientData?PatientData={\"age\" : \"32\", \"hometown\" : \"Missoula, MT\", \"gender\" : \"female\" }",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"MobilityAI",
+						"AddPatientData"
+					],
+					"query": [
+						{
+							"key": "PatientData",
+							"value": "{\"age\" : \"32\", \"hometown\" : \"Missoula, MT\", \"gender\" : \"female\" }"
+						},
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/api/MobilityAI/GetRangeAccelerometer?start=1542838645520&end=1542838763183&patientId=2",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -64,32 +100,29 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/api/SensorData/GetActivityData?Start=1542812667573&End=1542812801472&DeviceId=123",
+					"raw": "http://localhost:5000/api/MobilityAI/GetRangeGyroscope?start=1542838645520&end=1542838763183&patientId=2",
 					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
 					"port": "5000",
 					"path": [
 						"api",
-						"SensorData",
-						"GetActivityData"
+						"MobilityAI",
+						"GetRangeGyroscope"
 					],
 					"query": [
 						{
-							"key": "Start",
-							"value": "1542812667573"
+							"key": "start",
+							"value": "1542838645520"
 						},
 						{
-							"key": "End",
-							"value": "1542812801472"
+							"key": "end",
+							"value": "1542838763183"
 						},
 						{
-							"key": "DeviceId",
-							"value": "123"
+							"key": "patientId",
+							"value": "2"
 						}
 					]
 				}
@@ -97,45 +130,113 @@
 			"response": []
 		},
 		{
-			"name": "Test MlCallback",
+			"name": "http://localhost:5000/api/MobilityAI/GetRangeGyroscope?start=1542838645520&end=1542838763183&patientId=2",
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "Id",
-							"value": "1",
-							"type": "text",
-							"disabled": true
-						},
-						{
-							"key": "Activities",
-							"type": "file",
-							"src": ""
-						}
-					]
+					"mode": "raw",
+					"raw": ""
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/api/SensorData/MlCallback?Id=1",
+					"raw": "http://localhost:5000/api/MobilityAI/GetRangeGyroscope?start=1542838645520&end=1542838763183&patientId=2",
 					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
 					"port": "5000",
 					"path": [
 						"api",
-						"SensorData",
-						"MlCallback"
+						"MobilityAI",
+						"GetRangeGyroscope"
 					],
 					"query": [
 						{
-							"key": "Id",
-							"value": "1"
+							"key": "start",
+							"value": "1542838645520"
+						},
+						{
+							"key": "end",
+							"value": "1542838763183"
+						},
+						{
+							"key": "patientId",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/api/MobilityAI/SignUpUser?email=rebeccatran@email.com&firstName=Rebecca&lastName=Tran&password=123Password",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "AccelerometerFile",
+							"type": "file",
+							"src": "",
+							"disabled": true
+						},
+						{
+							"key": "GyroscopeFile",
+							"type": "file",
+							"src": "",
+							"disabled": true
+						},
+						{
+							"key": "PatientID",
+							"value": "4",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/MobilityAI/SignUpUser?email=rebeccatran@email.com&firstName=Rebecca&lastName=Tran&password=123Password",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"MobilityAI",
+						"SignUpUser"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "rebeccatran@email.com"
+						},
+						{
+							"key": "firstName",
+							"value": "Rebecca"
+						},
+						{
+							"key": "lastName",
+							"value": "Tran"
+						},
+						{
+							"key": "password",
+							"value": "123Password"
 						}
 					]
 				}

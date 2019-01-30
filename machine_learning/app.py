@@ -48,7 +48,7 @@ def windowifyData():
         # Check if the file is one of the allowed types/extensions
         if file and allowed_file(file.filename):
             # Make the filename safe, remove unsupported chars
-            filename = secure_filename(file.filename)
+            filename = secure_filename(file.filename).lower()
             # Move the file form the temporal folder to the upload
             # folder we setup
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -95,14 +95,12 @@ def process_data(accel_df, gyro_df, callback_url):
     file_name = str(uuid.uuid1()) + ".csv"
     accel_gyro_df.to_csv(file_name, sep=',', index=False)
     print("Saved csv")
-
-    files = {'Activities': open(file_name,'rb')}
-    #values = {'Id': callback_id}
-
-    r = requests.post(callback_url, files=files, verify=False)
+ 
+    with open(file_name,'rb') as activities_file:
+        files = {'Activities': activities_file}
+        r = requests.post(callback_url, files=files, verify=False)
 
     os.remove(file_name) 
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
