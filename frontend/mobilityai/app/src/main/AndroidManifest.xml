@@ -33,7 +33,6 @@
         <activity
             android:name=".DeviceInfoActivity"
             android:parentActivityName=".MainActivity"></activity>
-        <activity android:name=".LoadingActivity"></activity>
     </application>
 
 </manifest>

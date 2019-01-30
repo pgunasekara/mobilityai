@@ -19,10 +19,48 @@ import com.mbientlab.metawear.module.GyroBmi160;
 import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.Logging;
 
+import java.util.HashMap;
+
 import bolts.Continuation;
 import bolts.Task;
 
 public class MetaMotionService {
+
+    private static final MetaMotionService m_instance = new MetaMotionService();
+    public static MetaMotionService getInstance() {
+        return m_instance;
+    }
+    private final String TAG = "MobilityAI";
+
+    //Set of connected boards mapped to their mac addresses
+    private HashMap<String, MetaWearBoard> m_boards = new HashMap<String, MetaWearBoard>();
+
+    private MetaMotionService() {}
+
+    //Connects and adds a new board to the list of connected boards
+    public Task<Void> connectAndAdd(String macAddr, MetaWearBoard board) {
+        //Add to list of boards
+        m_boards.put(macAddr, board);
+
+        //Check if board can be deserialized
+
+        //Connect to board
+        return m_boards.get(macAddr).connectAsync().continueWithTask(task -> {
+            if(task.isFaulted()) {
+                Log.i(TAG, "Failed to configure app", task.getError());
+            } else {
+                Log.i(TAG, "App Configured, connected: " + macAddr);
+
+                //Deserialize board
+            }
+            return null;
+        });
+    }
+
+    //Disconnect and clear all boards
+
+
+
     //Metawear components
     private MetaWearBoard board;
     private BtleService.LocalBinder serviceBinder;
@@ -34,7 +72,6 @@ public class MetaMotionService {
 
     //Testing
     private final String MW_MAC_ADDRESS= "D1:87:11:D8:F3:C0";
-    private static final String TAG = "MobilityAI";
 
     public MetaMotionService(BtleService.LocalBinder serviceBinder) {
         //Connect to boards

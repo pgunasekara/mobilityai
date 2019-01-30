@@ -227,14 +227,16 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         m_handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Log.i(TAG, "Updating with: "+result.getDevice().getAddress());
+                                Log.i(TAG, "Updating with: "+ result.getDevice().getAddress());
                                 m_adapter.update(new MetaMotionDevice(
                                         "MetaMotion A",
                                         getRandomName(),
                                         result.getDevice().getAddress(),
                                         50,
                                         "Jan 5, 2019",
-                                        result.getRssi()));
+                                        result.getRssi()
+                                    )
+                                );
                             }
                         });
                     }
