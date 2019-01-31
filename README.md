@@ -51,7 +51,7 @@ Patients will wear the clinical grade wristband, [MetaMotionR (MMR)](https://mbi
 
 ![Band](https://raw.githubusercontent.com/pgunasekara/4zp6/master/poster/wristband.jpg)
 
-To get started with the sensor band side of this project, check out the [frontend directory](https://github.com/pgunasekara/4zp6/tree/master/frontend/mobilityai).
+To get started with the sensor band side of this project, check out the [frontend directory](https://github.com/pgunasekara/4zp6/tree/master/frontend).
 
 ## Server & Database
 
