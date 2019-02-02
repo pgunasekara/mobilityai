@@ -34,6 +34,7 @@ def test_windowify(client):
         })
         # Wait for windowify
         time.sleep(10)
+        print(os.listdir())
         csvFile = [x for x in os.listdir() if ".csv" in x]
         rvcsv = pd.read_csv(csvFile[0])
         # We know this file is supposed to have 407 rows
