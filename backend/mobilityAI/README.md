@@ -13,6 +13,13 @@ The MobilityAI backend is comprised of a PostgreSQL database and a dotnet core w
 - Restore dotnet packages + tools `dotnet restore`
 - Run Server using `F5` or `dotnet run`
 
+## Adding Service to Systemctl
+- Publish project: `dotnet publish -c Release -o [PUBLISH_DIRECTORY]`
+- Update paths in mobilityai.service to point to publish folder for project.
+- Enable Service: `sudo systemctl enable mobilityai.service`
+- Start Service: `sudo systemctl start mobilityai.service`
+- To check service status: `sudo systemctl status mobilityai.service`
+
 ## Endpoints
 ### GetAllAccelerometer() && GetAllGyroscope()
 - Retrieve all rows of data in the Accelerometer/Gyroscope tables
