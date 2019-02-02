@@ -33,7 +33,7 @@ def test_windowify(client):
             "test": True
         })
         # Wait for windowify
-        time.sleep(10)
+        time.sleep(20)
         print(os.listdir())
         csvFile = [x for x in os.listdir() if ".csv" in x]
         rvcsv = pd.read_csv(csvFile[0])
