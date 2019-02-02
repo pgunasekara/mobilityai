@@ -78,7 +78,7 @@ def windowifyData():
 Function to process the data iin a new thread.
 When the data is done processing, the result is posted back to the callback url.
 """
-def process_data(accel_df, gyro_df, callback_url):
+def process_data(accel_df, gyro_df, callback_url, test=False):
     print("Starting windowify")
     accel_gyro_df = preprocess_sensor_data(accel_df, gyro_df)
     print("Complete windowify")
@@ -100,7 +100,8 @@ def process_data(accel_df, gyro_df, callback_url):
         files = {'Activities': activities_file}
         r = requests.post(callback_url, files=files, verify=False)
 
-    os.remove(file_name) 
+    if not test:
+        os.remove(file_name) 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

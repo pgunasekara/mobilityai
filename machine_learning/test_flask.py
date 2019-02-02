@@ -29,7 +29,8 @@ def test_windowify(client):
         # Create the request
         rv = client.post('/windowify', data={
             "file[]": files,
-            "callback_url": "http://127.0.0.1/complete?id=1234"
+            "callback_url": "http://127.0.0.1/complete?id=1234",
+            "test": True
         })
         # Wait for windowify
         time.sleep(10)
