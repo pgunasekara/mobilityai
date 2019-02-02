@@ -38,11 +38,11 @@ jobs:
       workingDirectory: machine_learning
       displayName: 'Install pipenv'
     - script: pipenv shell
-      workingDiretory: machine_learning
+      workingDirectory: machine_learning
       displayName: 'Enter pipenv shell'
     - script: pipenv install
-      workingDiretory: machine_learning
+      workingDirectory: machine_learning
       displayName: 'Install dependencies'
     - script: pipenv run pytest
-      workingDiretory: machine_learning
+      workingDirectory: machine_learning
       displayName: 'Run tests'
