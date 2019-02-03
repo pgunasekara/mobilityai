@@ -93,8 +93,8 @@ def process_data(accel_df, gyro_df, callback_url, test=False):
     accel_gyro_df["epoch_end"] = pd.to_numeric(accel_gyro_df["epoch_end"], downcast='integer')
 
     file_name = str(uuid.uuid1()) + ".csv"
-    accel_gyro_df.to_csv(file_name, sep=',', index=False)
-    print("Saved csv")
+    accel_gyro_df.to_csv(os.path.join(os.getcwd(), file_name), sep=',', index=False)
+    print("Saved csv to: " + os.path.join(os.getcwd(), file_name))
  
     with open(file_name,'rb') as activities_file:
         files = {'Activities': activities_file}
