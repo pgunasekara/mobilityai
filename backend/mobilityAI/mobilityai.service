@@ -1,0 +1,14 @@
+[Unit]
+Description=MobilityAI dotnet Backend Service
+
+[Service]
+WorkingDirectory=/home/azureuser/4zp6/backend/mobilityAI/bin/Debug/netcoreapp2.1/publish
+ExecStart=/home/azureuser/dotnet/dotnet /home/azureuser/4zp6/backend/mobilityAI/bin/Debug/netcoreapp2.1/p$Restart=always
+RestartSec=10
+SyslogIdentifier=mobilityai
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
