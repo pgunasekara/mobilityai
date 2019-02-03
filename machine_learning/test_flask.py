@@ -29,10 +29,12 @@ def test_windowify(client):
         # Create the request
         rv = client.post('/windowify', data={
             "file[]": files,
-            "callback_url": "http://127.0.0.1/complete?id=1234"
+            "callback_url": "http://127.0.0.1/complete?id=1234",
+            "test": True
         })
         # Wait for windowify
         time.sleep(10)
+        print(os.listdir())
         csvFile = [x for x in os.listdir() if ".csv" in x]
         rvcsv = pd.read_csv(csvFile[0])
         # We know this file is supposed to have 407 rows
