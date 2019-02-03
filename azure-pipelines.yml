@@ -34,10 +34,15 @@ jobs:
       inputs:
         versionSpec: '3.6'
         architecture: 'x64'
-    - script: |
-        echo Machine Learning Tests
-        cd machine_learning
-        pip install pipenv
-        pipenv shell
-        pipenv install
-        pipenv run pytest
+    - script: pip install pipenv
+      workingDirectory: machine_learning
+      displayName: 'Install pipenv'
+    - script: pipenv shell
+      workingDirectory: machine_learning
+      displayName: 'Enter pipenv shell'
+    - script: pipenv install
+      workingDirectory: machine_learning
+      displayName: 'Install dependencies'
+    - script: pipenv run pytest
+      workingDirectory: machine_learning
+      displayName: 'Run tests'
