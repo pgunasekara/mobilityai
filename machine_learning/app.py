@@ -41,6 +41,7 @@ def windowifyData():
     # Get the name of the uploaded files
     uploaded_files = request.files.getlist("file[]")
     callback_url = request.form['callback_url']
+    test = request.form['test']
     filenames = []
     accel_df = ""
     gyro_df = ""
@@ -67,7 +68,7 @@ def windowifyData():
     # The request was valid only if 2 csv files were uploaded
     if accel_df is not "" and gyro_df is not "":
         # Start a new thread to process the data
-        start_new_thread(process_data, (accel_df, gyro_df, callback_url,))
+        start_new_thread(process_data, (accel_df, gyro_df, callback_url, test, ))
         for f in filenames: # We can delete the uploaded files since they're already loaded in memory as dataframes
             os.remove(os.path.join(app.config['UPLOAD_FOLDER'], f))
         return ''
@@ -96,6 +97,7 @@ def process_data(accel_df, gyro_df, callback_url, test=False):
     accel_gyro_df.to_csv(os.path.join(os.getcwd(), file_name), sep=',', index=False)
     print("Saved csv to: " + os.path.join(os.getcwd(), file_name))
  
+    print("test is: " + str(test))
     with open(file_name,'rb') as activities_file:
         files = {'Activities': activities_file}
         r = requests.post(callback_url, files=files, verify=False)
