@@ -27,6 +27,7 @@ namespace mobilityAI.Controllers
     {
         const string ML_SERVER_URL = "http://127.0.0.1:6000/";
         const string SERVER_URL = "http://127.0.0.1:5000/";
+        const string SERVER_SECURE_URL = "https://127.0.0.1:5001/";
         private readonly MobilityAIContext _context;
         private static readonly HttpClient client = new HttpClient();
         private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
@@ -192,7 +193,7 @@ namespace mobilityAI.Controllers
 
             MultipartFormDataContent form = new MultipartFormDataContent();
 
-            form.Add(new StringContent(SERVER_URL + "api/SensorData/MlCallback?Id=" + callbackId), "callback_url");
+            form.Add(new StringContent(SERVER_SECURE_URL + "api/MobilityAI/MlCallback?Id=" + callbackId), "callback_url");
             form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", AccelerometerFile.FileName);
             form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", GyroscopeFile.FileName);
 
@@ -313,13 +314,62 @@ namespace mobilityAI.Controllers
         /// <param name="patientId">Patient Id for the data you want to query</param>
         /// <returns></returns>
         [HttpGet("GetActivityData", Name = "GetActivityData")]
-        public IActionResult GetActivityData(long Start, long End, int patientId)
+        public IActionResult GetActivityData(long start, long end, int patientId)
         {
             var data = (from activities in _context.Activities
-                        where activities.Start >= Start && activities.End <= End && activities.PatientId == patientId
+                        where activities.Start >= start && activities.End <= end && activities.PatientId == patientId
                         select new { activities.Start, activities.End, activities.Type }).ToList();
-            return Ok(JsonConvert.SerializeObject(data));
+
+            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            float[] count = new float[5];
+            float[] total = new float[5];
+            float totalRows = data.Count;
+
+            foreach (var element in data)
+            {
+                if (element.Type == 0)
+                {
+                    count[0]++;
+                }
+                else if (element.Type == 1)
+                {
+                    count[1]++;
+                }
+                else if (element.Type == 2)
+                {
+                    count[2]++;
+                }
+                else if (element.Type == 3)
+                {
+                    count[3]++;
+                }
+                else if (element.Type == 4)
+                {
+                    count[4]++;
+                }
+            }
+
+            total[0] = (count[0] / totalRows) * 100;
+            total[1] = (count[1] / totalRows) * 100;
+            total[2] = (count[2] / totalRows) * 100;
+            total[3] = (count[3] / totalRows) * 100;
+            total[4] = (count[4] / totalRows) * 100;
+
+            var retObj = new { sitting = total[0], lyingDown = total[1], walking = total[2], standing = total[3], unknown = total[4] };
+
+
+            return Ok(JsonConvert.SerializeObject(retObj));
         }
+
+        // [HttpGet("GetSpecificActivity", Name = "GetSpecificActivity")]
+        // public IActionResult GetSpecificActivity(long start, long end, int patientId, short activityType) {
+        //     var data = (from activity in _context.Activities
+        //                 where activity.PatientId == patientId && activity.Type == activityType
+        //                 select new { activity.Start, activity.End, activity.Type }).ToList();
+
+        //     return Ok(JsonConvert.SerializeObject(data));
+        // }
 
         /// <summary>
         /// Adding new patient and corresponding data to the database
@@ -382,6 +432,24 @@ namespace mobilityAI.Controllers
 
         }
 
+        // [HttpGet("SignInUser", Name = "SignInUser")]
+        // public JsonResult SignInUser(string email, string password)
+        // {
+        //     var salt = from a in _context.Users
+        //                where (a.Email == email)
+        //                select new { a.Salt };
+        //     // var saltedPw = password + salt;
+        //     // var hashedPw = generateHash(saltedPw);
+
+        //     // var data = (from b in _context.Users
+        //     //            where (b.Email == email && b.Password == hashedPw)
+        //     //            select b).Count();
+
+
+
+        //     return new JsonResult(salt);
+        // }
+
         /// <summary>
         /// Function that will take the salted password and hash it (for encryption and security purposes)
         /// </summary>
@@ -403,6 +471,37 @@ namespace mobilityAI.Controllers
                 }
                 return builder.ToString();
             }
+        }
+
+
+
+        /// <summary>
+        /// Returns a list of all patients
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetPatients", Name = "GetPatients")]
+        public JsonResult GetPatients()
+        {
+            var demoPatients = new List<Patient> {
+                new Patient {
+                    DeviceId = "1",
+                    FirstName = "Joe",
+                    LastName = "Johnson"
+                },
+                new Patient {
+                    DeviceId = "2",
+                    FirstName = "Ruth",
+                    LastName = "Reynolds",
+                },
+                new Patient {
+                    DeviceId = "3",
+                    FirstName = "Marie",
+                    LastName = "Anderson"
+                }
+            };
+            _context.Patients.AddRange(demoPatients);
+            _context.SaveChanges();
+            return new JsonResult(_context.Patients.ToList());
         }
     }
 }
