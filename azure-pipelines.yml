@@ -26,6 +26,15 @@ jobs:
     - script: npm run test-ci
       workingDirectory: frontend/mobilityai_react
       displayName: 'Run tests'
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testRunner: JUnit
+        testResultsFiles: 'frontend/mobilityai_react/junit.xml'
+    - task: PublishCodeCoverageResults@1
+      inputs: 
+        codeCoverageTool: Istanbul
+        summaryFileLocation: 'frontend/mobilityai_react/coverage-final.xml'
   - job: Machine_Learning
     pool:
       vmImage: 'vs2017-win2016'
