@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.Route;
+import com.mbientlab.metawear.Subscriber;
 import com.mbientlab.metawear.android.BtleService;
 import com.mbientlab.metawear.builder.RouteComponent;
 import com.mbientlab.metawear.data.Acceleration;
@@ -35,15 +36,18 @@ import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.Logging;
 import com.mbientlab.metawear.module.Settings;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -68,6 +72,19 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 
     //Logging data
     StringBuilder m_accelerometerLog, m_gyroscopeLog;
+
+    private static Subscriber DATA_HANDLER = new Subscriber() {
+        @Override
+        public void apply(Data data, Object... env) {
+            try {
+                FileOutputStream fos = (FileOutputStream) env[0];
+                String value = data.timestamp().getTimeInMillis()+","+data.formattedTimestamp()+","+"0"+","+data.value(Acceleration.class).x()+","+data.value(Acceleration.class).y()+","+data.value(Acceleration.class).z()+"\n";
+                fos.write(value.getBytes());
+            } catch (IOException ex) {
+                Log.i("MobilityAI", "Error writing to file:" + ex.toString());
+            }
+        }
+    };
 
 
     @Override
@@ -172,7 +189,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 
         m_board = m_serviceBinder.getMetaWearBoard(remoteDevice);
 
-//        deserializeBoard();
+        deserializeBoard();
 
         m_board.connectAsync().continueWithTask(task -> {
             if (task.isFaulted()) {
@@ -187,6 +204,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 m_gyroscope = m_board.getModule(GyroBmi160.class);
                 m_logging = m_board.getModule(Logging.class);
                 m_metawearSettings = m_board.getModule(Settings.class);
+
+//                configureLogging();
 
                 //Reduce max connection interval
                 m_metawearSettings.editBleConnParams()
@@ -219,31 +238,25 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 //Reconfigure
                 configureAccelerometer();
                 configureGyroscope();
+                configureLogging().continueWith(task1 -> {
+                    m_accelerometer.acceleration().start();
+                    m_accelerometer.start();
+                    m_gyroscope.angularVelocity().start();
+                    m_gyroscope.start();
 
-                m_accelerometer.acceleration().start();
-                m_accelerometer.start();
-                m_gyroscope.angularVelocity().start();
-                m_gyroscope.start();
+                    serializeBoard();
 
-                //serializeBoard();
+                    m_logging.start(true);
 
-                m_logging.start(true);
+                    Log.i(TAG, "Done");
 
-                Log.i(TAG, "Done");
-//
-                //Reprogram accelerometer and gyroscope
-
-
-                //Restart logging
-
+                    return null;
+                });
             });
 
             m_stopLoggingButton.setOnClickListener(l -> {
                 //Stop accelerometer and gyroscope
                 Log.i(TAG, "STOP LOGGING");
-
-                //TOOD: Only do this if not already configured
-//                configureLogging();
 
                 m_accelerometer.acceleration().stop();
                 m_accelerometer.stop();
@@ -255,9 +268,10 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 //Stop logging
                 m_logging.stop();
 
-                //deserializeBoard();
+//                deserializeBoard();
 
-                configureLogging().continueWith(task1 -> {
+                setEnv();
+                        //.continueWith(task1 -> {
                     // Collect Log
                     m_logging.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
                         m_syncProgressBar.setProgress((int)totalEntries - (int)nEntriesLeft);
@@ -292,8 +306,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                         return null;
                     });
 
-                    return null;
-                });
+                    //return null;
+                //});
 
             });
             return null;
@@ -306,6 +320,34 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         populateFields();
 
         programOnClick();
+    }
+
+    private Task<Route> addRoutes() {
+        return m_accelerometer.acceleration().addRouteAsync(source -> {
+            source.log(DATA_HANDLER);
+        });
+    }
+
+    private FileOutputStream fos;
+    private void setEnv() {
+        try {
+            InputStream inputStream = this.openFileInput("id-"+m_board.getMacAddress());
+            if(inputStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                String res = bufferedReader.readLine();
+                int routeId = Integer.parseInt(res);
+                //Set env for route
+                Route accelRoute = m_board.lookupRoute(routeId);
+                String datetime = DateFormat.getDateTimeInstance().format(new Date());
+                fos = openFileOutput("accelerometer-"+datetime, MODE_PRIVATE);
+                fos.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
+                accelRoute.setEnvironment(0, fos);
+
+                //TODO: Delete id file
+            }
+        } catch (IOException e) {}
     }
 
     @Override
@@ -428,48 +470,43 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         }
     }
 
-    private FileOutputStream fos;
+
 
     private Task<Route> configureLogging() {
         //Configure Accelerometer
         if(m_board.isConnected() && m_logging != null && m_accelerometer != null ) {
             //Append initial log line
             Log.i(TAG, "here");
-//             m_accelerometerLog.append("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n");
+
             //Add new async route to log data
             return m_accelerometer.acceleration().addRouteAsync((RouteComponent source) -> {
-                source.log((Data data, Object... env) -> {
-//                    m_accelerometerLog
-//                            .append(data.timestamp().getTimeInMillis()).append(",")
-//                            .append(data.formattedTimestamp()).append(",")
-//                            .append("0").append(",")
-//                            .append(data.value(Acceleration.class).x()).append(",")
-//                            .append(data.value(Acceleration.class).y()).append(",")
-//                            .append(data.value(Acceleration.class).z()).append("\n");
-                    Log.i(TAG, "GETTING DATA");
-                    String value = data.timestamp().getTimeInMillis()+","+data.formattedTimestamp()+","+"0"+","+data.value(Acceleration.class).x()+","+data.value(Acceleration.class).y()+","+data.value(Acceleration.class).z()+"\n";
+/*                source.log((Data data, Object... env) -> {
                     try {
-                        FileOutputStream fosX = (FileOutputStream) env[0];
-                        fosX.write(value.getBytes());
+                        String value = data.timestamp().getTimeInMillis()+","+data.formattedTimestamp()+","+"0"+","+data.value(Acceleration.class).x()+","+data.value(Acceleration.class).y()+","+data.value(Acceleration.class).z()+"\n";
+                        FileOutputStream fos = (FileOutputStream) env[0];
+                        fos.write(value.getBytes());
                     } catch (IOException e) {
-//                        Log.i(TAG, "AE: " + e.getMessage());
+                        Log.i(TAG, "AE: " + e.getMessage());
                     }
+                });*/
+                source.log(DATA_HANDLER);
+            }).continueWith((Task<Route> task) -> {
+                try {
 
-//                    Log.i(TAG, value);
-                });
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(this.openFileOutput("id-"+m_board.getMacAddress(), Context.MODE_PRIVATE));
+                    int res = task.getResult().id();
+                    outputStreamWriter.write(Integer.toString(res));
+                    outputStreamWriter.close();
+                }catch (IOException e) { }
 
-            }).continueWith(task -> {
-
-                if(task.isFaulted()) {
-                    Log.i(TAG, "Task Faulted");
-                }
-
-                String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                fos = openFileOutput("accelerometer-" + datetime, MODE_PRIVATE);
+                return null;
+            });/*.continueWith((Task<Route> task) -> {
+//                String datetime = DateFormat.getDateTimeInstance().format(new Date());
+                fos = openFileOutput("accelerometer-", MODE_PRIVATE);
 
                 task.getResult().setEnvironment(0, fos);
                 return null;
-            });
+            });*/
         }
 
         return null;
