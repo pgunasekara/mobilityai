@@ -195,6 +195,7 @@ namespace mobilityAI.Controllers
             form.Add(new StringContent(SERVER_URL + "api/SensorData/MlCallback?Id=" + callbackId), "callback_url");
             form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", AccelerometerFile.FileName);
             form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", GyroscopeFile.FileName);
+            form.Add(new StringContent("false"), "test");
 
             HttpResponseMessage response = await client.PostAsync(ML_SERVER_URL + "windowify", form);
 
