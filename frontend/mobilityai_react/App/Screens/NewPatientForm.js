@@ -4,6 +4,8 @@ import {Platform, StyleSheet, Text, View, ScrollView, TextInput, Slider, Button,
 import { CheckBox } from 'react-native-elements'
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
 
+import { AddPatientData } from '../Lib/Api';
+
 export default class PatientForm extends React.Component {
     constructor(props){
         super(props);
@@ -36,7 +38,8 @@ export default class PatientForm extends React.Component {
     }
 
     submitForm(){
-        console.log("TADA");
+        let response = AddPatientData(JSON.stringify(this.state));
+        console.log(JSON.stringify(response));
     }
 
     onChanged(text){

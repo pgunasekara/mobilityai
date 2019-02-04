@@ -41,6 +41,7 @@ def windowifyData():
     # Get the name of the uploaded files
     uploaded_files = request.files.getlist("file[]")
     callback_url = request.form['callback_url']
+    test = request.form['test']
     filenames = []
     accel_df = ""
     gyro_df = ""
@@ -48,7 +49,7 @@ def windowifyData():
         # Check if the file is one of the allowed types/extensions
         if file and allowed_file(file.filename):
             # Make the filename safe, remove unsupported chars
-            filename = secure_filename(file.filename)
+            filename = secure_filename(file.filename).lower()
             # Move the file form the temporal folder to the upload
             # folder we setup
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -67,7 +68,7 @@ def windowifyData():
     # The request was valid only if 2 csv files were uploaded
     if accel_df is not "" and gyro_df is not "":
         # Start a new thread to process the data
-        start_new_thread(process_data, (accel_df, gyro_df, callback_url,))
+        start_new_thread(process_data, (accel_df, gyro_df, callback_url, test, ))
         for f in filenames: # We can delete the uploaded files since they're already loaded in memory as dataframes
             os.remove(os.path.join(app.config['UPLOAD_FOLDER'], f))
         return ''
@@ -78,7 +79,7 @@ def windowifyData():
 Function to process the data iin a new thread.
 When the data is done processing, the result is posted back to the callback url.
 """
-def process_data(accel_df, gyro_df, callback_url):
+def process_data(accel_df, gyro_df, callback_url, test=False):
     print("Starting windowify")
     accel_gyro_df = preprocess_sensor_data(accel_df, gyro_df)
     print("Complete windowify")
@@ -93,16 +94,16 @@ def process_data(accel_df, gyro_df, callback_url):
     accel_gyro_df["epoch_end"] = pd.to_numeric(accel_gyro_df["epoch_end"], downcast='integer')
 
     file_name = str(uuid.uuid1()) + ".csv"
-    accel_gyro_df.to_csv(file_name, sep=',', index=False)
-    print("Saved csv")
+    accel_gyro_df.to_csv(os.path.join(os.getcwd(), file_name), sep=',', index=False)
+    print("Saved csv to: " + os.path.join(os.getcwd(), file_name))
+ 
+    print("test is: " + str(test))
+    with open(file_name,'rb') as activities_file:
+        files = {'Activities': activities_file}
+        r = requests.post(callback_url, files=files, verify=False)
 
-    files = {'Activities': open(file_name,'rb')}
-    #values = {'Id': callback_id}
-
-    r = requests.post(callback_url, files=files, verify=False)
-
-    os.remove(file_name) 
-
+    if not test:
+        os.remove(file_name) 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

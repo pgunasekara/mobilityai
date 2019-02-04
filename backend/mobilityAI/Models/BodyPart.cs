@@ -5,47 +5,53 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace mobilityAI.Models
 {
-    public class Gyroscope
+    public class BodyPart
     {
         [Key]
-        public string Id
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id
         {
             get; set;
         }
         [ForeignKey("Patient")]
+        [Required]
         public int PatientId
         {
             get; set;
         }
-        [Required]
-        public long Epoch
+        public bool Neck
         {
             get; set;
         }
-        [Required]
-        public DateTime Timestamp
+        public bool MiddlebackRibs
         {
             get; set;
         }
-        [Required]
-        public double Elapsed
+        public bool Lowerback
         {
             get; set;
         }
-        [Required]
-        public double XAxis
+        public bool ShoulderArmElbow
         {
             get; set;
         }
-        [Required]
-        public double YAxis
+        public bool HandWrist
         {
             get; set;
         }
-        [Required]
-        public double ZAxis
+        public bool PelvisHipLegKnee
+        {
+            get; set;
+        }
+        public bool FootAnkle
+        {
+            get; set;
+        }
+        public bool Other
         {
             get; set;
         }
     }
+
+
 }

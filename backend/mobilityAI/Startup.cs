@@ -26,7 +26,7 @@ namespace mobilityAI {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddEntityFrameworkNpgsql().AddDbContext<SensorDataContext>(Options =>
+            services.AddEntityFrameworkNpgsql().AddDbContext<MobilityAIContext>(Options =>
                 Options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
             services.Configure<FormOptions>(x => {
                 x.ValueLengthLimit = int.MaxValue;
@@ -48,7 +48,7 @@ namespace mobilityAI {
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseMvc();
         }
     }
