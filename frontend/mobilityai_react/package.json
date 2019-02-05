@@ -37,6 +37,7 @@
     "reporters": [
       "default",
       "jest-junit"
-    ]
+    ],
+    "coverageReporters": ["cobertura"]
   }
 }

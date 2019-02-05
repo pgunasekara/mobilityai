@@ -34,7 +34,7 @@ jobs:
     - task: PublishCodeCoverageResults@1
       inputs: 
         codeCoverageTool: Istanbul
-        summaryFileLocation: 'frontend/mobilityai_react/coverage-final.xml'
+        summaryFileLocation: 'frontend/mobilityai_react/cobertura-coverage.xml'
   - job: Machine_Learning
     pool:
       vmImage: 'vs2017-win2016'
