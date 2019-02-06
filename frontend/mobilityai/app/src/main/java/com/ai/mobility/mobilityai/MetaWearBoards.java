@@ -1,12 +1,37 @@
 package com.ai.mobility.mobilityai;
 
+import com.mbientlab.metawear.MetaWearBoard;
+import com.mbientlab.metawear.Route;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import bolts.Task;
+
 public class MetaWearBoards {
     private static final MetaWearBoards m_instance = new MetaWearBoards();
 
-    public static MetaWearBoards getInstance() {
-        return m_instance;
-    }
+    public static MetaWearBoards getInstance() { return m_instance; }
+
+    private HashMap<String, MetaWearBoard> m_boards = new HashMap<String, MetaWearBoard>();
+    private SortedSet<Integer> indices = new TreeSet<>();
 
     private MetaWearBoards() {
+        for(Integer i = 0; i < 10; i++)
+            indices.add(i);
+
     }
+
+    public void enrollNewBoard(String macAddr, MetaWearBoard board) { m_boards.put(macAddr, board); }
+    public MetaWearBoard getBoard(String macAddr) { return m_boards.get(macAddr); }
+    public void removeBoard(String macAddr) { m_boards.remove(macAddr); }
+
+
+    public void configureAccelerometerAndGyroscope(String macAddr) {
+
+    }
+
+//    public class
 }

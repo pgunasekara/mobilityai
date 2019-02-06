@@ -182,7 +182,6 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         m_serviceBinder = (BtleService.LocalBinder) service;
-        m_metaMotion = new MetaMotionService(m_serviceBinder);
 
         final BluetoothManager btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         final BluetoothDevice remoteDevice = btManager.getAdapter().getRemoteDevice(m_macAddress);

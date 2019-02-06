@@ -166,9 +166,5 @@
             android:layout_toLeftOf="@id/devSyncProgress"/>
     </RelativeLayout>
 
-
-
-
-
 </RelativeLayout>
 <!--</android.support.v7.widget.CardView>-->
