@@ -26,6 +26,15 @@ jobs:
     - script: npm run test-ci
       workingDirectory: frontend/mobilityai_react
       displayName: 'Run tests'
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testRunner: JUnit
+        testResultsFiles: 'frontend/mobilityai_react/junit.xml'
+    - task: PublishCodeCoverageResults@1
+      inputs: 
+        codeCoverageTool: Cobertura
+        summaryFileLocation: 'frontend/mobilityai_react/coverage/cobertura-coverage.xml'
   - job: Machine_Learning
     pool:
       vmImage: 'vs2017-win2016'
@@ -43,6 +52,18 @@ jobs:
     - script: pipenv install
       workingDirectory: machine_learning
       displayName: 'Install dependencies'
-    - script: pipenv run pytest
+    - script: pipenv run coverage run -m pytest --junitxml=junit.xml
       workingDirectory: machine_learning
       displayName: 'Run tests'
+    - script: pipenv run coverage xml
+      workingDirectory: machine_learning
+      displayName: 'Generate coverage report'
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testRunner: JUnit
+        testResultsFiles: 'machine_learning/junit.xml'
+    - task: PublishCodeCoverageResults@1
+      inputs: 
+        codeCoverageTool: Cobertura
+        summaryFileLocation: 'machine_learning/coverage.xml'
