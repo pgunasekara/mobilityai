@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
-    "test-ci": "jest --ci"
+    "test-ci": "jest --ci --reporters=default --reporters=jest-junit --coverage"
   },
   "dependencies": {
     "art": "^0.10.3",
@@ -28,10 +28,16 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
     "jest": "23.6.0",
+    "jest-junit": "^6.2.1",
     "metro-react-native-babel-preset": "0.51.1",
     "react-test-renderer": "16.6.3"
   },
   "jest": {
-    "preset": "react-native"
+    "preset": "react-native",
+    "reporters": [
+      "default",
+      "jest-junit"
+    ],
+    "coverageReporters": ["cobertura"]
   }
 }

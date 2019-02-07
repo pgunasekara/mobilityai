@@ -192,6 +192,7 @@ namespace mobilityAI.Controllers
 
             MultipartFormDataContent form = new MultipartFormDataContent();
 
+            form.Add(new StringContent("false"), "test");
             form.Add(new StringContent(SERVER_URL + "api/SensorData/MlCallback?Id=" + callbackId), "callback_url");
             form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", AccelerometerFile.FileName);
             form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", GyroscopeFile.FileName);

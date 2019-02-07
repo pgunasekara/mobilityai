@@ -7,7 +7,10 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -56,8 +60,10 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
     }
 
     public static class MetaMotionDeviceHolder extends RecyclerView.ViewHolder {
-        private TextView devName, devAssignedUser, devMacAddr, devBattery, devLastSync, devSignalStrength, devInitials;
+        private TextView devName, devAssignedUser, devMacAddr, devBattery, devLastSync, devSignalStrength, devInitials, devBatteryLevelPercentage;
         private ImageView devProfileImage;
+        private ProgressBar devBatteryLevel;
+        private Drawable devBatteryLevelCircle;
 
         public MetaMotionDeviceHolder(View itemView) {
             super(itemView);
@@ -67,8 +73,11 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
             devBattery = itemView.findViewById(R.id.devBattery);
             devLastSync = itemView.findViewById(R.id.devLastSync);
             devSignalStrength = itemView.findViewById(R.id.devSignalStrength);
-            devProfileImage = itemView.findViewById(R.id.userImage);
-            devInitials = itemView.findViewById(R.id.initials);
+//            devProfileImage = itemView.findViewById(R.id.userImage);
+//            devInitials = itemView.findViewById(R.id.initials);
+            devBatteryLevel = itemView.findViewById(R.id.devBatteryLevel);
+            devBatteryLevelPercentage = itemView.findViewById(R.id.devBatteryLevelPercentage);
+            devBatteryLevelCircle = devBatteryLevel.getProgressDrawable();
         }
 
         public void setDetails(MetaMotionDevice device) {
@@ -108,8 +117,14 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
             devBattery.setText(batteryLevel);
             devLastSync.setText(lastSynced);
             devSignalStrength.setText(signalString);
-            devProfileImage.setColorFilter(device.getColour());
-            devInitials.setText(device.getAssignedUser().substring(0, 1));
+            devBatteryLevelCircle.setColorFilter(device.getColour(), PorterDuff.Mode.MULTIPLY);
+            devBatteryLevel.setIndeterminate(true);
+            devBatteryLevel.setProgress(10);
+            devBatteryLevel.setIndeterminateDrawable(devBatteryLevelCircle);
+//            devProfileImage.setColorFilter(device.getColour());
+//            devInitials.setText(device.getAssignedUser().substring(0, 1));
+//            devBatteryLevel.getProgressDrawable().
+
         }
 
         public void bind(MetaMotionDevice device, OnItemClickListener listener) {
