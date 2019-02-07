@@ -13,9 +13,9 @@ export default class BarGraph extends Component {
         return (
             <ScrollView horizontal={true} style={styles.bargraph}>
                 <View style={{ width: 500 }}>
-                    {/* TODO: Display Y Axis
-                        <YAxis
-                        data={data}
+                    {/* TODO: Display Y Axis */}
+                        {/* <YAxis
+                        data={this.props.data}
                         contentInset={contentInset}
                         svg={{
                             fill: 'grey',
@@ -29,6 +29,7 @@ export default class BarGraph extends Component {
                         data={this.props.data}
                         svg={{ fill }}
                         contentInset={{ top: 30, bottom: 30 }}
+                        yMin={0}
                     >
                         <Grid />
                     </BarChart>

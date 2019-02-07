@@ -1,32 +1,50 @@
 using System;
 using System.Globalization;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace mobilityAI.Models {
-    public class Accelerometer {
-        public string Id {
+namespace mobilityAI.Models
+{
+    public class Accelerometer
+    {
+        [Key]
+        public string Id
+        {
             get; set;
         }
-        public long Epoch {
+        [ForeignKey("Patient")]
+        public int PatientId
+        {
             get; set;
         }
-
-        public DateTime Timestamp {
+        [Required]
+        public long Epoch
+        {
             get; set;
         }
-
-        public double Elapsed {
+        [Required]
+        public DateTime Timestamp
+        {
             get; set;
         }
-        
-        public double XAxis {
+        [Required]
+        public double Elapsed
+        {
             get; set;
         }
-        
-        public double YAxis {
+        [Required]
+        public double XAxis
+        {
             get; set;
         }
-
-        public double ZAxis {
+        [Required]
+        public double YAxis
+        {
+            get; set;
+        }
+        [Required]
+        public double ZAxis
+        {
             get; set;
         }
     }
