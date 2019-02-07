@@ -321,7 +321,9 @@ namespace mobilityAI.Controllers
         {
             var data = (from activities in _context.Activities
                         where activities.Start >= start && activities.End <= end && activities.PatientId == patientId
-                        select new { activities.Start, activities.End, activities.Type }).ToList();
+                        orderby activities.Start ascending
+                        select new { activities.Start, activities.End, activities.Type })
+                        .ToList();
 
             float[] count = new float[5];
             float[] total = new float[5];
@@ -330,43 +332,18 @@ namespace mobilityAI.Controllers
             float totalRows = data.Count;
             int startHour;
 
-            foreach (var element in data)
-            {
-                if (element.Type == 0)
-                {
-                    count[0]++;
+            for(int i = 0; i < data.Count-1; i++) {
+                var element = data[i];
+                var nextElement = data[i+1];
 
-                    startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
-                    activityTotals[0][startHour] += (element.End - element.Start)/1000;
-                }
-                else if (element.Type == 1)
-                {
-                    count[1]++;
+                count[element.Type]++;
 
-                    startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
-                    activityTotals[1][startHour] += (element.End - element.Start)/1000;
-                }
-                else if (element.Type == 2)
-                {
-                    count[2]++;
-
-                    startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
-                    activityTotals[2][startHour] += (element.End - element.Start)/1000;
-                }
-                else if (element.Type == 3)
-                {
-                    count[3]++;
-
-                    startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
-                    activityTotals[3][startHour] += (element.End - element.Start)/1000;
-                }
-                else if (element.Type == 4)
-                {
-                    count[4]++;
-                    startHour = (FromUnixTime(element.Start/1000).Hour) -7;
-                    activityTotals[4][startHour] += (element.End - element.Start)/1000;
-                }
+                startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
+                activityTotals[element.Type][startHour] += (nextElement.Start - element.Start)/1000f;
             }
+
+            startHour = (FromUnixTime(data[data.Count-1].Start).Hour) - 7;
+            activityTotals[data[data.Count-1].Type][startHour] += (data[data.Count-1].End - data[data.Count-1].Start)/1000;
 
             for (int i=0; i<5; i++){
                 for (int j=0; j<13; j++){
@@ -383,7 +360,7 @@ namespace mobilityAI.Controllers
             var retObj = new
             {
                 sitting = new
-                {
+                {   
                     total = total[0],
                     bar = activityTotals[0]
                 },
