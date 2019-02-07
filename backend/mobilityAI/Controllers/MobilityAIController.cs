@@ -31,6 +31,8 @@ namespace mobilityAI.Controllers
         private readonly MobilityAIContext _context;
         private static readonly HttpClient client = new HttpClient();
         private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
+
+        private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         public MobilityAIController(MobilityAIContext context)
         {
             _context = context;
@@ -193,7 +195,8 @@ namespace mobilityAI.Controllers
 
             MultipartFormDataContent form = new MultipartFormDataContent();
 
-            form.Add(new StringContent(SERVER_SECURE_URL + "api/MobilityAI/MlCallback?Id=" + callbackId), "callback_url");
+            form.Add(new StringContent("false"), "test");
+            form.Add(new StringContent(SERVER_URL + "api/MobilityAI/MlCallback?Id=" + callbackId), "callback_url");
             form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", AccelerometerFile.FileName);
             form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", GyroscopeFile.FileName);
 
@@ -307,7 +310,7 @@ namespace mobilityAI.Controllers
         }
 
         /// <summary>
-        /// Gets processed activity data for a specific device in a specific time range
+        /// Gets processed activity data for a specific device in a specific time range to be displayed on the UI
         /// </summary>
         /// <param name="Start">Epoch for beginning of time range</param>
         /// <param name="End"Epoch for end of time rante></param>
@@ -320,33 +323,54 @@ namespace mobilityAI.Controllers
                         where activities.Start >= start && activities.End <= end && activities.PatientId == patientId
                         select new { activities.Start, activities.End, activities.Type }).ToList();
 
-            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
             float[] count = new float[5];
             float[] total = new float[5];
+            float[][] activityTotals = new float[5][];
+            for (int i = 0; i < 5; i++) activityTotals[i] = new float[13];
             float totalRows = data.Count;
+            int startHour;
 
             foreach (var element in data)
             {
                 if (element.Type == 0)
                 {
                     count[0]++;
+
+                    startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
+                    activityTotals[0][startHour] += (element.End - element.Start)/1000;
                 }
                 else if (element.Type == 1)
                 {
                     count[1]++;
+
+                    startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
+                    activityTotals[1][startHour] += (element.End - element.Start)/1000;
                 }
                 else if (element.Type == 2)
                 {
                     count[2]++;
+
+                    startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
+                    activityTotals[2][startHour] += (element.End - element.Start)/1000;
                 }
                 else if (element.Type == 3)
                 {
                     count[3]++;
+
+                    startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
+                    activityTotals[3][startHour] += (element.End - element.Start)/1000;
                 }
                 else if (element.Type == 4)
                 {
                     count[4]++;
+                    startHour = (FromUnixTime(element.Start/1000).Hour) -7;
+                    activityTotals[4][startHour] += (element.End - element.Start)/1000;
+                }
+            }
+
+            for (int i=0; i<5; i++){
+                for (int j=0; j<13; j++){
+                    activityTotals[i][j] = activityTotals[i][j]/60;
                 }
             }
 
@@ -356,20 +380,44 @@ namespace mobilityAI.Controllers
             total[3] = (count[3] / totalRows) * 100;
             total[4] = (count[4] / totalRows) * 100;
 
-            var retObj = new { sitting = total[0], lyingDown = total[1], walking = total[2], standing = total[3], unknown = total[4] };
+            var retObj = new
+            {
+                sitting = new
+                {
+                    total = total[0],
+                    bar = activityTotals[0]
+                },
+                lyingDown = new
+                {
+                    total = total[1],
+                    bar = activityTotals[1]
+                },
+                walking = new
+                {
+                    total = total[2],
+                    bar = activityTotals[2]
+                },
+                standing = new
+                {
+                    total = total[3],
+                    bar = activityTotals[3]
+                },
+                unknown = new
+                {
+                    total = total[4],
+                    bar = activityTotals[4]
+                },
+            };
 
 
             return Ok(JsonConvert.SerializeObject(retObj));
         }
 
-        // [HttpGet("GetSpecificActivity", Name = "GetSpecificActivity")]
-        // public IActionResult GetSpecificActivity(long start, long end, int patientId, short activityType) {
-        //     var data = (from activity in _context.Activities
-        //                 where activity.PatientId == patientId && activity.Type == activityType
-        //                 select new { activity.Start, activity.End, activity.Type }).ToList();
-
-        //     return Ok(JsonConvert.SerializeObject(data));
-        // }
+        private static DateTime FromUnixTime(long time)
+        {
+            time = time/1000;
+            return DateTime.Now.AddSeconds(time);
+        }
 
         /// <summary>
         /// Adding new patient and corresponding data to the database
@@ -497,6 +545,11 @@ namespace mobilityAI.Controllers
                     DeviceId = "3",
                     FirstName = "Marie",
                     LastName = "Anderson"
+                },
+                new Patient {
+                    DeviceId = "4",
+                    FirstName = "Brian",
+                    LastName = "Smith"
                 }
             };
             _context.Patients.AddRange(demoPatients);
