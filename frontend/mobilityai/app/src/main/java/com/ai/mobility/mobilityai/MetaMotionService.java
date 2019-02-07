@@ -21,12 +21,16 @@ import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.Logging;
 import com.mbientlab.metawear.module.Settings;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import bolts.Continuation;
@@ -42,6 +46,9 @@ public class MetaMotionService {
     private GyroBmi160 m_gyroscope = null;
     private Logging m_logging = null;
     private Settings m_metawearSettings = null;
+
+    private FileOutputStream m_fosA;
+    private FileOutputStream m_fosG;
 
     public MetaMotionService() { }
 
@@ -73,7 +80,7 @@ public class MetaMotionService {
         });
     }
 
-    private void configureAccelerometer() {
+    public void configureAccelerometer() {
         if(m_board.isConnected() && m_accelerometer != null) {
             m_accelerometer.configure()
                     .odr(25f)       // Set sampling frequency to 25Hz, or closest valid ODR
@@ -82,7 +89,7 @@ public class MetaMotionService {
         }
     }
 
-    private void configureGyroscope() {
+    public void configureGyroscope() {
         if(m_board.isConnected() && m_gyroscope != null) {
             m_gyroscope.configure()
                     .odr(GyroBmi160.OutputDataRate.ODR_25_HZ)
@@ -91,6 +98,85 @@ public class MetaMotionService {
 
             Log.i(TAG, "Gyroscope Configured");
         }
+    }
+
+    public Task<Route> configureLogging() {
+        return m_accelerometer.acceleration().addRouteAsync(source -> {
+            source.log((Data data, Object... env) -> {
+                try {
+                    String value = data.timestamp().getTimeInMillis()+","+
+                            data.formattedTimestamp()+","+
+                            "0"+","+
+                            data.value(Acceleration.class).x()+","+
+                            data.value(Acceleration.class).y()+","+
+                            data.value(Acceleration.class).z()+"\n";
+
+                    FileOutputStream fos = (FileOutputStream) env[0];
+                    fos.write(value.getBytes());
+                } catch (IOException ex) {
+                    Log.i("MobilityAI", "Error writing to file:" + ex.toString());
+                }
+            });
+        }).continueWith(task -> {
+            m_gyroscope.angularVelocity().addRouteAsync(source -> {
+                source.log((Data data, Object... env) -> {
+                    try {
+                        String value = data.timestamp().getTimeInMillis()+","+
+                                data.formattedTimestamp()+","+
+                                "0"+","+
+                                data.value(AngularVelocity.class).x()+","+
+                                data.value(AngularVelocity.class).y()+","+
+                                data.value(AngularVelocity.class).z()+"\n";
+
+                        FileOutputStream fos = (FileOutputStream) env[1];
+                        fos.write(value.getBytes());
+                    } catch (IOException ex) {
+                        Log.i("MobilityAI", "Error writing to file:" + ex.toString());
+                    }
+                });
+            });
+
+            return null;
+        });
+    }
+
+    public void setEnvironment(Context context) {
+        try {
+            //Retrieve Log route id
+            InputStream inputStream = context.openFileInput("id_a_" + m_board.getMacAddress());
+            if(inputStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                String res = bufferedReader.readLine();
+                int routeId = Integer.parseInt(res);
+                //Set env for route
+                Route accelRoute = m_board.lookupRoute(routeId);
+                String datetime = DateFormat.getDateTimeInstance().format(new Date());
+                m_fosA = context.openFileOutput("accelerometer-"+datetime, context.MODE_PRIVATE);
+                m_fosA.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
+                accelRoute.setEnvironment(0, m_fosA);
+
+                //TODO: Delete id file
+            }
+
+            inputStream = context.openFileInput("id_g_" + m_board.getMacAddress());
+            if(inputStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                String res = bufferedReader.readLine();
+                int routeId = Integer.parseInt(res);
+                //Set env for route
+                Route gyroRoute = m_board.lookupRoute(routeId);
+                String datetime = DateFormat.getDateTimeInstance().format(new Date());
+                m_fosG = context.openFileOutput("accelerometer-"+datetime, context.MODE_PRIVATE);
+                m_fosG.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
+                gyroRoute.setEnvironment(1, m_fosG);
+
+                //TODO: Delete id file
+            }
+        } catch (IOException e) {}
     }
 
     
