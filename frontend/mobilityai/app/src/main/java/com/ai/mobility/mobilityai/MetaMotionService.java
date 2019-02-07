@@ -31,9 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashMap;
 
-import bolts.Continuation;
 import bolts.Task;
 
 public class MetaMotionService {
@@ -153,7 +151,7 @@ public class MetaMotionService {
                 //Set env for route
                 Route accelRoute = m_board.lookupRoute(routeId);
                 String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                m_fosA = context.openFileOutput("accelerometer-"+datetime, context.MODE_PRIVATE);
+                m_fosA = context.openFileOutput(m_board.getMacAddress()+"_accelerometer_"+datetime, context.MODE_PRIVATE);
                 m_fosA.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
                 accelRoute.setEnvironment(0, m_fosA);
 
@@ -170,13 +168,13 @@ public class MetaMotionService {
                 //Set env for route
                 Route gyroRoute = m_board.lookupRoute(routeId);
                 String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                m_fosG = context.openFileOutput("accelerometer-"+datetime, context.MODE_PRIVATE);
+                m_fosG = context.openFileOutput(m_board.getMacAddress() + "_accelerometer-" + datetime, context.MODE_PRIVATE);
                 m_fosG.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
                 gyroRoute.setEnvironment(1, m_fosG);
 
                 //TODO: Delete id file
             }
-        } catch (IOException e) {}
+        } catch (IOException e) { Log.i(TAG, "SETENVIRONMENT: " + e.getMessage()); }
     }
 
     
