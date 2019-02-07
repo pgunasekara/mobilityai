@@ -1,0 +1,13 @@
+[Unit]
+Description=MobilityAI Machine Learning Service
+
+[Service]
+WorkingDirectory=/home/azureuser/4zp6/machine_learning
+ExecStart=/home/azureuser/.local/bin/pipenv run python3 app.py
+RestartSec=10
+SyslogIdentifier=mlservice
+User=azureuser
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
