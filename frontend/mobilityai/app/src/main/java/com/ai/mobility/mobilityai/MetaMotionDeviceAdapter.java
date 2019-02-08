@@ -163,7 +163,7 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
             }
         }
 
-        Log.i("MobilityAI", "Added device, size = "+m_devices.size());
+//        Log.i("MobilityAI", "Added device, size = "+m_devices.size());
 
 
         //TODO: Add RSSI stuff - https://github.com/mbientlab/BleToolbox/blob/master/scanner/src/main/java/com/mbientlab/bletoolbox/scanner/ScannedDeviceInfoAdapter.java
@@ -199,10 +199,6 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
 
         return returnColour;
     }
-<<<<<<< HEAD
-
-=======
->>>>>>> fb77cc84e4d60f6ad99c784153730d1b2e02d646
 }
 
 

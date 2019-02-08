@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -48,7 +49,42 @@ public class MetaMotionService {
     private FileOutputStream m_fosA;
     private FileOutputStream m_fosG;
 
-    public MetaMotionService(MetaWearBoard board) { m_board = board; }
+    private boolean m_isLogging = false;
+
+    private static Subscriber ACCELEROMETER_HANDLER = (Data data, Object... env) -> {
+        try {
+            String value = data.timestamp().getTimeInMillis() + "," +
+                    data.formattedTimestamp() + "," +
+                    "0" + "," +
+                    data.value(Acceleration.class).x() + "," +
+                    data.value(Acceleration.class).y() + "," +
+                    data.value(Acceleration.class).z() + "\n";
+
+            FileOutputStream fos = (FileOutputStream) env[0];
+            fos.write(value.getBytes());
+        } catch (IOException ex) {
+            Log.i("MobilityAI", "Accelerometer Subscriber: Error writing to file:" + ex.toString());
+        }
+    };
+
+    private static Subscriber GYROSCOPE_HANDLER = (Data data, Object... env) -> {
+        try {
+            String value = data.timestamp().getTimeInMillis() + "," +
+                    data.formattedTimestamp() + "," +
+                    "0" + "," +
+                    data.value(AngularVelocity.class).x() + "," +
+                    data.value(AngularVelocity.class).y() + "," +
+                    data.value(AngularVelocity.class).z() + "\n";
+
+            FileOutputStream fos = (FileOutputStream) env[1];
+            fos.write(value.getBytes());
+        } catch (IOException ex) {
+            Log.i("MobilityAI", "Gyroscope Subscriber: Error writing to file:" + ex.toString());
+        }
+    };
+
+
+    public MetaMotionService(MetaWearBoard board) { m_board = board; m_macAddress = m_board.getMacAddress(); }
 
     public Task<Route> connectBoard() {
         return m_board.connectAsync().continueWith(task -> {
@@ -98,44 +134,31 @@ public class MetaMotionService {
         }
     }
 
-    public Task<Route> configureLogging() {
+    public Task<Route> configureAccelerometerLogging(Context context) {
         return m_accelerometer.acceleration().addRouteAsync(source -> {
-            source.log((Data data, Object... env) -> {
-                try {
-                    String value = data.timestamp().getTimeInMillis()+","+
-                            data.formattedTimestamp()+","+
-                            "0"+","+
-                            data.value(Acceleration.class).x()+","+
-                            data.value(Acceleration.class).y()+","+
-                            data.value(Acceleration.class).z()+"\n";
-
-                    FileOutputStream fos = (FileOutputStream) env[0];
-                    fos.write(value.getBytes());
-                } catch (IOException ex) {
-                    Log.i("MobilityAI", "Error writing to file:" + ex.toString());
-                }
-            });
-        }).continueWith(task -> {
-            m_gyroscope.angularVelocity().addRouteAsync(source -> {
-                source.log((Data data, Object... env) -> {
-                    try {
-                        String value = data.timestamp().getTimeInMillis()+","+
-                                data.formattedTimestamp()+","+
-                                "0"+","+
-                                data.value(AngularVelocity.class).x()+","+
-                                data.value(AngularVelocity.class).y()+","+
-                                data.value(AngularVelocity.class).z()+"\n";
-
-                        FileOutputStream fos = (FileOutputStream) env[1];
-                        fos.write(value.getBytes());
-                    } catch (IOException ex) {
-                        Log.i("MobilityAI", "Error writing to file:" + ex.toString());
-                    }
-                });
-            });
-
+            source.log(ACCELEROMETER_HANDLER);
+        }).continueWith((Task<Route> task) -> {
+            writeIdFile(context, task, "a");
             return null;
         });
+    }
+
+    public Task<Route> configureGyroscopeLogging(Context context) {
+        return m_gyroscope.angularVelocity().addRouteAsync(source -> {
+            source.log(GYROSCOPE_HANDLER);
+        }).continueWith(task -> {
+            writeIdFile(context, task, "g");
+            return null;
+        });
+    }
+
+    private void writeIdFile(Context context, Task<Route> task, String identifier) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("id_" + identifier + "_" + m_board.getMacAddress(), Context.MODE_PRIVATE));
+            int res = task.getResult().id();
+            outputStreamWriter.write(Integer.toString(res));
+            outputStreamWriter.close();
+        } catch (IOException e) { Log.i(TAG, "Error Logging ID: " + e.toString()); }
     }
 
     public void setEnvironment(Context context) {
@@ -168,16 +191,34 @@ public class MetaMotionService {
                 //Set env for route
                 Route gyroRoute = m_board.lookupRoute(routeId);
                 String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                m_fosG = context.openFileOutput(m_board.getMacAddress() + "_accelerometer-" + datetime, context.MODE_PRIVATE);
+                m_fosG = context.openFileOutput(m_board.getMacAddress() + "_gyroscope_" + datetime, context.MODE_PRIVATE);
                 m_fosG.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
                 gyroRoute.setEnvironment(1, m_fosG);
 
                 //TODO: Delete id file
             }
-        } catch (IOException e) { Log.i(TAG, "SETENVIRONMENT: " + e.getMessage()); }
+        } catch (IOException e) { Log.i(TAG, "SETENVIRONMENT: " + e.getMessage()); Log.i(TAG, "Probably a new device."); }
     }
 
-    
+    public void startSensors() {
+        Log.i(TAG, "Start all sensors");
+        m_accelerometer.acceleration().start();
+        m_accelerometer.start();
+        m_gyroscope.angularVelocity().start();
+        m_gyroscope.start();
+    }
+
+    public void stopSensors() {
+        Log.i(TAG, "Stop all sensors");
+        m_accelerometer.acceleration().stop();
+        m_accelerometer.stop();
+        m_gyroscope.angularVelocity().stop();
+        m_gyroscope.stop();
+    }
+
+    public void stopLogging() {
+        m_logging.stop();
+    }
 
     public void serializeBoard(String filedir) {
         try {

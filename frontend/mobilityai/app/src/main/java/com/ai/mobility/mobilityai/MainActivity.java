@@ -32,6 +32,8 @@ import android.view.MenuItem;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.ai.mobility.mobilityai.MetaMotionDeviceAdapter.OnItemClickListener;
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
@@ -61,15 +63,8 @@ import bolts.Task;
 public class MainActivity extends AppCompatActivity implements ServiceConnection {//, BleScannerFragment.ScannerCommunicationBus {
     //Metawear classes
     private BtleService.LocalBinder m_serviceBinder;
-    private Led led;
-    private MetaWearBoard board;
-    private Accelerometer accelerometer;
-    private GyroBmi160 gyroscope;
-    private Logging logging;
 
     private MetaWearBoards m_boards = MetaWearBoards.getInstance();
-
-    private Button led_on, led_off;
 
     private static final String TAG = "MobilityAI";
     private static final int REQUEST_ENABLE_BT = 1, PERMISSION_REQUEST_COARSE_LOCATION= 2;
@@ -80,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private ArrayList<MetaMotionDevice> m_deviceList;
 
     private ImageButton m_refreshButton;
-
 
     //Bluetooth Scanning
     private BluetoothAdapter m_bluetoothAdapter;
@@ -172,14 +166,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        if(board != null) {
-            board.disconnectAsync().continueWith(new Continuation<Void, Void>() {
-                @Override
-                public Void then(Task<Void> task) throws Exception {
-                    return null;
-                }
-            });
-        }
+//        if(board != null) {
+//            board.disconnectAsync().continueWith(new Continuation<Void, Void>() {
+//                @Override
+//                public Void then(Task<Void> task) throws Exception {
+//                    return null;
+//                }
+//            });
+//        }
     }
 
     @Override
@@ -213,8 +207,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         m_handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "Stopped Scan");
-                stopBleScan();
+                Log.i(TAG, "Delayed Stopped Scan");
+                if(m_isScanning)
+                    stopBleScan();
             }
         }, SCAN_PERIOD);
 
@@ -262,45 +257,74 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         m_isScanning = false;
         m_refreshButton.setImageResource(R.drawable.ic_refresh_black_24dp);
 
-        //TODO: Connect to devices
         for(MetaMotionDevice d : m_deviceList) {
-            final BluetoothManager btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-            final BluetoothDevice remoteDevice = btManager.getAdapter().getRemoteDevice(d.getMacAddr());
+            //Connect to board
+            //Task<Route> currTask = connectToBoard(d);
 
-            MetaWearBoard b = m_serviceBinder.getMetaWearBoard(remoteDevice);
+            //Deserialize, set environment, stop sensors, get logging data
+            //currTask = currTask.continueWithTask(task -> {
+            //    return null;
+            //});
 
-            m_boards.enrollNewBoard(d.getMacAddr(), b);
+            //Reconfigure board, serialize board, and restart logging
 
-            MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-            m.connectBoard().continueWith(task -> {
-                d.setService(m);
 
-                //Update Battery
-                m.getBoard().readBatteryLevelAsync().continueWith(new Continuation<Byte, Object>() {
-                    @Override
-                    public Object then(Task<Byte> task1) throws Exception {
-                        if(task1.isFaulted()) {
-                            Log.i(TAG, "TASK FAULTED");
-                        } else {
-                            int batteryVal = task1.getResult().intValue();
-                            m_batteryPercentage.setText(batteryVal + "%");
-
-                            ObjectAnimator animation = ObjectAnimator.ofInt(m_batteryCircle, "progress", batteryVal);
-                            animation.setDuration(3000); // in milliseconds
-                            animation.setInterpolator(new DecelerateInterpolator());
-                            animation.start();
-                        }
-
-                        showAllElements();
-                        return null;
-                    }
-                }, Task.UI_THREAD_EXECUTOR);
-
-                return null;
-            });
-
+            //TODO: Handle multiple boards
             break;
         }
+    }
+
+    private Task<Route> connectToBoard(MetaMotionDevice d) {
+        final BluetoothManager btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        final BluetoothDevice remoteDevice = btManager.getAdapter().getRemoteDevice(d.getMacAddr());
+
+        MetaWearBoard b = m_serviceBinder.getMetaWearBoard(remoteDevice);
+
+        m_boards.enrollNewBoard(d.getMacAddr(), b);
+
+        MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+
+        return m.connectBoard().continueWith(task -> {
+            d.setService(m);
+
+            //Update Battery
+            m.getBoard().readBatteryLevelAsync().continueWith(new Continuation<Byte, Object>() {
+                @Override
+                public Object then(Task<Byte> task1) throws Exception {
+                    if(task1.isFaulted()) {
+                        Log.i(TAG, "TASK FAULTED");
+                    } else {
+                        int batteryVal = task1.getResult().intValue();
+                        View v = m_bleList.getLayoutManager().findViewByPosition(0);
+                        TextView batteryPercentage = v.findViewById(R.id.devBatteryLevelPercentage);
+                        batteryPercentage.setText(batteryVal + "%");
+
+                        Log.i(TAG, "BATTERY: " + batteryVal);
+                        ProgressBar batteryCircle = v.findViewById(R.id.devBatteryLevel);
+
+                        ObjectAnimator animation = ObjectAnimator.ofInt(batteryCircle, "progress", batteryVal);
+                        animation.setDuration(3000); // in milliseconds
+                        animation.setInterpolator(new DecelerateInterpolator());
+                        animation.start();
+                    }
+
+//                        showAllElements();
+                    return null;
+                }
+            }, Task.UI_THREAD_EXECUTOR);
+
+            return null;
+        });
+    }
+
+    private Task<Route> collectData(MetaMotionDevice d) {
+        MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+
+        m.stopSensors();
+        m.stopLogging();
+
+        return null;
+
     }
 
     private void initialize() {
