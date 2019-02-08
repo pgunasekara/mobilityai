@@ -38,7 +38,8 @@ def test_windowify(client):
         csvFile = [x for x in os.listdir() if ".csv" in x]
         rvcsv = pd.read_csv(csvFile[0])
         # We know this file is supposed to have 407 rows
-        assert rvcsv.shape[0] + 1 == 407
+        assert rvcsv.shape[0] + 1 == 380
+        assert rvcsv.shape[1] == 3
     finally:
         for fp in files:
             fp.close()
