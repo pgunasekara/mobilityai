@@ -4,15 +4,16 @@ import { Text, View, ScrollView, TouchableHighlight, StyleSheet, ART } from 'rea
 const { Group, Shape, Surface } = ART;
 
 import * as d3 from 'd3'
-import * as scale from 'd3-scale'
-
+// import * as scale from 'd3-scale'
 
 import GetDate from './GetDate.js';
 import Circle from './PatientCircles';
 import BarGraph from './PatientBarGraphs';
 
+import { GetPatientActivities } from '../Lib/Api';
+
 // const colours = ['#3498DB', '#1ABC9C', '#9B59B6', '#F1C40F', '#E74C3C'];
-const data = [50, 10, 40, 95, 4, 24, 0, 85, 34, 0, 35, 53, 53];
+// const data = [50, 10, 40, 95, 4, 24, 0, 85, 34, 0, 35, 53, 53];
 const data1 = [20, 35, 49, 24, 50, 20, 40, 19, 24, 50, 20, 40, 19];
 const data2 = [30, 25, 29, 50, 60, 22, 60, 19, 45, 60, 40, 43, 39];
 
@@ -21,7 +22,7 @@ var arrayColours = {
     sitting: '#1ABC9C',
     lyingDown: '#9B59B6',
     walking: '#F1C40F',
-    misc: '#E74C3C',
+    unknown: '#E74C3C',
 };
 
 export default class PatientData extends Component {
@@ -33,16 +34,17 @@ export default class PatientData extends Component {
             firstName: props.firstName,
             lastName: props.lastName,
             barColour: arrayColours['standing'],
-            data: data,
+            data: [0,0,0,0,0,0,0,0,0,0,0,0],
+            movementPercentages: {'sitting': {total: 0, bar: new Array(13)}, 'standing': {total: 0, bar: new Array(13)}, 'lyingDown': {total: 0, bar: new Array(13)}, 'walking': {total: 0, bar: new Array(13)}, 'unknown': {total: 0, bar: new Array(13)}},
         }
         // this.onPress = this.onPress.bind(this);
         //this.props.navigate = props.navigate;
-    } 
+    };
 
     _onPressButton(activityColour, newData) {
         this.setState({ barColour: arrayColours[activityColour]});
         this.setState({ data: newData });
-    }
+    };
 
     // TODO: Have Nav Header display patient name
     //  static navigationOptions = ({ this.props.navigate }) => ({
@@ -55,9 +57,24 @@ export default class PatientData extends Component {
 
     pieColour(i) {
 
-    }
+    };
 
+    componentDidMount(){
+        let startTime = new Date(Date.UTC(2018, 11, 11, 0, 0, 0, 0)).getTime();
+        let endTime = new Date(Date.UTC(2018, 11, 11, 23, 0, 0, 0)).getTime();
 
+        // return GetPatientActivities(startTime, endTime, 4).then((respjson) => {
+        //     console.log("\n\nhere");
+        //     return respjson;
+        //     // this.setState({movementPercentages: respjson});
+        // });
+        //     .then((res) => { this.setState({movementPercentages: res}); });
+
+        GetPatientActivities(startTime, endTime, 4).then((activitiesJson) => {
+            console.log('\n\n' + activitiesJson);
+            this.setState({movementPercentages: activitiesJson});
+        })
+    };
 
     render() {
         const { navigation } = this.props;
@@ -68,31 +85,33 @@ export default class PatientData extends Component {
         const width = 250;
         const height = 250;
 
+        // let x = this.getCurrentData(id);
+
         const userActivities = [
             {
-                itemName: 'standing',
-                movement: 30,
-            },
-            {
                 itemName: 'sitting',
-                movement: 100,
+                movement: this.state.movementPercentages.sitting.total,
             },
             {
                 itemName: 'lyingDown',
-                movement: 150,
+                movement: this.state.movementPercentages.lyingDown.total,
             },
             {
                 itemName: 'walking',
-                movement: 20,
+                movement: this.state.movementPercentages.walking.total,
             },
             {
-                itemName: 'misc',
-                movement: 50,
+                itemName: 'standing',
+                movement: this.state.movementPercentages.standing.total,
+            },
+            {
+                itemName: 'unknown',
+                movement: this.state.movementPercentages.unknown.total,
             },
 
         ];
 
-        const sectionAngles = d3.pie().value(d => d.movement)(userActivities);
+        const sectionAngles = d3.pie().value(d => d.movement)(userActivities.sort( function (a,b) { return (b.movement - a.movement); }));
 
         // Creating the pie chart
         const path = d3.arc()
@@ -131,24 +150,24 @@ export default class PatientData extends Component {
 
                     {/* Displaying the circle buttons for each activity */}
                     <View style={styles.flexDir}>
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'standing', data)} underlayColor="white">
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'standing', this.state.movementPercentages.standing.bar)} underlayColor="white">
                             <Circle activity='Standing' activityIcon='male' iconLib='font-awesome' color={arrayColours.standing} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'sitting', data1)} underlayColor="white">
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'sitting', this.state.movementPercentages.sitting.bar)} underlayColor="white">
                             <Circle activity='Sitting' activityIcon='airline-seat-recline-normal' iconLib='MaterialIcons' color={arrayColours.sitting} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'lyingDown', data2)} underlayColor="white">
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'lyingDown', this.state.movementPercentages.lyingDown.bar)} underlayColor="white">
                             <Circle activity='Lying Down' activityIcon='bed' iconLib='font-awesome' color={arrayColours.lyingDown} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'walking', data)} underlayColor="white">
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'walking', this.state.movementPercentages.walking.bar)} underlayColor="white">
                             <Circle activity='Walking' activityIcon='directions-walk' iconLib='MaterialIcons' color={arrayColours.walking} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'misc', data2)} underlayColor="white">
-                            <Circle activity='Miscellaneous' activityIcon='question' iconLib='font-awesome' color={arrayColours.misc} />
+                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'unknown', this.state.movementPercentages.unknown.bar)} underlayColor="white">
+                            <Circle activity='Miscellaneous' activityIcon='question' iconLib='font-awesome' color={arrayColours.unknown} />
                         </TouchableHighlight>
                     </View>
 

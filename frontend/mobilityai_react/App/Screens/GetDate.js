@@ -11,7 +11,7 @@ import { View, Button, StyleSheet } from 'react-native';
 
         return (
             <View style={[styles.textInline, styles.dateButton]}>
-                <Button style={[styles.dateButton]} title={date + '/' + month + '/' + year} />
+                <Button style={[styles.dateButton]} title={date + '/' + month + '/' + year} onPress={() => {}} />
             </View>
         );
 
