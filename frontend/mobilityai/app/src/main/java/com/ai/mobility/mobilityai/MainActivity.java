@@ -1,5 +1,6 @@
 package com.ai.mobility.mobilityai;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -28,8 +29,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.ai.mobility.mobilityai.MetaMotionDeviceAdapter.OnItemClickListener;
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
@@ -58,16 +62,9 @@ import bolts.Task;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnection {//, BleScannerFragment.ScannerCommunicationBus {
     //Metawear classes
-    private BtleService.LocalBinder serviceBinder;
-    private Led led;
-    private MetaWearBoard board;
-    private Accelerometer accelerometer;
-    private GyroBmi160 gyroscope;
-    private Logging logging;
+    private BtleService.LocalBinder m_serviceBinder;
 
-    private MetaMotionService metaMotion;
-
-    private Button led_on, led_off;
+    private MetaWearBoards m_boards = MetaWearBoards.getInstance();
 
     private static final String TAG = "MobilityAI";
     private static final int REQUEST_ENABLE_BT = 1, PERMISSION_REQUEST_COARSE_LOCATION= 2;
@@ -78,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private ArrayList<MetaMotionDevice> m_deviceList;
 
     private ImageButton m_refreshButton;
-
 
     //Bluetooth Scanning
     private BluetoothAdapter m_bluetoothAdapter;
@@ -161,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        serviceBinder = (BtleService.LocalBinder) service;
+        m_serviceBinder = (BtleService.LocalBinder) service;
 
         Log.i(TAG, "Service Connected");
 
@@ -170,14 +166,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        if(board != null) {
-            board.disconnectAsync().continueWith(new Continuation<Void, Void>() {
-                @Override
-                public Void then(Task<Void> task) throws Exception {
-                    return null;
-                }
-            });
-        }
+//        if(board != null) {
+//            board.disconnectAsync().continueWith(new Continuation<Void, Void>() {
+//                @Override
+//                public Void then(Task<Void> task) throws Exception {
+//                    return null;
+//                }
+//            });
+//        }
     }
 
     @Override
@@ -202,6 +198,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         m_adapter.clear();
         m_isScanning = true;
 
+        //TODO: Disconnect from devices
+
         Log.i(TAG, "Started Scan");
         //Change icon to X
         m_refreshButton.setImageResource(R.drawable.ic_close_black_24dp);
@@ -209,8 +207,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         m_handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "Stopped Scan");
-                stopBleScan();
+                Log.i(TAG, "Delayed Stopped Scan");
+                if(m_isScanning)
+                    stopBleScan();
             }
         }, SCAN_PERIOD);
 
@@ -257,6 +256,75 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         m_isScanning = false;
         m_refreshButton.setImageResource(R.drawable.ic_refresh_black_24dp);
+
+        for(MetaMotionDevice d : m_deviceList) {
+            //Connect to board
+            //Task<Route> currTask = connectToBoard(d);
+
+            //Deserialize, set environment, stop sensors, get logging data
+            //currTask = currTask.continueWithTask(task -> {
+            //    return null;
+            //});
+
+            //Reconfigure board, serialize board, and restart logging
+
+
+            //TODO: Handle multiple boards
+            break;
+        }
+    }
+
+    private Task<Route> connectToBoard(MetaMotionDevice d) {
+        final BluetoothManager btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        final BluetoothDevice remoteDevice = btManager.getAdapter().getRemoteDevice(d.getMacAddr());
+
+        MetaWearBoard b = m_serviceBinder.getMetaWearBoard(remoteDevice);
+
+        m_boards.enrollNewBoard(d.getMacAddr(), b);
+
+        MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+
+        return m.connectBoard().continueWith(task -> {
+            d.setService(m);
+
+            //Update Battery
+            m.getBoard().readBatteryLevelAsync().continueWith(new Continuation<Byte, Object>() {
+                @Override
+                public Object then(Task<Byte> task1) throws Exception {
+                    if(task1.isFaulted()) {
+                        Log.i(TAG, "TASK FAULTED");
+                    } else {
+                        int batteryVal = task1.getResult().intValue();
+                        View v = m_bleList.getLayoutManager().findViewByPosition(0);
+                        TextView batteryPercentage = v.findViewById(R.id.devBatteryLevelPercentage);
+                        batteryPercentage.setText(batteryVal + "%");
+
+                        Log.i(TAG, "BATTERY: " + batteryVal);
+                        ProgressBar batteryCircle = v.findViewById(R.id.devBatteryLevel);
+
+                        ObjectAnimator animation = ObjectAnimator.ofInt(batteryCircle, "progress", batteryVal);
+                        animation.setDuration(3000); // in milliseconds
+                        animation.setInterpolator(new DecelerateInterpolator());
+                        animation.start();
+                    }
+
+//                        showAllElements();
+                    return null;
+                }
+            }, Task.UI_THREAD_EXECUTOR);
+
+            return null;
+        });
+    }
+
+    private Task<Route> collectData(MetaMotionDevice d) {
+        MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+
+        m.stopSensors();
+        m.stopLogging();
+
+        return null;
+
     }
 
     private void initialize() {

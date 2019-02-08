@@ -15,7 +15,7 @@ public class MetaWearBoards {
 
     public static MetaWearBoards getInstance() { return m_instance; }
 
-    private HashMap<String, MetaWearBoard> m_boards = new HashMap<String, MetaWearBoard>();
+    private HashMap<String, MetaMotionService> m_boards = new HashMap<String, MetaMotionService>();
     private SortedSet<Integer> indices = new TreeSet<>();
 
     private MetaWearBoards() {
@@ -24,10 +24,9 @@ public class MetaWearBoards {
 
     }
 
-    public void enrollNewBoard(String macAddr, MetaWearBoard board) { m_boards.put(macAddr, board); }
-    public MetaWearBoard getBoard(String macAddr) { return m_boards.get(macAddr); }
+    public void enrollNewBoard(String macAddr, MetaWearBoard board) { m_boards.put(macAddr, new MetaMotionService(board)); }
+    public MetaMotionService getBoard(String macAddr) { return m_boards.get(macAddr); }
     public void removeBoard(String macAddr) { m_boards.remove(macAddr); }
-
 
     public void configureAccelerometerAndGyroscope(String macAddr) {
 
