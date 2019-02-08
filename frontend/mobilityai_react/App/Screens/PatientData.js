@@ -63,14 +63,10 @@ export default class PatientData extends Component {
         let startTime = new Date(Date.UTC(2018, 11, 11, 0, 0, 0, 0)).getTime();
         let endTime = new Date(Date.UTC(2018, 11, 11, 23, 0, 0, 0)).getTime();
 
-        // return GetPatientActivities(startTime, endTime, 4).then((respjson) => {
-        //     console.log("\n\nhere");
-        //     return respjson;
-        //     // this.setState({movementPercentages: respjson});
-        // });
-        //     .then((res) => { this.setState({movementPercentages: res}); });
+        const { navigation } = this.props;
+        const id = navigation.getParam('id');
 
-        GetPatientActivities(startTime, endTime, 4).then((activitiesJson) => {
+        GetPatientActivities(startTime, endTime, id).then((activitiesJson) => {
             console.log('\n\n' + activitiesJson);
             this.setState({movementPercentages: activitiesJson});
         })
