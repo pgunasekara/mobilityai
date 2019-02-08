@@ -48,7 +48,7 @@ public class MetaMotionService {
     private FileOutputStream m_fosA;
     private FileOutputStream m_fosG;
 
-    public MetaMotionService() { }
+    public MetaMotionService(MetaWearBoard board) { m_board = board; }
 
     public Task<Route> connectBoard() {
         return m_board.connectAsync().continueWith(task -> {
@@ -204,5 +204,9 @@ public class MetaMotionService {
         } catch (IOException | ClassNotFoundException e) {
             Log.i(TAG, "Failed to read: " + m_board.getMacAddress() + " " + e.toString());
         }
+    }
+
+    public MetaWearBoard getBoard() {
+        return m_board;
     }
 }

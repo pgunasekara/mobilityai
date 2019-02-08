@@ -10,6 +10,7 @@ public class MetaMotionDevice {
     private String lastSync;
     private int rssi;
     private int colour;
+    private MetaMotionService service;
 
     public MetaMotionDevice(String name, String assignedUser, String macAddr, Integer battery, String lastSync, int rssi) {
         this.setName(name);
@@ -72,4 +73,12 @@ public class MetaMotionDevice {
     public int getColour() { return colour; }
 
     public void setColour(int colour) { this.colour = colour; }
+
+    public MetaMotionService getService() {
+        return service;
+    }
+
+    public void setService(MetaMotionService service) {
+        this.service = service;
+    }
 }

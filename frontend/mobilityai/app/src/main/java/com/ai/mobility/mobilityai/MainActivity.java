@@ -1,5 +1,6 @@
 package com.ai.mobility.mobilityai;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -28,6 +29,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -58,14 +60,14 @@ import bolts.Task;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnection {//, BleScannerFragment.ScannerCommunicationBus {
     //Metawear classes
-    private BtleService.LocalBinder serviceBinder;
+    private BtleService.LocalBinder m_serviceBinder;
     private Led led;
     private MetaWearBoard board;
     private Accelerometer accelerometer;
     private GyroBmi160 gyroscope;
     private Logging logging;
 
-    private MetaMotionService metaMotion;
+    private MetaWearBoards m_boards = MetaWearBoards.getInstance();
 
     private Button led_on, led_off;
 
@@ -161,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        serviceBinder = (BtleService.LocalBinder) service;
+        m_serviceBinder = (BtleService.LocalBinder) service;
 
         Log.i(TAG, "Service Connected");
 
@@ -201,6 +203,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private void startBleScan() {
         m_adapter.clear();
         m_isScanning = true;
+
+        //TODO: Disconnect from devices
 
         Log.i(TAG, "Started Scan");
         //Change icon to X
@@ -257,6 +261,46 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         m_isScanning = false;
         m_refreshButton.setImageResource(R.drawable.ic_refresh_black_24dp);
+
+        //TODO: Connect to devices
+        for(MetaMotionDevice d : m_deviceList) {
+            final BluetoothManager btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+            final BluetoothDevice remoteDevice = btManager.getAdapter().getRemoteDevice(d.getMacAddr());
+
+            MetaWearBoard b = m_serviceBinder.getMetaWearBoard(remoteDevice);
+
+            m_boards.enrollNewBoard(d.getMacAddr(), b);
+
+            MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+            m.connectBoard().continueWith(task -> {
+                d.setService(m);
+
+                //Update Battery
+                m.getBoard().readBatteryLevelAsync().continueWith(new Continuation<Byte, Object>() {
+                    @Override
+                    public Object then(Task<Byte> task1) throws Exception {
+                        if(task1.isFaulted()) {
+                            Log.i(TAG, "TASK FAULTED");
+                        } else {
+                            int batteryVal = task1.getResult().intValue();
+                            m_batteryPercentage.setText(batteryVal + "%");
+
+                            ObjectAnimator animation = ObjectAnimator.ofInt(m_batteryCircle, "progress", batteryVal);
+                            animation.setDuration(3000); // in milliseconds
+                            animation.setInterpolator(new DecelerateInterpolator());
+                            animation.start();
+                        }
+
+                        showAllElements();
+                        return null;
+                    }
+                }, Task.UI_THREAD_EXECUTOR);
+
+                return null;
+            });
+
+            break;
+        }
     }
 
     private void initialize() {

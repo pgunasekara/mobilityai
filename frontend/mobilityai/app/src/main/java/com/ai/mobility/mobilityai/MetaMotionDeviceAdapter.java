@@ -64,6 +64,7 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
         private ImageView devProfileImage;
         private ProgressBar devBatteryLevel;
         private Drawable devBatteryLevelCircle;
+        private MetaMotionService service;
 
         public MetaMotionDeviceHolder(View itemView) {
             super(itemView);
