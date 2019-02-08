@@ -21,6 +21,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 clf = load('model/mobilityAIModel.joblib')
+pca = load('model/mobilityAIPCAModel.joblib')
 print("Loaded model")
 
 """
@@ -75,6 +76,26 @@ def windowifyData():
     else:
         abort(401)
 
+def confidence_filter(row):
+    perp = pow(2,entropy(row))
+    maxConfidence = max(row)
+    cl = pd.Index(row).get_loc(maxConfidence)
+    if perp > 1.2 and (cl == 0 or cl == 1):
+        return 4
+    return cl
+
+def save_results(accel_gyro_df,predWithConf):
+    #pred = pd.DataFrame({'type': pred})
+    predWithConf = pd.DataFrame({'type': predWithConf})
+    accel_gyro_df = pd.concat([accel_gyro_df,predWithConf], axis=1)
+    accel_gyro_df = accel_gyro_df[['epoch_start', 'epoch_end', 'type']]
+    accel_gyro_df["epoch_start"] = pd.to_numeric(accel_gyro_df["epoch_start"], downcast='integer')
+    accel_gyro_df["epoch_end"] = pd.to_numeric(accel_gyro_df["epoch_end"], downcast='integer')
+
+    file_name = str(uuid.uuid1()) + ".csv"
+    accel_gyro_df.to_csv(os.path.join(os.getcwd(), file_name), sep=',', index=False)
+    print("Saved csv to: " + os.path.join(os.getcwd(), file_name))
+    return file_name
 """
 Function to process the data iin a new thread.
 When the data is done processing, the result is posted back to the callback url.
@@ -86,16 +107,14 @@ def process_data(accel_df, gyro_df, callback_url, test=False):
 
     print("Running model")
     newX = accel_gyro_df.drop(['epoch_length', 'epoch_end', 'epoch_start'], axis=1)
-    predictions = clf.predict(newX)
-    predictions_pd = pd.DataFrame({'type': predictions})
-    accel_gyro_df = pd.concat([accel_gyro_df, predictions_pd], axis=1)
-    accel_gyro_df = accel_gyro_df[['epoch_start', 'epoch_end', 'type']]
-    accel_gyro_df["epoch_start"] = pd.to_numeric(accel_gyro_df["epoch_start"], downcast='integer')
-    accel_gyro_df["epoch_end"] = pd.to_numeric(accel_gyro_df["epoch_end"], downcast='integer')
+    newX = pca.transform(newX)
 
-    file_name = str(uuid.uuid1()) + ".csv"
-    accel_gyro_df.to_csv(os.path.join(os.getcwd(), file_name), sep=',', index=False)
-    print("Saved csv to: " + os.path.join(os.getcwd(), file_name))
+    #predictions = clf.predict(newX)
+    
+    pWithConfidence = pd.DataFrame(clf.predict_proba(newX))
+    pWithConfidence = pWithConfidence.apply(confidence_filter, axis=1)
+
+    file_name = save_results(accel_gyro_df, pWithConfidence)
  
     print("test is: " + str(test))
     with open(file_name,'rb') as activities_file:
