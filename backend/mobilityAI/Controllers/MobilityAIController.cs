@@ -30,6 +30,7 @@ namespace mobilityAI.Controllers
         private readonly MobilityAIContext _context;
         private static readonly HttpClient client = new HttpClient();
         private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
+        private static bool isFirstRun = true;
         public MobilityAIController(MobilityAIContext context)
         {
             _context = context;
@@ -412,25 +413,29 @@ namespace mobilityAI.Controllers
         /// <returns></returns>
         [HttpGet("GetPatients", Name = "GetPatients")]
         public JsonResult GetPatients() {
-            var demoPatients = new List<Patient> {
-                new Patient {
-                    DeviceId = "1",
-                    FirstName = "Joe",
-                    LastName = "Johnson"
-                },
-                new Patient {
-                    DeviceId = "2",
-                    FirstName = "Ruth",
-                    LastName = "Reynolds",
-                },
-                new Patient {
-                    DeviceId = "3",
-                    FirstName = "Marie",
-                    LastName = "Anderson"
-                }
-            };
-            _context.Patients.AddRange(demoPatients);
-            _context.SaveChanges();
+            if (isFirstRun)
+            {
+                var demoPatients = new List<Patient> {
+                    new Patient {
+                        DeviceId = "1",
+                        FirstName = "Joe",
+                        LastName = "Johnson"
+                    },
+                    new Patient {
+                        DeviceId = "2",
+                        FirstName = "Ruth",
+                        LastName = "Reynolds",
+                    },
+                    new Patient {
+                        DeviceId = "3",
+                        FirstName = "Marie",
+                        LastName = "Anderson"
+                    }
+                };
+                _context.Patients.AddRange(demoPatients);
+                _context.SaveChanges();
+                isFirstRun = false;
+            }
             return new JsonResult(_context.Patients.ToList());
         }
     }
