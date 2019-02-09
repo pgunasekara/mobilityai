@@ -20,7 +20,9 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <include
+        android:id="@+id/include"
+        layout="@layout/content_main" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/refreshButton"
@@ -28,5 +30,29 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
         android:layout_margin="@dimen/fab_margin" />
+
+    <Button
+        android:id="@+id/tmpBtn"
+        android:layout_width="136dp"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_anchor="@+id/include"
+        app:layout_anchorGravity="right|bottom" />
+
+    <Button
+        android:id="@+id/tmpBtn2"
+        android:layout_width="106dp"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_anchor="@+id/include"
+        app:layout_anchorGravity="left|bottom" />
+
+    <Button
+        android:id="@+id/tmpBtn3"
+        android:layout_width="99dp"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_anchor="@+id/include"
+        app:layout_anchorGravity="right|center" />
 
 </android.support.design.widget.CoordinatorLayout>

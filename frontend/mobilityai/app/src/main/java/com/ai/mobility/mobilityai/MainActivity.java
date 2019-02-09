@@ -34,6 +34,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ai.mobility.mobilityai.MetaMotionDeviceAdapter.OnItemClickListener;
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     //TODO: Remove once the server side changes are made
     private Random r = new Random();
+    private Button tmpBtn, tmpBtn2, tmpBtn3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +100,69 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        tmpBtn = findViewById(R.id.tmpBtn);
+        tmpBtn.setOnClickListener(l -> {
+            for(MetaMotionDevice d : m_deviceList) {
+                //Connect to board
+                Task<Route> currTask = connectToBoard(d);
+
+                //Deserialize, set environment, stop sensors, get logging data
+                currTask = currTask.continueWithTask(task -> {
+                    Log.i(TAG, "HERE1");
+                    return collectData(d);
+                }).continueWithTask(task -> {
+                    m_boards.getBoard(d.getMacAddr()).disconnectBoard();
+                    return null;
+                });
+                       /* .continueWithTask(task -> {
+                    collectData(d);
+                    return null;
+                });*/
+
+                //Reconfigure board, serialize board, and restart logging
+                /*currTask = currTask.continueWithTask(task -> {
+                    Log.i(TAG, "HERE2");
+                    return startDataCollection(d);
+                });
+
+                currTask.continueWithTask(task -> {
+                    MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+                    m.disconnectBoard();
+                    Log.i(TAG, "Disconnected from: " + m.getBoard().getMacAddress());
+                    return null;
+                });*/
+
+//                m_boards.getBoard(d.getMacAddr()).disconnectBoard();
+
+                //TODO: Handle multiple boards
+                break;
+            }
+        });
+
+        tmpBtn2 = findViewById(R.id.tmpBtn2);
+        tmpBtn2.setOnClickListener(l -> {
+            for(MetaMotionDevice d : m_deviceList) {
+                //dc all boards
+                MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+                if(m != null && m.getBoard() != null) {
+                    if (m.getBoard().isConnected()) {
+                        m.getBoard().disconnectAsync();
+                    }
+                }
+            }
+        });
+
+        tmpBtn3 = findViewById(R.id.tmpBtn3);
+        tmpBtn3.setOnClickListener(l -> {
+            connectToBoard(m_deviceList.get(0)).continueWithTask(task -> {
+                return startDataCollection(m_deviceList.get(0));
+            }).continueWithTask(task -> {
+                m_boards.getBoard(m_deviceList.get(0).getMacAddr()).disconnectBoard();
+                return null;
+            });
+
+        });
 
         initialize();
 
@@ -119,6 +184,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public void onDestroy() {
         stopBleScan();
         super.onDestroy();
+
+        for(MetaMotionDevice d : m_deviceList) {
+            MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+
+            if(m.getBoard().isConnected())
+                m.disconnectBoard();
+        }
 
         // Unbind the service when the activity is destroyed
         getApplicationContext().unbindService(this);
@@ -257,21 +329,36 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         m_isScanning = false;
         m_refreshButton.setImageResource(R.drawable.ic_refresh_black_24dp);
 
-        for(MetaMotionDevice d : m_deviceList) {
+        /*for(MetaMotionDevice d : m_deviceList) {
             //Connect to board
-            //Task<Route> currTask = connectToBoard(d);
+            Task<Route> currTask = connectToBoard(d);
 
             //Deserialize, set environment, stop sensors, get logging data
-            //currTask = currTask.continueWithTask(task -> {
-            //    return null;
-            //});
+            currTask = currTask.onSuccessTask(task -> {
+                return collectData(d);
+            });
+                    *//*.continueWithTask(task -> {
+                collectData(d);
+                return null;
+            });*//*
 
             //Reconfigure board, serialize board, and restart logging
+            currTask = currTask.onSuccessTask(task -> {
+                return startDataCollection(d);
+            });
 
+            currTask.onSuccessTask(task -> {
+                MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+                m.disconnectBoard();
+                Log.i(TAG, "Disconnected from: " + m.getBoard().getMacAddress());
+                return null;
+            });
+
+            m_boards.getBoard(d.getMacAddr()).disconnectBoard();
 
             //TODO: Handle multiple boards
             break;
-        }
+        }*/
     }
 
     private Task<Route> connectToBoard(MetaMotionDevice d) {
@@ -284,36 +371,32 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         MetaMotionService m = m_boards.getBoard(d.getMacAddr());
 
-        return m.connectBoard().continueWith(task -> {
+        m.deserializeBoard(this.getFilesDir());
+
+        return m.connectBoard().continueWithTask(task -> {
             d.setService(m);
 
             //Update Battery
-            m.getBoard().readBatteryLevelAsync().continueWith(new Continuation<Byte, Object>() {
-                @Override
-                public Object then(Task<Byte> task1) throws Exception {
-                    if(task1.isFaulted()) {
-                        Log.i(TAG, "TASK FAULTED");
-                    } else {
-                        int batteryVal = task1.getResult().intValue();
-                        View v = m_bleList.getLayoutManager().findViewByPosition(0);
-                        TextView batteryPercentage = v.findViewById(R.id.devBatteryLevelPercentage);
-                        batteryPercentage.setText(batteryVal + "%");
+            return m.getBoard().readBatteryLevelAsync().continueWithTask(task1 -> {
+                if(task1.isFaulted()) {
+                    Log.i(TAG, "Battery Read Faulted on " + d.getMacAddr());
+                } else {
+                    int batteryVal = task1.getResult().intValue();
+                    View v = m_bleList.getLayoutManager().findViewByPosition(0);
+                    TextView batteryPercentage = v.findViewById(R.id.devBatteryLevelPercentage);
+                    batteryPercentage.setText(batteryVal + "%");
 
-                        Log.i(TAG, "BATTERY: " + batteryVal);
-                        ProgressBar batteryCircle = v.findViewById(R.id.devBatteryLevel);
+                    Log.i(TAG, "Battery Level: " + batteryVal);
+                    ProgressBar batteryCircle = v.findViewById(R.id.devBatteryLevel);
 
-                        ObjectAnimator animation = ObjectAnimator.ofInt(batteryCircle, "progress", batteryVal);
-                        animation.setDuration(3000); // in milliseconds
-                        animation.setInterpolator(new DecelerateInterpolator());
-                        animation.start();
-                    }
-
-//                        showAllElements();
-                    return null;
+                    ObjectAnimator animation = ObjectAnimator.ofInt(
+                            batteryCircle, "progress", batteryVal);
+                    animation.setDuration(3000); // in milliseconds
+                    animation.setInterpolator(new DecelerateInterpolator());
+                    animation.start();
                 }
+                return null;
             }, Task.UI_THREAD_EXECUTOR);
-
-            return null;
         });
     }
 
@@ -323,8 +406,64 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         m.stopSensors();
         m.stopLogging();
 
-        return null;
+        //deserialize here?
+        m.setEnvironment(this);
 
+        //Start Downloading data
+        Logging log = m.getLogging();
+        View v = m_bleList.getLayoutManager().findViewByPosition(0);
+        ProgressBar syncProgress = v.findViewById(R.id.devSyncProgress);
+
+        Log.i(TAG, "starting log download");
+
+        return log.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
+            syncProgress.setProgress((int)totalEntries - (int)nEntriesLeft);
+            syncProgress.setMax((int)totalEntries);
+            Log.i(TAG, "Download: "  + ((int)totalEntries - (int)nEntriesLeft));
+        }).continueWithTask(task -> {
+            if (task.isFaulted()) {
+                Toast.makeText(this, "Failed to download log file.", Toast.LENGTH_LONG).show();
+                Log.i(TAG, "Failed to download log file.");
+            } else {
+                Log.i(TAG, "Log downloaded successfully");
+                //Clear Log
+                log.clearEntries();
+
+                Log.i(TAG, "Log Location: " + this.getFilesDir().getAbsolutePath());
+            }
+
+            //Clear board
+            m.getBoard().tearDown();
+            return null;
+        });
+    }
+
+    private Task<Route> startDataCollection(MetaMotionDevice d) {
+        MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+
+        //Stop logging and reset board in case it's already running
+        m.getLogging().stop();
+        m.getBoard().tearDown();
+
+        //Reconfigure sensors
+        m.configureAccelerometer();
+        m.configureGyroscope();
+
+        //Configure logging environments
+        Task<Route> result = m.configureGyroscopeLogging(this);
+        result = result.continueWithTask(task -> { return m.configureAccelerometerLogging(this); });
+        return result.continueWith(task -> {
+            m.startSensors();
+            //Serialize board state before logging starts
+            m.serializeBoard(this.getFilesDir());
+
+            //Overwrite previous log entries if they exist
+            m.getLogging().start(true);
+
+            Log.i(TAG, "Data collection started for " + d.getMacAddr());
+
+            return null;
+        });
     }
 
     private void initialize() {
