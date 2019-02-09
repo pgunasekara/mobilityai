@@ -24,7 +24,7 @@ export default class PatientList extends React.Component {
         console.disableYellowBox = true;
         const {navigate} = this.props.navigation;
         return (
-            <View style={{alignSelf: "stretch"}}>
+            <View style={{flex: 1}}>
                 <FlatList
                     data = {this.state.patients}
                     renderItem = {({item, index}) => (
@@ -38,14 +38,14 @@ export default class PatientList extends React.Component {
                         />
                     )}
                 />
-                <View style={{flex:1, backgroundColor: '#f3f3f3'}}>
-                    {/* Rest of the app comes ABOVE the action button component !*/}
-                    <ActionButton buttonColor="rgba(231,76,60,1)"
-                        onPress={() => { navigate('PatientForm', {}) } }
-                        degrees={0}>
-                        <Icon name="md-create" style={styles.actionButtonIcon} />
-                    </ActionButton>
-                </View>
+                
+                {/* Rest of the app comes ABOVE the action button component !*/}
+                <ActionButton buttonColor="rgba(231,76,60,1)"
+                    onPress={() => { navigate('PatientForm', {}) } }
+                    degrees={0}>
+                    <Icon name="md-create" style={styles.actionButtonIcon} />
+                </ActionButton>
+                
             </View>
         );
     }
