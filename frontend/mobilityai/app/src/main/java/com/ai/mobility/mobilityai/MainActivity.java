@@ -144,12 +144,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         tmpBtn2.setOnClickListener(l -> {
             for(MetaMotionDevice d : m_deviceList) {
                 //dc all boards
-                MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-                if(m != null && m.getBoard() != null) {
-                    if (m.getBoard().isConnected()) {
-                        m.getBoard().disconnectAsync();
-                    }
-                }
+                connectToBoard(d).continueWithTask(task -> {
+                    MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+                    m.streamGyro();
+                    return null;
+                });
+                break;
             }
         });
 

@@ -2,6 +2,7 @@ package com.ai.mobility.mobilityai;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 
 import com.mbientlab.metawear.Data;
@@ -11,6 +12,8 @@ import com.mbientlab.metawear.Subscriber;
 import com.mbientlab.metawear.data.Acceleration;
 import com.mbientlab.metawear.data.AngularVelocity;
 import com.mbientlab.metawear.module.Accelerometer;
+import com.mbientlab.metawear.module.AccelerometerBmi160;
+import com.mbientlab.metawear.module.AccelerometerBosch;
 import com.mbientlab.metawear.module.GyroBmi160;
 import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.Logging;
@@ -36,7 +39,7 @@ public class MetaMotionService {
     private String m_macAddress;
     private MetaWearBoard m_board;
     private Led m_led = null;
-    private Accelerometer m_accelerometer = null;
+    private AccelerometerBmi160 m_accelerometer = null;
     private GyroBmi160 m_gyroscope = null;
     private Logging m_logging = null;
     private Settings m_metawearSettings = null;
@@ -64,7 +67,7 @@ public class MetaMotionService {
 
     private static Subscriber GYROSCOPE_HANDLER = (Data data, Object... env) -> {
         try {
-            String value = data.timestamp().getTimeInMillis() + "," +
+            String value = "g - " + data.timestamp().getTimeInMillis() + "," +
                     data.formattedTimestamp() + "," +
                     "0" + "," +
                     data.value(AngularVelocity.class).x() + "," +
@@ -78,6 +81,48 @@ public class MetaMotionService {
         }
     };
 
+    private Subscriber TGYROSCOPE_HANDLER = (Data data, Object... env) -> {
+            String value = "g - " + data.timestamp().getTimeInMillis() + "," +
+                    data.formattedTimestamp() + "," +
+                    "0" + "," +
+                    data.value(AngularVelocity.class).x() + "," +
+                    data.value(AngularVelocity.class).y() + "," +
+                    data.value(AngularVelocity.class).z() + "\n";
+
+            Log.i(TAG, value);
+    };
+
+    public void streamGyro() {
+        configureGyroscope();
+        m_gyroscope.angularVelocity().addRouteAsync(source -> {
+            source.stream((Data data, Object... env) -> {
+                /*String value = "g - " + data.timestamp().getTimeInMillis() + "," +
+                        data.formattedTimestamp() + "," +
+                        "0" + "," +
+                        data.value(AngularVelocity.class).x() + "," +
+                        data.value(AngularVelocity.class).y() + "," +
+                        data.value(AngularVelocity.class).z() + "\n";
+
+                Log.i(TAG, value);*/
+                Log.i(TAG, data.value(AngularVelocity.class).toString());
+            });
+        }).continueWith(task -> {
+            m_gyroscope.angularVelocity();
+            m_gyroscope.angularVelocity().start();
+            m_gyroscope.start();
+            return null;
+        });
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                m_gyroscope.stop();
+                disconnectBoard();
+            }
+        }, 10000);
+    }
+
 
     public MetaMotionService(MetaWearBoard board) { m_board = board; m_macAddress = m_board.getMacAddress(); }
 
@@ -88,7 +133,7 @@ public class MetaMotionService {
 
             //Retrieve Modules
             m_led = m_board.getModule(Led.class);
-            m_accelerometer = m_board.getModule(Accelerometer.class);
+            m_accelerometer = m_board.getModule(AccelerometerBmi160.class);
             m_gyroscope = m_board.getModule(GyroBmi160.class);
             m_logging = m_board.getModule(Logging.class);
             m_metawearSettings = m_board.getModule(Settings.class);
@@ -112,8 +157,13 @@ public class MetaMotionService {
 
     public void configureAccelerometer() {
         if(m_board.isConnected() && m_accelerometer != null) {
-            m_accelerometer.configure()
+            /*m_accelerometer.configure()
                     .odr(25f)       // Set sampling frequency to 25Hz, or closest valid ODR
+                    .commit();*/
+
+            m_accelerometer.configure()
+                    .odr(AccelerometerBmi160.OutputDataRate.ODR_25_HZ)       // Set sampling frequency to 25Hz, or closest valid ODR
+                    .range(AccelerometerBosch.AccRange.AR_4G)
                     .commit();
             Log.i(TAG, "Accelerometer Configured");
         }
@@ -122,7 +172,7 @@ public class MetaMotionService {
     public void configureGyroscope() {
         if(m_board.isConnected() && m_gyroscope != null) {
             m_gyroscope.configure()
-                    .odr(GyroBmi160.OutputDataRate.ODR_25_HZ)
+                    .odr(GyroBmi160.OutputDataRate.ODR_50_HZ)
                     .range(GyroBmi160.Range.FSR_2000)
                     .commit();
 
@@ -195,9 +245,9 @@ public class MetaMotionService {
                 //TODO: Delete id file
             }
 
-            inputStream = context.openFileInput("id_g_" + m_board.getMacAddress());
-            if(inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            InputStream inputStream2 = context.openFileInput("id_g_" + m_board.getMacAddress());
+            if(inputStream2 != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream2);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
                 String res = bufferedReader.readLine();
@@ -222,6 +272,7 @@ public class MetaMotionService {
         Log.i(TAG, "Start all sensors");
         m_accelerometer.acceleration().start();
         m_accelerometer.start();
+        m_gyroscope.angularVelocity();
         m_gyroscope.angularVelocity().start();
         m_gyroscope.start();
     }
@@ -230,7 +281,7 @@ public class MetaMotionService {
         Log.i(TAG, "Stop all sensors");
         m_accelerometer.acceleration().stop();
         m_accelerometer.stop();
-        m_gyroscope.angularVelocity().stop();
+//        m_gyroscope.angularVelocity().stop();
         m_gyroscope.stop();
     }
 
