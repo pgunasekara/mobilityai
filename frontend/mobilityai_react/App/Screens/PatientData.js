@@ -60,8 +60,11 @@ export default class PatientData extends Component {
     };
 
     componentDidMount(){
-        let startTime = new Date(Date.UTC(2018, 11, 11, 0, 0, 0, 0)).getTime();
-        let endTime = new Date(Date.UTC(2018, 11, 11, 23, 0, 0, 0)).getTime();
+        // let startTime = new Date(Date.UTC(2018, 11, 11, 0, 0, 0, 0)).getTime();
+        // let endTime = new Date(Date.UTC(2018, 11, 11, 23, 0, 0, 0)).getTime();
+
+        let startTime = new Date(Date.UTC(2019, 1, 9, 0, 0, 0, 0)).getTime();
+        let endTime = new Date(Date.UTC(2019, 1, 9, 23, 0, 0, 0)).getTime();
 
         const { navigation } = this.props;
         const id = navigation.getParam('id');
