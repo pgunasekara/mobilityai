@@ -70,12 +70,23 @@ export default class PatientData extends Component {
         const id = navigation.getParam('id');
 
         GetPatientActivities(startTime, endTime, id).then((activitiesJson) => {
+            if (activitiesJson === undefined) {
+                this.setState({error: 'Error retrieving patient activity data'});
+            }
             console.log('\n\n' + activitiesJson);
             this.setState({movementPercentages: activitiesJson});
         })
     };
 
     render() {
+        if (this.state.error) {
+            return (
+                <View>
+                    <Text style={styles.errorText}>{this.state.error}</Text>
+                </View>
+            );
+        }
+
         const { navigation } = this.props;
         const id = navigation.getParam('id');
         const firstName = navigation.getParam('firstName');
@@ -180,6 +191,10 @@ export default class PatientData extends Component {
 }
 
 const styles = StyleSheet.create({
+    errorText: {
+        fontWeight: 'bold',
+        color: 'red'
+    },
     circle: {
         width: 60,
         height: 60,
