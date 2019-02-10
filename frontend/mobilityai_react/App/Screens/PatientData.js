@@ -33,7 +33,7 @@ export default class PatientData extends Component {
             id: props.id,
             firstName: props.firstName,
             lastName: props.lastName,
-            barColour: arrayColours['standing'],
+            barColour: arrayColours['unknown'],
             data: [0,0,0,0,0,0,0,0,0,0,0,0],
             movementPercentages: {'sitting': {total: 0, bar: new Array(13)}, 'standing': {total: 0, bar: new Array(13)}, 'lyingDown': {total: 0, bar: new Array(13)}, 'walking': {total: 0, bar: new Array(13)}, 'unknown': {total: 0, bar: new Array(13)}},
         }
