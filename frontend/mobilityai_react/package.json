@@ -38,6 +38,8 @@
       "default",
       "jest-junit"
     ],
-    "coverageReporters": ["cobertura"]
+    "coverageReporters": [
+      "cobertura"
+    ]
   }
 }
