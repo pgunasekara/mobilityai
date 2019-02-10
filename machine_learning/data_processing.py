@@ -10,12 +10,6 @@ from random import randint
 import math
 from scipy.stats import entropy
 
-def create_training_set(root,files):
-    df = pd.read_csv(root+files[0])
-    for i in range(1,len(files)):
-        df = df.append(pd.read_csv(root+files[i]))
-    return df
-
 def preprocess_accel_data(df):
     processed = ""
     df[['x-axis (g)','y-axis (g)','z-axis (g)']] = df[['x-axis (g)','y-axis (g)','z-axis (g)']].apply(pd.to_numeric)
@@ -29,6 +23,8 @@ def preprocess_accel_data(df):
     for group_name, window in testing.groupby(level=0):
         p.append(accelerometer_stats(window))
     processed = pd.DataFrame(p)
+    processed = processed.sort_values(by=['epoch_start'])
+    processed.dropna(inplace=True)
     return processed
 
 def preprocess_gyro_data(df):
@@ -44,6 +40,8 @@ def preprocess_gyro_data(df):
     for group_name, window in testing.groupby(level=0):
         p.append(gyroscope_stats(window))
     processed = pd.DataFrame(p)
+    processed = processed.sort_values(by=['epoch_start'])
+    processed.dropna(inplace=True)
     return processed
 
 def windows(d, w, t):
@@ -107,7 +105,8 @@ def preprocess_sensor_data(accelerometer_csv, gyroscope_csv):
     accel_df = preprocess_accel_data(accelerometer_csv)
     gyro_df = preprocess_gyro_data(gyroscope_csv)
 
-    return performMerge(accel_df,gyro_df)
+    ret = performMerge(accel_df,gyro_df)
+    return ret
 
 def accelerometer_stats(window_frame):
     return {
