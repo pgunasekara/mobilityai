@@ -91,11 +91,13 @@ def save_results(accel_gyro_df,predWithConf):
     accel_gyro_df = accel_gyro_df[['epoch_start', 'epoch_end', 'type']]
     accel_gyro_df["epoch_start"] = pd.to_numeric(accel_gyro_df["epoch_start"], downcast='integer')
     accel_gyro_df["epoch_end"] = pd.to_numeric(accel_gyro_df["epoch_end"], downcast='integer')
-
+    accel_gyro_df.drop_duplicates(subset=['epoch_start', 'epoch_end'], inplace=True)
+    
     file_name = str(uuid.uuid1()) + ".csv"
     accel_gyro_df.to_csv(os.path.join(os.getcwd(), file_name), sep=',', index=False)
     print("Saved csv to: " + os.path.join(os.getcwd(), file_name))
     return file_name
+
 """
 Function to process the data iin a new thread.
 When the data is done processing, the result is posted back to the callback url.
@@ -116,7 +118,6 @@ def process_data(accel_df, gyro_df, callback_url, test=False):
 
     file_name = save_results(accel_gyro_df, pWithConfidence)
  
-    print("test is: " + str(test))
     with open(file_name,'rb') as activities_file:
         files = {'Activities': activities_file}
         r = requests.post(callback_url, files=files, verify=False)
