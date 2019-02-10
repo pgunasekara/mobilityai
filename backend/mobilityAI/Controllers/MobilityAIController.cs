@@ -136,16 +136,16 @@ namespace mobilityAI.Controllers
         {
             List<String> accel = new List<string>();
             List<String> gyro = new List<string>();
-            String ac = "";
-            String gy = "";
+            string ac = "epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)" + Environment.NewLine;
+            string gy = "epoch (ms),time (-13:00),elapsed (s),x-axis (deg/s),y-axis (deg/s),z-axis (deg/s)" + Environment.NewLine;
 
             using (var reader = new StreamReader(DataFile.OpenReadStream()))
             {
                 while (reader.Peek() >= 0)
                 {
                     String res = reader.ReadLine();
-                    if(String.Equals(res.Substring(0,2), "a,")) { accel.Add(res.Substring(2)); ac += res.Substring(2)+"\n"; }
-                    if(String.Equals(res.Substring(0,2), "g,"))  { gyro.Add(res.Substring(2)); gy += res.Substring(2)+"\n"; }
+                    if(String.Equals(res.Substring(0,2), "a,")) { accel.Add(res.Substring(2)); ac += res.Substring(2)+ Environment.NewLine; }
+                    if(String.Equals(res.Substring(0,2), "g,"))  { gyro.Add(res.Substring(2)); gy += res.Substring(2)+ Environment.NewLine; }
                 }
             }
 
@@ -180,7 +180,7 @@ namespace mobilityAI.Controllers
                                         .ToList();
 
             _context.GyroscopeData.AddRange(GyroscopeObjects);
-            _context.SaveChanges();
+            // _context.SaveChanges();
 
 
             var accelMs = new MemoryStream(Encoding.UTF8.GetBytes(ac));
@@ -198,8 +198,8 @@ namespace mobilityAI.Controllers
 
             form.Add(new StringContent("false"), "test");
             form.Add(new StringContent(SERVER_URL + "api/MobilityAI/MlCallback?Id=" + callbackId), "callback_url");
-            form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", "accelerometer"+dt);
-            form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", "gyroscope"+dt);
+            form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", "accelerometer" + dt + ".csv");
+            form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", "gyroscope" + dt + ".csv");
 
             HttpResponseMessage response = await client.PostAsync(ML_SERVER_URL + "windowify", form);
 
