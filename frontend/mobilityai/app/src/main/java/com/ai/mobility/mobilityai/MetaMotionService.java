@@ -65,6 +65,17 @@ public class MetaMotionService {
         }
     };
 
+
+    private Subscriber TGYROSCOPE_HANDLER = (Data data, Object... env) -> {
+            String value = "g - " + data.timestamp().getTimeInMillis() + "," +
+                    data.formattedTimestamp() + "," +
+                    "0" + "," +
+                    data.value(AngularVelocity.class).x() + "," +
+                    data.value(AngularVelocity.class).y() + "," +
+                    data.value(AngularVelocity.class).z() + "\n";
+
+            Log.i(TAG, value);
+    };
     private static Subscriber GYROSCOPE_HANDLER = (Data data, Object... env) -> {
         try {
             String value = "g - " + data.timestamp().getTimeInMillis() + "," +
@@ -79,17 +90,6 @@ public class MetaMotionService {
         } catch (IOException ex) {
             Log.i("MobilityAI", "Gyroscope Subscriber: Error writing to file:" + ex.toString());
         }
-    };
-
-    private Subscriber TGYROSCOPE_HANDLER = (Data data, Object... env) -> {
-            String value = "g - " + data.timestamp().getTimeInMillis() + "," +
-                    data.formattedTimestamp() + "," +
-                    "0" + "," +
-                    data.value(AngularVelocity.class).x() + "," +
-                    data.value(AngularVelocity.class).y() + "," +
-                    data.value(AngularVelocity.class).z() + "\n";
-
-            Log.i(TAG, value);
     };
 
     public void streamGyro() {
@@ -185,6 +185,7 @@ public class MetaMotionService {
             source.log(ACCELEROMETER_HANDLER);
             Log.i(TAG, "Accelerometer Subscriber set");
         }).continueWithTask((Task<Route> task) -> {
+            Log.i(TAG, "Accel ID: " + task.getResult().id());
             writeIdFile(context, task, "a");
             return null;
         });
@@ -206,6 +207,8 @@ public class MetaMotionService {
             if(task.isFaulted()) {
                 Log.i(TAG, "Gyro task faulted!");
             }
+            Log.i(TAG, "Gyro ID: " + task.getResult().id());
+
             writeIdFile(context, task, "g");
             return null;
         });
@@ -239,7 +242,7 @@ public class MetaMotionService {
                     String datetime = DateFormat.getDateTimeInstance().format(new Date());
                     m_fosA = context.openFileOutput(m_board.getMacAddress() + "_accelerometer_" + datetime, context.MODE_PRIVATE);
 //                m_fosA.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
-                    Log.i(TAG, "Setting environs");
+                    Log.i(TAG, "Setting environs = " + routeId);
                     accelRoute.setEnvironment(0, m_fosA);
                 }
                 //TODO: Delete id file
@@ -258,7 +261,7 @@ public class MetaMotionService {
                     String datetime = DateFormat.getDateTimeInstance().format(new Date());
                     m_fosG = context.openFileOutput(m_board.getMacAddress() + "_gyroscope_" + datetime, context.MODE_PRIVATE);
 //                m_fosG.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
-                    Log.i(TAG, "Setting environs2");
+                    Log.i(TAG, "Setting environs2 = " + routeId);
                     gyroRoute.setEnvironment(1, m_fosG);
 
                 }
@@ -281,7 +284,7 @@ public class MetaMotionService {
         Log.i(TAG, "Stop all sensors");
         m_accelerometer.acceleration().stop();
         m_accelerometer.stop();
-//        m_gyroscope.angularVelocity().stop();
+        m_gyroscope.angularVelocity().stop();
         m_gyroscope.stop();
     }
 
@@ -322,5 +325,56 @@ public class MetaMotionService {
 
     public Logging getLogging() {
         return m_logging;
+    }
+
+
+
+
+    //TODO Remove when logging works
+    public Task<Route> streamToFile(Context context) {
+        String datetime = DateFormat.getDateTimeInstance().format(new Date());
+        try {
+            m_fosG = context.openFileOutput(m_board.getMacAddress() + "_gyroscope_" + datetime, context.MODE_PRIVATE);
+            m_fosA = context.openFileOutput(m_board.getMacAddress() + "_accelerometer_" + datetime, context.MODE_PRIVATE);
+        } catch (IOException e) {
+            Log.i(TAG, "failed to open fos");
+        }
+        return m_accelerometer.acceleration().addRouteAsync(source -> {
+            source.stream((Data data, Object... env) -> {
+                try {
+                    String value = data.timestamp().getTimeInMillis() + "," +
+                            data.formattedTimestamp() + "," +
+                            "0" + "," +
+                            data.value(Acceleration.class).x() + "," +
+                            data.value(Acceleration.class).y() + "," +
+                            data.value(Acceleration.class).z() + "\n";
+
+//                    FileOutputStream fos = (FileOutputStream) env[0];
+                    m_fosA.write(value.getBytes());
+                } catch (IOException ex) {
+                    Log.i("MobilityAI", "Accelerometer Subscriber: Error writing to file:" + ex.toString());
+                }
+            });
+
+            Log.i(TAG, "Accelerometer Subscriber set");
+        }).continueWithTask((Task<Route> task) -> {
+            return m_gyroscope.angularVelocity().addRouteAsync(source -> {
+                source.stream((Data data, Object... env) -> {
+                    try {
+                        String value = "g - " + data.timestamp().getTimeInMillis() + "," +
+                                data.formattedTimestamp() + "," +
+                                "0" + "," +
+                                data.value(AngularVelocity.class).x() + "," +
+                                data.value(AngularVelocity.class).y() + "," +
+                                data.value(AngularVelocity.class).z() + "\n";
+
+//                        FileOutputStream fos = (FileOutputStream) env[1];
+                        m_fosG.write(value.getBytes());
+                    } catch (IOException ex) {
+                        Log.i("MobilityAI", "Gyroscope Subscriber: Error writing to file:" + ex.toString());
+                    }
+                });
+            });
+        });
     }
 }

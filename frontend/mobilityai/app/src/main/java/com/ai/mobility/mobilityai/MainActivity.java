@@ -400,6 +400,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         });
     }
 
+    private Task<Route> startStream(MetaMotionDevice d) {
+        MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+
+        return m.streamToFile(this);
+    }
+
     private Task<Route> collectData(MetaMotionDevice d) {
         MetaMotionService m = m_boards.getBoard(d.getMacAddr());
 
