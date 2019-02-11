@@ -26,6 +26,12 @@ var arrayColours = {
 };
 
 export default class PatientData extends Component {
+    static navigationOptions = ({ navigation }) => {
+        return {
+          title: navigation.getParam('firstName') + " " + navigation.getParam('lastName'),
+        };
+    };
+
     constructor(props) {
         super(props);
 
@@ -70,16 +76,25 @@ export default class PatientData extends Component {
         const id = navigation.getParam('id');
 
         GetPatientActivities(startTime, endTime, id).then((activitiesJson) => {
+            if (activitiesJson === undefined) {
+                this.setState({error: 'Error retrieving patient activity data'});
+            }
             console.log('\n\n' + activitiesJson);
             this.setState({movementPercentages: activitiesJson});
-        })
+        });
     };
 
     render() {
+        if (this.state.error) {
+            return (
+                <View>
+                    <Text style={styles.errorText}>{this.state.error}</Text>
+                </View>
+            );
+        }
+
         const { navigation } = this.props;
         const id = navigation.getParam('id');
-        const firstName = navigation.getParam('firstName');
-        const lastName = navigation.getParam('lastName');
 
         const width = 250;
         const height = 250;
@@ -121,8 +136,6 @@ export default class PatientData extends Component {
         return (
             <ScrollView>
                 <View>
-                    <Text style={styles.titleFont}>{firstName + " " + lastName}</Text>
-
                     <View style={styles.textInline}>
                         <Text style={styles.center}>Daily User Activity</Text> 
                         <GetDate />
@@ -180,6 +193,10 @@ export default class PatientData extends Component {
 }
 
 const styles = StyleSheet.create({
+    errorText: {
+        fontWeight: 'bold',
+        color: 'red'
+    },
     circle: {
         width: 60,
         height: 60,
