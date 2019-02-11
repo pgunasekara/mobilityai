@@ -133,6 +133,86 @@ namespace mobilityAI.Controllers
             return new JsonResult(dataRange.ToList());
         }
 
+        [HttpPost("AddDataSingle", Name = "AddDataSingle")]
+        public async Task<IActionResult> AddDataSingle(IFormFile DataFile, int patientId) 
+        {
+            List<String> accel = new List<string>();
+            List<String> gyro = new List<string>();
+            string ac = "epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)" + Environment.NewLine;
+            string gy = "epoch (ms),time (-13:00),elapsed (s),x-axis (deg/s),y-axis (deg/s),z-axis (deg/s)" + Environment.NewLine;
+
+            using (var reader = new StreamReader(DataFile.OpenReadStream()))
+            {
+                while (reader.Peek() >= 0)
+                {
+                    String res = reader.ReadLine();
+                    if(String.Equals(res.Substring(0,2), "a,")) { accel.Add(res.Substring(2)); ac += res.Substring(2)+ Environment.NewLine; }
+                    if(String.Equals(res.Substring(0,2), "g,"))  { gyro.Add(res.Substring(2)); gy += res.Substring(2)+ Environment.NewLine; }
+                }
+            }
+
+            var AccelerometerObjects = accel.Select(line => line.Split(","))
+                                            .Select(tokens => new Accelerometer
+                                            {
+                                                Id = Guid.NewGuid().ToString(),
+                                                PatientId = Convert.ToInt32(patientId),
+                                                Epoch = Convert.ToInt64(tokens[0]),
+                                                Timestamp = DateTime.Parse(tokens[1]),
+                                                Elapsed = Convert.ToDouble(tokens[2]),
+                                                XAxis = Convert.ToDouble(tokens[3]),
+                                                YAxis = Convert.ToDouble(tokens[4]),
+                                                ZAxis = Convert.ToDouble(tokens[5])
+                                            })
+                                            .ToList();
+
+            _context.AccelerometerData.AddRange(AccelerometerObjects);
+
+            var GyroscopeObjects = gyro.Select(line => line.Split(","))
+                                        .Select(tokens => new Gyroscope
+                                        {
+                                            Id = Guid.NewGuid().ToString(),
+                                            PatientId = Convert.ToInt32(patientId),
+                                            Epoch = Convert.ToInt64(tokens[0]),
+                                            Timestamp = DateTime.Parse(tokens[1]),
+                                            Elapsed = Convert.ToDouble(tokens[2]),
+                                            XAxis = Convert.ToDouble(tokens[3]),
+                                            YAxis = Convert.ToDouble(tokens[4]),
+                                            ZAxis = Convert.ToDouble(tokens[5])
+                                        })
+                                        .ToList();
+
+            _context.GyroscopeData.AddRange(GyroscopeObjects);
+            // _context.SaveChanges();
+
+
+            var accelMs = new MemoryStream(Encoding.UTF8.GetBytes(ac));
+            var gyroMs = new MemoryStream(Encoding.UTF8.GetBytes(gy));
+            // AccelerometerFile.OpenReadStream().CopyTo(accelMs);
+
+            
+            // GyroscopeFile.OpenReadStream().CopyTo(gyroMs);
+
+            var callbackId = Guid.NewGuid().ToString();
+
+            MultipartFormDataContent form = new MultipartFormDataContent();
+            string format = "Mddyyyyhhmmsstt";
+            string dt = String.Format("{0}",DateTime.Now.ToString(format));
+
+            form.Add(new StringContent("false"), "test");
+            form.Add(new StringContent(SERVER_URL + "api/MobilityAI/MlCallback?Id=" + callbackId), "callback_url");
+            form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", "accelerometer" + dt + ".csv");
+            form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", "gyroscope" + dt + ".csv");
+
+            HttpResponseMessage response = await client.PostAsync(ML_SERVER_URL + "windowify", form);
+
+            response.EnsureSuccessStatusCode();
+
+            mlCallbackIds.TryAdd(callbackId, patientId);
+
+            return Ok();
+        }
+
+
         //AddData function might need to be async (unsure as of now)
         /// <summary>
         /// Taking the list of lines files, converting each line to an Accelerometer/Gyroscope object, adding it into the database
