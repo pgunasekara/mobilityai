@@ -74,8 +74,8 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
             devBattery = itemView.findViewById(R.id.devBattery);
             devLastSync = itemView.findViewById(R.id.devLastSync);
             devSignalStrength = itemView.findViewById(R.id.devSignalStrength);
-//            devProfileImage = itemView.findViewById(R.id.userImage);
-//            devInitials = itemView.findViewById(R.id.initials);
+            devProfileImage = itemView.findViewById(R.id.userImage);
+            devInitials = itemView.findViewById(R.id.initials);
             devBatteryLevel = itemView.findViewById(R.id.devBatteryLevel);
             devBatteryLevelPercentage = itemView.findViewById(R.id.devBatteryLevelPercentage);
             devBatteryLevelCircle = devBatteryLevel.getProgressDrawable();
@@ -102,12 +102,16 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
             devBattery.setText(batteryLevel);
             devLastSync.setText(lastSynced);
             devSignalStrength.setText(signalString);
+
+            devProfileImage.setColorFilter(device.getColour());
+            devInitials.setText(device.getAssignedUser().substring(0, 1));
+
+            devBatteryLevel.setVisibility(View.GONE);
             devBatteryLevelCircle.setColorFilter(device.getColour(), PorterDuff.Mode.MULTIPLY);
-            devBatteryLevel.setIndeterminate(true);
+            /*devBatteryLevel.setIndeterminate(true);
             devBatteryLevel.setProgress(10);
-            devBatteryLevel.setIndeterminateDrawable(devBatteryLevelCircle);
-//            devProfileImage.setColorFilter(device.getColour());
-//            devInitials.setText(device.getAssignedUser().substring(0, 1));
+            devBatteryLevel.setIndeterminateDrawable(devBatteryLevelCircle);*/
+
 //            devBatteryLevel.getProgressDrawable().
 
         }

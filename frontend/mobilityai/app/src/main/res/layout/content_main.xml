@@ -8,11 +8,23 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
 
+    <!--<RelativeLayout
+        android:id="@+id/appInfoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/bleList"
+        android:background="@color/colorPrimary">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hello World!"
+            android:textColor="#fff"/>
+    </RelativeLayout>-->
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/bleList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
+        <!--app:layout_constraintBottom_toBottomOf="@id/appInfoLayout">-->
     </android.support.v7.widget.RecyclerView>
-
-
 </android.support.constraint.ConstraintLayout>

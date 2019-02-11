@@ -32,11 +32,15 @@ import android.view.MenuItem;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ai.mobility.mobilityai.MetaMotionDeviceAdapter.OnItemClickListener;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
@@ -52,8 +56,11 @@ import com.mbientlab.metawear.module.GyroBmi160;
 import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.Logging;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.UUID;
@@ -89,10 +96,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private ArrayList<BluetoothDevice> m_devices;
     private static final long SCAN_PERIOD = 10000L;
 
+    final Calendar cal = Calendar.getInstance();
+
 
     //TODO: Remove once the server side changes are made
     private Random r = new Random();
     private Button tmpBtn, tmpBtn2, tmpBtn3;
+
+    RequestQueue m_rqueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +112,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        m_rqueue = Volley.newRequestQueue(this);
+
         tmpBtn = findViewById(R.id.tmpBtn);
         tmpBtn.setOnClickListener(l -> {
             for(MetaMotionDevice d : m_deviceList) {
                 //Connect to board
+                Toast.makeText(this, "Stop/Collect Data", Toast.LENGTH_SHORT).show();
                 Task<Route> currTask = connectToBoard(d);
 
                 //Deserialize, set environment, stop sensors, get logging data
@@ -113,27 +127,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     return collectData(d);
                 }).continueWithTask(task -> {
                     m_boards.getBoard(d.getMacAddr()).disconnectBoard();
+                    Toast.makeText(this, "Done data collection/disconnected", Toast.LENGTH_SHORT).show();
                     return null;
                 });
-                       /* .continueWithTask(task -> {
-                    collectData(d);
-                    return null;
-                });*/
-
-                //Reconfigure board, serialize board, and restart logging
-                /*currTask = currTask.continueWithTask(task -> {
-                    Log.i(TAG, "HERE2");
-                    return startDataCollection(d);
-                });
-
-                currTask.continueWithTask(task -> {
-                    MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-                    m.disconnectBoard();
-                    Log.i(TAG, "Disconnected from: " + m.getBoard().getMacAddress());
-                    return null;
-                });*/
-
-//                m_boards.getBoard(d.getMacAddr()).disconnectBoard();
 
                 //TODO: Handle multiple boards
                 break;
@@ -142,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         tmpBtn2 = findViewById(R.id.tmpBtn2);
         tmpBtn2.setOnClickListener(l -> {
-            for(MetaMotionDevice d : m_deviceList) {
+            /*for(MetaMotionDevice d : m_deviceList) {
                 //dc all boards
                 connectToBoard(d).continueWithTask(task -> {
                     MetaMotionService m = m_boards.getBoard(d.getMacAddr());
@@ -150,15 +146,17 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     return null;
                 });
                 break;
-            }
+            }*/
         });
 
         tmpBtn3 = findViewById(R.id.tmpBtn3);
         tmpBtn3.setOnClickListener(l -> {
+            Toast.makeText(this, "Start Data Collection", Toast.LENGTH_SHORT).show();
             connectToBoard(m_deviceList.get(0)).continueWithTask(task -> {
                 return startDataCollection(m_deviceList.get(0));
             }).continueWithTask(task -> {
                 m_boards.getBoard(m_deviceList.get(0).getMacAddr()).disconnectBoard();
+                Toast.makeText(this, "Start Data Collection - Disconnected", Toast.LENGTH_SHORT).show();
                 return null;
             });
 
@@ -175,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     //TODO: Delete this function once the server side endpoints return the correct data
     private String getRandomName() {
-        String[] names = {"Rebecca Tran", "Roberto Temelkovski", "Teo Voinea", "梓川 咲太"};
+        String[] names = {"Rebecca Tran", "Roberto Temelkovski", "Teo Voinea"};
         int rnd = r.nextInt(names.length);
         return names[rnd];
     }
@@ -220,7 +218,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_syncall) {
+            //Start syncing
+            startSyncing();
             return true;
         }
 
@@ -285,6 +285,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
         }, SCAN_PERIOD);
 
+        cal.add(Calendar.DATE, -1);
+
         m_leScanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
@@ -298,16 +300,19 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         m_handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Log.i(TAG, "Updating with: "+ result.getDevice().getAddress());
-                                m_adapter.update(new MetaMotionDevice(
-                                        "MetaMotion A",
-                                        getRandomName(),
-                                        result.getDevice().getAddress(),
-                                        50,
-                                        "Jan 5, 2019",
-                                        result.getRssi()
-                                    )
-                                );
+                                Log.i(TAG, "Found: " + result.getDevice().getAddress());
+                                if(result.getDevice().getAddress().equals("D1:87:11:D8:F3:C0")) {
+                                    Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
+                                    m_adapter.update(new MetaMotionDevice(
+                                                    "MetaMotion A",
+                                                    getRandomName(),
+                                                    result.getDevice().getAddress(),
+                                                    50,
+                                                    cal.getTime().toString(),
+                                                    result.getRssi()
+                                            )
+                                    );
+                                }
                             }
                         });
                     }
@@ -387,7 +392,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     batteryPercentage.setText(batteryVal + "%");
 
                     Log.i(TAG, "Battery Level: " + batteryVal);
+                    //Hide other elements
+                    ImageView profileImg = v.findViewById(R.id.userImage);
+                    TextView initials = v.findViewById(R.id.initials);
+                    profileImg.setVisibility(View.INVISIBLE);
+                    initials.setVisibility(View.INVISIBLE);
+
                     ProgressBar batteryCircle = v.findViewById(R.id.devBatteryLevel);
+                    batteryCircle.setVisibility(View.VISIBLE);
 
                     ObjectAnimator animation = ObjectAnimator.ofInt(
                             batteryCircle, "progress", batteryVal);
@@ -400,25 +412,19 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         });
     }
 
-    private Task<Route> startStream(MetaMotionDevice d) {
-        MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-
-        return m.streamToFile(this);
-    }
-
     private Task<Route> collectData(MetaMotionDevice d) {
         MetaMotionService m = m_boards.getBoard(d.getMacAddr());
 
         m.stopSensors();
         m.stopLogging();
 
-        //deserialize here?
         m.setEnvironment(this);
 
         //Start Downloading data
         Logging log = m.getLogging();
         View v = m_bleList.getLayoutManager().findViewByPosition(0);
         ProgressBar syncProgress = v.findViewById(R.id.devSyncProgress);
+        TextView lastSync = v.findViewById(R.id.devLastSync);
 
         Log.i(TAG, "starting log download");
 
@@ -436,6 +442,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 log.clearEntries();
 
                 Log.i(TAG, "Log Location: " + this.getFilesDir().getAbsolutePath());
+
+                //Upload file
+                String filePath = this.getFilesDir() + "/" + m.getFileName();
+                m_rqueue.add(m.uploadData(filePath, this));
+
+                //Update Last Sync
+                lastSync.setText("Last Sync: " + Calendar.getInstance().getTime().toString());
             }
 
             //Clear board
@@ -535,5 +548,28 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     startBleScan();
             }
         });
+    }
+
+    private void startSyncing() {
+        //Collect existing data from device
+        for(MetaMotionDevice d : m_deviceList) {
+            //Connect to board
+            Task<Route> currTask = connectToBoard(d);
+
+            //Deserialize, set environment, stop sensors, get logging data
+            currTask = currTask.continueWithTask(task -> {
+                Log.i(TAG, "startSyncing(): Getting Data");
+                return collectData(d);
+            });
+
+            //Restart logging
+            currTask = currTask.continueWithTask(task -> { return startDataCollection(d); });
+
+            currTask.continueWith(task -> {
+                String msg = "Data Syncing completed on " + d.getMacAddr();
+                Toast.makeText(this, (String)msg, Toast.LENGTH_LONG).show();
+                return null;
+            });
+        }
     }
 }

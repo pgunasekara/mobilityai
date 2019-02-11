@@ -1,10 +1,20 @@
 package com.ai.mobility.mobilityai;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.request.SimpleMultiPartRequest;
+import com.android.volley.error.VolleyError;
+import com.android.volley.toolbox.Volley;
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.Route;
@@ -30,6 +40,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import bolts.Task;
 
@@ -47,11 +59,13 @@ public class MetaMotionService {
     private FileOutputStream m_fosA;
     private FileOutputStream m_fosG;
 
+    private String m_fileName;
+
     private boolean m_isLogging = false;
 
     private static Subscriber ACCELEROMETER_HANDLER = (Data data, Object... env) -> {
         try {
-            String value = data.timestamp().getTimeInMillis() + "," +
+            String value = "a," + data.timestamp().getTimeInMillis() + "," +
                     data.formattedTimestamp() + "," +
                     "0" + "," +
                     data.value(Acceleration.class).x() + "," +
@@ -65,27 +79,16 @@ public class MetaMotionService {
         }
     };
 
-
-    private Subscriber TGYROSCOPE_HANDLER = (Data data, Object... env) -> {
-            String value = "g - " + data.timestamp().getTimeInMillis() + "," +
-                    data.formattedTimestamp() + "," +
-                    "0" + "," +
-                    data.value(AngularVelocity.class).x() + "," +
-                    data.value(AngularVelocity.class).y() + "," +
-                    data.value(AngularVelocity.class).z() + "\n";
-
-            Log.i(TAG, value);
-    };
     private static Subscriber GYROSCOPE_HANDLER = (Data data, Object... env) -> {
         try {
-            String value = "g - " + data.timestamp().getTimeInMillis() + "," +
+            String value = "g," + data.timestamp().getTimeInMillis() + "," +
                     data.formattedTimestamp() + "," +
                     "0" + "," +
                     data.value(AngularVelocity.class).x() + "," +
                     data.value(AngularVelocity.class).y() + "," +
                     data.value(AngularVelocity.class).z() + "\n";
 
-            FileOutputStream fos = (FileOutputStream) env[1];
+            FileOutputStream fos = (FileOutputStream) env[0];
             fos.write(value.getBytes());
         } catch (IOException ex) {
             Log.i("MobilityAI", "Gyroscope Subscriber: Error writing to file:" + ex.toString());
@@ -240,7 +243,8 @@ public class MetaMotionService {
                     //Set env for route
                     Route accelRoute = m_board.lookupRoute(routeId);
                     String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                    m_fosA = context.openFileOutput(m_board.getMacAddress() + "_accelerometer_" + datetime, context.MODE_PRIVATE);
+                    m_fileName = m_board.getMacAddress() + "_" + datetime + ".csv";
+                    m_fosA = context.openFileOutput(m_fileName, context.MODE_PRIVATE);
 //                m_fosA.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
                     Log.i(TAG, "Setting environs = " + routeId);
                     accelRoute.setEnvironment(0, m_fosA);
@@ -259,10 +263,10 @@ public class MetaMotionService {
                     //Set env for route
                     Route gyroRoute = m_board.lookupRoute(routeId);
                     String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                    m_fosG = context.openFileOutput(m_board.getMacAddress() + "_gyroscope_" + datetime, context.MODE_PRIVATE);
+//                    m_fosG = context.openFileOutput(m_board.getMacAddress() + "_gyroscope_" + datetime, context.MODE_PRIVATE);
 //                m_fosG.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
                     Log.i(TAG, "Setting environs2 = " + routeId);
-                    gyroRoute.setEnvironment(1, m_fosG);
+                    gyroRoute.setEnvironment(0, m_fosA);
 
                 }
 
@@ -319,62 +323,67 @@ public class MetaMotionService {
         }
     }
 
+    public SimpleMultiPartRequest uploadData(String filePath, Context context) {
+        String url = "https://mobilityai.teovoinea.com/api/mobilityai/AddDataSingle";
+
+        Log.i(TAG, "Starting upload data");
+
+        SimpleMultiPartRequest smr = new SimpleMultiPartRequest(
+            Request.Method.POST,
+            url,
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.i(TAG, "Response: " + response);
+                    Toast.makeText(context, "Request Complete!", Toast.LENGTH_SHORT).show();
+                }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.i(TAG, "Error.response " + error);
+                    Toast.makeText(context, ("Volley Error: " + error), Toast.LENGTH_SHORT).show();
+                }
+            }
+        ) {
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                int mStatusCode = response.statusCode;
+                Log.i(TAG, "Response code: " + mStatusCode);
+                return super.parseNetworkResponse(response);
+            }
+        };
+
+        smr.addStringParam("patientId", "25");
+        smr.addFile("DataFile", filePath);
+        smr.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 100000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 100000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+
+            }
+        });
+        return smr;
+    }
+
+    public String getFileName() {
+        return m_fileName;
+    }
+
     public MetaWearBoard getBoard() {
         return m_board;
     }
 
     public Logging getLogging() {
         return m_logging;
-    }
-
-
-
-
-    //TODO Remove when logging works
-    public Task<Route> streamToFile(Context context) {
-        String datetime = DateFormat.getDateTimeInstance().format(new Date());
-        try {
-            m_fosG = context.openFileOutput(m_board.getMacAddress() + "_gyroscope_" + datetime, context.MODE_PRIVATE);
-            m_fosA = context.openFileOutput(m_board.getMacAddress() + "_accelerometer_" + datetime, context.MODE_PRIVATE);
-        } catch (IOException e) {
-            Log.i(TAG, "failed to open fos");
-        }
-        return m_accelerometer.acceleration().addRouteAsync(source -> {
-            source.stream((Data data, Object... env) -> {
-                try {
-                    String value = data.timestamp().getTimeInMillis() + "," +
-                            data.formattedTimestamp() + "," +
-                            "0" + "," +
-                            data.value(Acceleration.class).x() + "," +
-                            data.value(Acceleration.class).y() + "," +
-                            data.value(Acceleration.class).z() + "\n";
-
-//                    FileOutputStream fos = (FileOutputStream) env[0];
-                    m_fosA.write(value.getBytes());
-                } catch (IOException ex) {
-                    Log.i("MobilityAI", "Accelerometer Subscriber: Error writing to file:" + ex.toString());
-                }
-            });
-
-            Log.i(TAG, "Accelerometer Subscriber set");
-        }).continueWithTask((Task<Route> task) -> {
-            return m_gyroscope.angularVelocity().addRouteAsync(source -> {
-                source.stream((Data data, Object... env) -> {
-                    try {
-                        String value = "g - " + data.timestamp().getTimeInMillis() + "," +
-                                data.formattedTimestamp() + "," +
-                                "0" + "," +
-                                data.value(AngularVelocity.class).x() + "," +
-                                data.value(AngularVelocity.class).y() + "," +
-                                data.value(AngularVelocity.class).z() + "\n";
-
-//                        FileOutputStream fos = (FileOutputStream) env[1];
-                        m_fosG.write(value.getBytes());
-                    } catch (IOException ex) {
-                        Log.i("MobilityAI", "Gyroscope Subscriber: Error writing to file:" + ex.toString());
-                    }
-                });
-            });
-        });
     }
 }
