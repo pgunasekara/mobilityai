@@ -13,6 +13,8 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using System.Text;
 using System.Security.Cryptography;
+using Debug = System.Diagnostics.Debugger;
+
 
 /// <summary>
 /// Endpoints for retrieving all data/range of data/writing data to/from the database
@@ -325,69 +327,78 @@ namespace mobilityAI.Controllers
                         select new { activities.Start, activities.End, activities.Type })
                         .ToList();
 
-            float[] count = new float[5];
-            float[] total = new float[5];
-            float[][] activityTotals = new float[5][];
-            for (int i = 0; i < 5; i++) activityTotals[i] = new float[13];
-            float totalRows = data.Count;
-            int startHour;
+            if(data.Count != 0) {
 
-            for(int i = 0; i < data.Count-1; i++) {
-                var element = data[i];
-                var nextElement = data[i+1];
+                float[] count = new float[5];
+                float[] total = new float[5];
+                float[][] activityTotals = new float[5][];
+                for (int i = 0; i < 5; i++) activityTotals[i] = new float[13];
+                float totalRows = data.Count;                
 
-                count[element.Type]++;
+                // long firstHour = data[0].Start;
+                // long lastHour = data[data.Count-1].End;
+        
+                // long diff = lastHour - firstHour;
 
-                startHour = (FromUnixTime(element.Start/1000).Hour) - 7;
-                activityTotals[element.Type][startHour] += (nextElement.Start - element.Start)/1000f;
-            }
+                for(int i = 0; i < data.Count-1; i++) {
+                    var element = data[i];
+                    var nextElement = data[i+1];
 
-            startHour = (FromUnixTime(data[data.Count-1].Start).Hour) - 7;
-            activityTotals[data[data.Count-1].Type][startHour] += (data[data.Count-1].End - data[data.Count-1].Start)/1000;
+                    count[element.Type]++;
 
-            for (int i=0; i<5; i++){
-                for (int j=0; j<13; j++){
-                    activityTotals[i][j] = activityTotals[i][j]/60;
+                    int startHour = (FromUnixTime(element.Start/1000).Hour) - 12;
+                    activityTotals[element.Type][startHour] += (nextElement.Start - element.Start)/1000f;
                 }
+
+                int startHour2 = (FromUnixTime(data[data.Count-1].Start).Hour) - 12;
+                activityTotals[data[data.Count-1].Type][startHour2] += (data[data.Count-1].End - data[data.Count-1].Start)/1000f;
+
+                for (int i=0; i<5; i++){
+                    for (int j=0; j<13; j++){
+                        activityTotals[i][j] = activityTotals[i][j]/60;
+                    }
+                }
+
+                total[0] = (count[0] / totalRows) * 100;
+                total[1] = (count[1] / totalRows) * 100;
+                total[2] = (count[2] / totalRows) * 100;
+                total[3] = (count[3] / totalRows) * 100;
+                total[4] = (count[4] / totalRows) * 100;
+
+                var retObj = new
+                {
+                    sitting = new
+                    {   
+                        total = total[0],
+                        bar = activityTotals[0]
+                    },
+                    lyingDown = new
+                    {
+                        total = total[1],
+                        bar = activityTotals[1]
+                    },
+                    walking = new
+                    {
+                        total = total[2],
+                        bar = activityTotals[2]
+                    },
+                    standing = new
+                    {
+                        total = total[3],
+                        bar = activityTotals[3]
+                    },
+                    unknown = new
+                    {
+                        total = total[4],
+                        bar = activityTotals[4]
+                    },
+                };
+
+
+                return Ok(JsonConvert.SerializeObject(retObj));
             }
 
-            total[0] = (count[0] / totalRows) * 100;
-            total[1] = (count[1] / totalRows) * 100;
-            total[2] = (count[2] / totalRows) * 100;
-            total[3] = (count[3] / totalRows) * 100;
-            total[4] = (count[4] / totalRows) * 100;
-
-            var retObj = new
-            {
-                sitting = new
-                {   
-                    total = total[0],
-                    bar = activityTotals[0]
-                },
-                lyingDown = new
-                {
-                    total = total[1],
-                    bar = activityTotals[1]
-                },
-                walking = new
-                {
-                    total = total[2],
-                    bar = activityTotals[2]
-                },
-                standing = new
-                {
-                    total = total[3],
-                    bar = activityTotals[3]
-                },
-                unknown = new
-                {
-                    total = total[4],
-                    bar = activityTotals[4]
-                },
-            };
-
-
-            return Ok(JsonConvert.SerializeObject(retObj));
+            return Ok();
         }
 
         private static DateTime FromUnixTime(long time)
