@@ -186,8 +186,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         for(MetaMotionDevice d : m_deviceList) {
             MetaMotionService m = m_boards.getBoard(d.getMacAddr());
 
-            if(m.getBoard().isConnected())
-                m.disconnectBoard();
+            if(m != null) {
+                if (m.getBoard().isConnected())
+                    m.disconnectBoard();
+            }
         }
 
         // Unbind the service when the activity is destroyed

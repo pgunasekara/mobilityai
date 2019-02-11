@@ -5,12 +5,14 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,6 +76,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     //Logging data
     StringBuilder m_accelerometerLog, m_gyroscopeLog;
 
+    AlertDialog.Builder builder;
+
     private static Subscriber DATA_HANDLER = new Subscriber() {
         @Override
         public void apply(Data data, Object... env) {
@@ -91,6 +96,28 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_info);
+
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select a New User ID").setSingleChoiceItems(R.array.patientnames, 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //User clicked on this
+            }
+        });
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //user clicked OK
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //User clicked Cancel
+            }
+        });
+
 
         initialize();
 
@@ -381,6 +408,11 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         m_loadingBar = findViewById(R.id.loadingCircle);
         m_startLoggingButton = findViewById(R.id.startLoggingButton);
         m_stopLoggingButton = findViewById(R.id.stopLoggingButton);
+
+        m_reassignButton.setOnClickListener(l -> {
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        });
     }
 
     private void initialize() {

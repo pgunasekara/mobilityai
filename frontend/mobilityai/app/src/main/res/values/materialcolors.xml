@@ -274,4 +274,9 @@
         <item name="grey_1000b" type="color">#000000</item>
         <item name="grey_1000w" type="color">#ffffff</item>
     </array>
+    <array name="patientnames">
+        <item name="0">John Smith</item>
+        <item name="1">Andrew Johnson</item>
+        <item name="3">Hana Mutou</item>
+    </array>
 </resources>
