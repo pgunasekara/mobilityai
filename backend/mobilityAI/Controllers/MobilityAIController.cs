@@ -35,6 +35,7 @@ namespace mobilityAI.Controllers
         private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
 
         private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static bool isFirstRun = true;
         public MobilityAIController(MobilityAIContext context)
         {
             _context = context;
@@ -596,32 +597,30 @@ namespace mobilityAI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetPatients", Name = "GetPatients")]
-        public JsonResult GetPatients()
-        {
-            var demoPatients = new List<Patient> {
-                new Patient {
-                    DeviceId = "1",
-                    FirstName = "Joe",
-                    LastName = "Johnson"
-                },
-                new Patient {
-                    DeviceId = "2",
-                    FirstName = "Ruth",
-                    LastName = "Reynolds",
-                },
-                new Patient {
-                    DeviceId = "3",
-                    FirstName = "Marie",
-                    LastName = "Anderson"
-                },
-                new Patient {
-                    DeviceId = "4",
-                    FirstName = "Brian",
-                    LastName = "Smith"
-                }
-            };
-            _context.Patients.AddRange(demoPatients);
-            _context.SaveChanges();
+        public JsonResult GetPatients() {
+            if (isFirstRun)
+            {
+                var demoPatients = new List<Patient> {
+                    new Patient {
+                        DeviceId = "1",
+                        FirstName = "Joe",
+                        LastName = "Johnson"
+                    },
+                    new Patient {
+                        DeviceId = "2",
+                        FirstName = "Ruth",
+                        LastName = "Reynolds",
+                    },
+                    new Patient {
+                        DeviceId = "3",
+                        FirstName = "Marie",
+                        LastName = "Anderson"
+                    }
+                };
+                _context.Patients.AddRange(demoPatients);
+                _context.SaveChanges();
+                isFirstRun = false;
+            }
             return new JsonResult(_context.Patients.ToList());
         }
     }
