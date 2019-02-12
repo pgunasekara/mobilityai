@@ -25,6 +25,8 @@ public class DevActivity extends AppCompatActivity implements ServiceConnection 
     private BtleService.LocalBinder serviceBinder;
     private MetaWearBoard board;
 
+    //TODO: Create dev activity for manual control over devices when running app in development
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

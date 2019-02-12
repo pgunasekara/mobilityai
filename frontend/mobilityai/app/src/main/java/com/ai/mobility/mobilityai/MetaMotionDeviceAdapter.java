@@ -1,23 +1,15 @@
 package com.ai.mobility.mobilityai;
 
-import android.bluetooth.BluetoothClass;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -81,6 +73,10 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
             devBatteryLevelCircle = devBatteryLevel.getProgressDrawable();
         }
 
+        /**
+         * Sets intial values for views
+         * @param device Device to set info for
+         */
         public void setDetails(MetaMotionDevice device) {
             String signalString = "Signal Strength: ",
                     macaddrString = "MAC Address: " + device.getMacAddr(),
@@ -108,17 +104,10 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
 
             devBatteryLevel.setVisibility(View.GONE);
             devBatteryLevelCircle.setColorFilter(device.getColour(), PorterDuff.Mode.MULTIPLY);
-            /*devBatteryLevel.setIndeterminate(true);
-            devBatteryLevel.setProgress(10);
-            devBatteryLevel.setIndeterminateDrawable(devBatteryLevelCircle);*/
-
-//            devBatteryLevel.getProgressDrawable().
-
         }
 
         public void bind(MetaMotionDevice device, OnItemClickListener listener) {
             itemView.setOnClickListener(new View.OnClickListener() {
-
                 @Override
                 public void onClick(View v) {
                     listener.onItemClick(device);
@@ -166,15 +155,12 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
                 dev.setRssi(device.getRssi());
             }
         }
-
-//        Log.i("MobilityAI", "Added device, size = "+m_devices.size());
-
-
         //TODO: Add RSSI stuff - https://github.com/mbientlab/BleToolbox/blob/master/scanner/src/main/java/com/mbientlab/bletoolbox/scanner/ScannedDeviceInfoAdapter.java
 
         //TODO: Order by strength
     }
 
+    //TODO: Implement this to order devices by signal strength
     private int getPosition(MetaMotionDevice device) {
         return -1;
     }
@@ -189,6 +175,10 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
         return null;
     }
 
+    /**
+     * Gets a random color to use for profile images
+     * @return Random material colour hex code
+     */
     private int getRandomMaterialColour() {
         int returnColour = Color.GRAY;
         int arrayId = m_context.getResources().getIdentifier("mdcolor_" + "400", "array", m_context.getPackageName());

@@ -58,23 +58,17 @@ import bolts.Task;
 public class DeviceInfoActivity extends AppCompatActivity implements ServiceConnection {
     private final String TAG = "MobilityAI";
 
-
     private TextView m_batteryPercentage, m_devName, m_macAddr, m_lastSync, m_batteryText;
     private Button m_syncButton, m_reassignButton, m_startLoggingButton, m_stopLoggingButton;
     private ProgressBar m_batteryCircle, m_syncProgressBar, m_loadingBar;
 
-    private MetaMotionService m_metaMotion;
     private String m_macAddress;
     private BtleService.LocalBinder m_serviceBinder;
     private MetaWearBoard m_board;
-    private Led m_led = null;
     private Accelerometer m_accelerometer = null;
     private GyroBmi160 m_gyroscope = null;
     private Logging m_logging = null;
     private Settings m_metawearSettings = null;
-
-    //Logging data
-    StringBuilder m_accelerometerLog, m_gyroscopeLog;
 
     AlertDialog.Builder builder;
 
@@ -83,7 +77,13 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         public void apply(Data data, Object... env) {
             try {
                 FileOutputStream fos = (FileOutputStream) env[0];
-                String value = data.timestamp().getTimeInMillis()+","+data.formattedTimestamp()+","+"0"+","+data.value(Acceleration.class).x()+","+data.value(Acceleration.class).y()+","+data.value(Acceleration.class).z()+"\n";
+                String value =
+                        data.timestamp().getTimeInMillis()+","
+                                +data.formattedTimestamp()+","+
+                                "0"+","
+                                +data.value(Acceleration.class).x()+","
+                                +data.value(Acceleration.class).y()+","
+                                +data.value(Acceleration.class).z()+"\n";
                 fos.write(value.getBytes());
             } catch (IOException ex) {
                 Log.i("MobilityAI", "Error writing to file:" + ex.toString());
@@ -91,47 +91,21 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         }
     };
 
+    //TODO: Refactor this class to use MetaMotionService
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_info);
 
-        builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select a New User ID").setSingleChoiceItems(R.array.patientnames, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //User clicked on this
-            }
-        });
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //user clicked OK
-            }
-        });
-
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //User clicked Cancel
-            }
-        });
-
-
-        initialize();
-
+        initializeDialogBuilder();
         findViews();
-
-        //Hide all elements until service is connected
-        hideAllElements();
+        hideAllElements(); //Hide all elements until service is connected
 
         m_macAddress = getIntent().getStringExtra("EXTRA_MAC_ADDR");
 
         getApplicationContext().bindService(new Intent(this, BtleService.class),
                 this, Context.BIND_AUTO_CREATE);
-
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
     }
 
     @Override
@@ -140,9 +114,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 
         //Serialize and save board state
         if(m_board != null) {
-
             m_board.disconnectAsync().continueWithTask(task -> {
-//                serializeBoard();
+                //serializeBoard();
                 return null;
             });
         }
@@ -151,9 +124,9 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         //Reconnect board
-//        deserializeBoard();
+        //deserializeBoard();
         m_board.connectAsync().continueWith(task -> {
-            Log.i(TAG, "Connected!");
+            Log.i(TAG, "Device restored");
             return null;
         });
     }
@@ -198,7 +171,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                if(!task.isFaulted()) {
                    Log.i(TAG, "Disconnected " + m_macAddress);
                }
-//               serializeBoard();
+               //serializeBoard();
                return null;
             });
         }
@@ -225,13 +198,10 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 Log.i("MobilityAI", "App Configured, connected: " + m_macAddress);
 
                 //Retrieve Modules
-                m_led = m_board.getModule(Led.class);
                 m_accelerometer = m_board.getModule(Accelerometer.class);
                 m_gyroscope = m_board.getModule(GyroBmi160.class);
                 m_logging = m_board.getModule(Logging.class);
                 m_metawearSettings = m_board.getModule(Settings.class);
-
-//                configureLogging();
 
                 //Reduce max connection interval
                 m_metawearSettings.editBleConnParams()
@@ -260,7 +230,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
             }
 
             m_startLoggingButton.setOnClickListener(l -> {
-                Log.i(TAG, "START LOGGING");
+                Log.i(TAG, "Start Logging");
                 //Reconfigure
                 configureAccelerometer();
                 configureGyroscope();
@@ -282,58 +252,37 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 
             m_stopLoggingButton.setOnClickListener(l -> {
                 //Stop accelerometer and gyroscope
-                Log.i(TAG, "STOP LOGGING");
+                Log.i(TAG, "Stop Logging");
 
                 m_accelerometer.acceleration().stop();
                 m_accelerometer.stop();
                 m_gyroscope.angularVelocity().stop();
                 m_gyroscope.stop();
 
-                Log.i(TAG, "STOP");
-
                 //Stop logging
                 m_logging.stop();
 
-//                deserializeBoard();
-
                 setEnv();
-                        //.continueWith(task1 -> {
-                    // Collect Log
-                    m_logging.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
-                        m_syncProgressBar.setProgress((int)totalEntries - (int)nEntriesLeft);
-                        m_syncProgressBar.setMax((int)totalEntries);
-                    }).continueWithTask(t -> {
-                        if(t.isFaulted()) {
-                            Toast.makeText(this, "Failed to download log file.", Toast.LENGTH_LONG).show();
-                            Log.i(TAG, "Failed to download log file.");
-                        } else {
-                            Log.i(TAG, "Log downloaded successfully");
-                            //Clear Log
-                            m_logging.clearEntries();
 
-                            //Save data from string builders into local file until ready to be sent to server
-//                        Log.i(TAG, m_accelerometerLog.toString());
-//                        Log.i(TAG, m_gyroscopeLog.toString());
+                m_logging.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
+                    m_syncProgressBar.setProgress((int)totalEntries - (int)nEntriesLeft);
+                    m_syncProgressBar.setMax((int)totalEntries);
+                }).continueWithTask(t -> {
+                    if(t.isFaulted()) {
+                        Toast.makeText(this, "Failed to download log file.", Toast.LENGTH_LONG).show();
+                        Log.i(TAG, "Failed to download log file.");
+                    } else {
+                        Log.i(TAG, "Log downloaded successfully");
+                        //Clear Log
+                        m_logging.clearEntries();
 
-                            //Save to file
-                            String datetime = DateFormat.getDateTimeInstance().format(new Date());
+                        Log.i(TAG, "Location: " + this.getFilesDir().getAbsolutePath());
+                    }
 
-                            //Accelerometer File
-//                        createCSV("accelerometer-" + datetime,
-//                                    m_accelerometerLog.toString());
-//                        createCSV("gyroscope-" + datetime,
-//                                m_gyroscopeLog.toString());
-
-                            Log.i(TAG, "Location: " + this.getFilesDir().getAbsolutePath());
-                        }
-
-                        //Clear everything on the board
-                        m_board.tearDown();
-                        return null;
-                    });
-
-                    //return null;
-                //});
+                    //Clear everything on the board
+                    m_board.tearDown();
+                    return null;
+                });
 
             });
             return null;
@@ -344,8 +293,6 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 
         //Populate activity fields and set battery progress bar
         populateFields();
-
-        programOnClick();
     }
 
     private Task<Route> addRoutes() {
@@ -370,10 +317,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 fos = openFileOutput("accelerometer-"+datetime, MODE_PRIVATE);
                 fos.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
                 accelRoute.setEnvironment(0, fos);
-
-                //TODO: Delete id file
             }
-        } catch (IOException e) {}
+        } catch (IOException e) { Log.i(TAG, "DeviceInfoActivity::setEnv(): " + e.toString()); }
     }
 
     @Override
@@ -381,9 +326,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 
 
     /**
-     * HELPER FUNCTIONS
+     * Populate fields with intent extras passed in from caller activity
      */
-
     private void populateFields() {
         String name = getIntent().getStringExtra("EXTRA_USER");
         String macAddr = "MAC Address: " + getIntent().getStringExtra("EXTRA_MAC_ADDR");
@@ -395,6 +339,9 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         m_lastSync.setText(lastSync);
     }
 
+    /**
+     * Initializes all the views on the page
+     */
     private void findViews() {
         m_batteryPercentage = findViewById(R.id.batteryPercentage);
         m_devName = findViewById(R.id.devName);
@@ -415,11 +362,9 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         });
     }
 
-    private void initialize() {
-        m_accelerometerLog = new StringBuilder();
-        m_gyroscopeLog = new StringBuilder();
-    }
-
+    /**
+     * Sync button handler to connect, sync data, and restart logging
+     */
     private void setSyncButtonOnClickHandler() {
         if(m_board.isConnected()) {
             m_syncButton.setOnClickListener((View v) -> {
@@ -450,14 +395,6 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 //Clear Log
                 m_logging.clearEntries();
 
-                //Save data from string builders into local file until ready to be sent to server
-                Log.i(TAG, m_accelerometerLog.toString());
-                Log.i(TAG, m_gyroscopeLog.toString());
-
-                //Clear stringbuilders
-                m_accelerometerLog.setLength(0);
-                m_gyroscopeLog.setLength(0);
-
                 //Reconfigure
                 configureAccelerometer();
                 configureGyroscope();
@@ -475,21 +412,21 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         }
     }
 
-    private void programOnClick() {
-        if(m_board.isConnected()) {
-
-        }
-    }
-
+    /**
+     * Set ODR for accelerometer
+     */
     private void configureAccelerometer() {
         if(m_board.isConnected() && m_accelerometer != null) {
             m_accelerometer.configure()
                            .odr(25f)       // Set sampling frequency to 25Hz, or closest valid ODR
                            .commit();
-            Log.i(TAG, "AC");
+            Log.i(TAG, "Accelerometer Configured");
         }
     }
 
+    /**
+     * Set ODR and range for gyroscope
+     */
     private void configureGyroscope() {
         if(m_board.isConnected() && m_gyroscope != null) {
             m_gyroscope.configure()
@@ -497,29 +434,19 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                        .range(GyroBmi160.Range.FSR_2000)
                        .commit();
 
-            Log.i(TAG, "GC");
+            Log.i(TAG, "Gyroscope Configured");
         }
     }
 
-
-
+    /**
+     * Add logging handler and environment variables
+     * @return Route for logging task
+     */
     private Task<Route> configureLogging() {
         //Configure Accelerometer
         if(m_board.isConnected() && m_logging != null && m_accelerometer != null ) {
-            //Append initial log line
-            Log.i(TAG, "here");
-
             //Add new async route to log data
             return m_accelerometer.acceleration().addRouteAsync((RouteComponent source) -> {
-/*                source.log((Data data, Object... env) -> {
-                    try {
-                        String value = data.timestamp().getTimeInMillis()+","+data.formattedTimestamp()+","+"0"+","+data.value(Acceleration.class).x()+","+data.value(Acceleration.class).y()+","+data.value(Acceleration.class).z()+"\n";
-                        FileOutputStream fos = (FileOutputStream) env[0];
-                        fos.write(value.getBytes());
-                    } catch (IOException e) {
-                        Log.i(TAG, "AE: " + e.getMessage());
-                    }
-                });*/
                 source.log(DATA_HANDLER);
             }).continueWith((Task<Route> task) -> {
                 try {
@@ -531,47 +458,14 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 }catch (IOException e) { }
 
                 return null;
-            });/*.continueWith((Task<Route> task) -> {
-//                String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                fos = openFileOutput("accelerometer-", MODE_PRIVATE);
-
-                task.getResult().setEnvironment(0, fos);
-                return null;
-            });*/
+            });
         }
-
         return null;
-
-        //Configure Gyroscope
-//        if(m_board.isConnected() && m_logging != null && m_gyroscope != null) {
-//            //Append first line of Gyroscope
-//            m_gyroscopeLog.append("epoch (ms),time (-13:00),elapsed (s),x-axis (deg/s),y-axis (deg/s),z-axis (deg/s)\n");
-//
-//            //Add new async route to log data
-//            m_gyroscope.angularVelocity().addRouteAsync((RouteComponent source) -> {
-//                source.log((Data data, Object... env) -> {
-//                    m_gyroscopeLog
-//                            .append(data.timestamp().getTimeInMillis()).append(",")
-//                            .append(data.formattedTimestamp()).append(",")
-//                            .append("0").append(",")
-//                            .append(data.value(AngularVelocity.class).x()).append(",")
-//                            .append(data.value(AngularVelocity.class).y()).append(",")
-//                            .append(data.value(AngularVelocity.class).z()).append("\n");
-//                });
-//            });
-//        }
     }
 
-    private void createCSV(String filename, String data) {
-        try {
-            OutputStreamWriter writer = new OutputStreamWriter(this.openFileOutput(filename, Context.MODE_PRIVATE));
-            writer.write(data);
-            writer.close();
-        } catch (IOException e) {
-            Log.i(TAG, "Write failed for: " + filename + " " + e.toString());
-        }
-    }
-
+    /**
+     * Serializes the current board into a local file to be restored later
+     */
     private void serializeBoard() {
         try {
             File serializeFile = new File(this.getFilesDir(), m_board.getMacAddress());
@@ -587,6 +481,9 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         }
     }
 
+    /**
+     * Restores the current board if already serialized
+     */
     private void deserializeBoard() {
         try {
             File serializeFile = new File(this.getFilesDir(), m_board.getMacAddress());
@@ -600,5 +497,32 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         } catch (ClassNotFoundException e) {
             Log.i(TAG, "Failed to read - 2: " + m_board.getMacAddress() + " " + e.toString());
         }
+    }
+
+    /**
+     * Create the dialog builder
+     * TODO: populate this with real data
+     */
+    private void initializeDialogBuilder() {
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select a New User ID").setSingleChoiceItems(R.array.patientnames, 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //User clicked on this
+            }
+        });
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //user clicked OK
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //User clicked Cancel
+            }
+        });
     }
 }

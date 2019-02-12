@@ -192,7 +192,7 @@ public class MetaMotionService {
     }
 
     /**
-     * Creates the route ID files
+     * Creates the route ID files - format: id_[ag]_[currentdatetime]
      * @param context The callers context
      * @param task The route from which to get the ID
      * @param identifier 'a' or 'g' to identify whether it's accelerometer or gyroscope respectively
@@ -229,7 +229,7 @@ public class MetaMotionService {
                     String datetime = DateFormat.getDateTimeInstance().format(new Date());
                     m_fileName = m_board.getMacAddress() + "_" + datetime + ".csv";
                     m_fosA = context.openFileOutput(m_fileName, context.MODE_PRIVATE);
-                    Log.i(TAG, "Setting environs = " + routeId);
+                    Log.i(TAG, "Setting accelerometer environment = " + routeId);
                     accelRoute.setEnvironment(0, m_fosA);
                 }
             }
@@ -245,14 +245,17 @@ public class MetaMotionService {
                     //Set env for route
                     Route gyroRoute = m_board.lookupRoute(routeId);
                     String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                    Log.i(TAG, "Setting environs2 = " + routeId);
+                    Log.i(TAG, "Setting gyroscope environment  = " + routeId);
                     gyroRoute.setEnvironment(0, m_fosA);
 
                 }
             }
-        } catch (IOException e) { Log.i(TAG, "SETENVIRONMENT: " + e.getMessage()); Log.i(TAG, "Probably a new device."); }
+        } catch (IOException e) { Log.i(TAG, "MetaMotionService::setEnvironment(): " + e.getMessage()); Log.i(TAG, "Probably a new device."); }
     }
 
+    /**
+     * Start acceleration and angular velocity routes
+     */
     public void startSensors() {
         Log.i(TAG, "Start all sensors");
         m_accelerometer.acceleration().start();
@@ -262,6 +265,9 @@ public class MetaMotionService {
         m_gyroscope.start();
     }
 
+    /**
+     * Stop acceleration and angular velocity routes
+     */
     public void stopSensors() {
         Log.i(TAG, "Stop all sensors");
         m_accelerometer.acceleration().stop();
@@ -270,10 +276,17 @@ public class MetaMotionService {
         m_gyroscope.stop();
     }
 
+    /**
+     * Stops the onboard logging
+     */
     public void stopLogging() {
         m_logging.stop();
     }
 
+    /**
+     * Serializes the current board into a file locally (identified using the mac address of the device) to be restored when getting data from the device
+     * @param filedir Directory to store the file
+     */
     public void serializeBoard(File filedir) {
         try {
             File serializeFile = new File(filedir, m_board.getMacAddress());
@@ -288,6 +301,10 @@ public class MetaMotionService {
         }
     }
 
+    /**
+     * Deserializes a board that is already stored on the device
+     * @param filedir Directory to store the file
+     */
     public void deserializeBoard(File filedir) {
         try {
             File serializeFile = new File(filedir, m_board.getMacAddress());
@@ -301,10 +318,16 @@ public class MetaMotionService {
         }
     }
 
+    /**
+     * Uploads the data files onto the server using volley+ library
+     * @param filePath Location of the file to be uploaded
+     * @param context Calling context
+     * @return
+     */
     public SimpleMultiPartRequest uploadData(String filePath, Context context) {
         String url = "https://mobilityai.teovoinea.com/api/mobilityai/AddDataSingle";
 
-        Log.i(TAG, "Starting upload data");
+        Log.i(TAG, "Starting data upload");
 
         SimpleMultiPartRequest smr = new SimpleMultiPartRequest(
             Request.Method.POST,
@@ -332,6 +355,7 @@ public class MetaMotionService {
             }
         };
 
+        //TODO: Remove the hard coding of the patients once Patients table is working properly
         smr.addStringParam("patientId", "25");
         smr.addFile("DataFile", filePath);
         smr.setRetryPolicy(new RetryPolicy() {
@@ -346,9 +370,7 @@ public class MetaMotionService {
             }
 
             @Override
-            public void retry(VolleyError error) throws VolleyError {
-
-            }
+            public void retry(VolleyError error) throws VolleyError { }
         });
         return smr;
     }
