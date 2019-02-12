@@ -134,6 +134,16 @@ namespace mobilityAI.Controllers
             return new JsonResult(dataRange.ToList());
         }
 
+        /// <summary>
+        /// Add a single file with accelerometer and gyroscope data into the database and into machine learning server
+        /// TODO: Handle larger files (ie: don't wait for the files to be added to the database before returning 200 or else the client will timeout)
+        /// </summary>
+        /// <param name="DataFile">
+        /// The file input for the data to be analyzed
+        /// </param>
+        /// <param name="patientID">
+        /// The patient id from which this data came from
+        /// </param>
         [HttpPost("AddDataSingle", Name = "AddDataSingle")]
         public async Task<IActionResult> AddDataSingle(IFormFile DataFile, int patientId) 
         {
@@ -183,15 +193,11 @@ namespace mobilityAI.Controllers
                                         .ToList();
 
             _context.GyroscopeData.AddRange(GyroscopeObjects);
-            // _context.SaveChanges();
+            _context.SaveChanges();
 
 
             var accelMs = new MemoryStream(Encoding.UTF8.GetBytes(ac));
             var gyroMs = new MemoryStream(Encoding.UTF8.GetBytes(gy));
-            // AccelerometerFile.OpenReadStream().CopyTo(accelMs);
-
-            
-            // GyroscopeFile.OpenReadStream().CopyTo(gyroMs);
 
             var callbackId = Guid.NewGuid().ToString();
 
@@ -548,24 +554,6 @@ namespace mobilityAI.Controllers
             return Ok();
 
         }
-
-        // [HttpGet("SignInUser", Name = "SignInUser")]
-        // public JsonResult SignInUser(string email, string password)
-        // {
-        //     var salt = from a in _context.Users
-        //                where (a.Email == email)
-        //                select new { a.Salt };
-        //     // var saltedPw = password + salt;
-        //     // var hashedPw = generateHash(saltedPw);
-
-        //     // var data = (from b in _context.Users
-        //     //            where (b.Email == email && b.Password == hashedPw)
-        //     //            select b).Count();
-
-
-
-        //     return new JsonResult(salt);
-        // }
 
         /// <summary>
         /// Function that will take the salted password and hash it (for encryption and security purposes)
