@@ -1,6 +1,5 @@
 package com.ai.mobility.mobilityai;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
@@ -9,19 +8,16 @@ import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.request.SimpleMultiPartRequest;
 import com.android.volley.error.VolleyError;
-import com.android.volley.toolbox.Volley;
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.Route;
 import com.mbientlab.metawear.Subscriber;
 import com.mbientlab.metawear.data.Acceleration;
 import com.mbientlab.metawear.data.AngularVelocity;
-import com.mbientlab.metawear.module.Accelerometer;
 import com.mbientlab.metawear.module.AccelerometerBmi160;
 import com.mbientlab.metawear.module.AccelerometerBosch;
 import com.mbientlab.metawear.module.GyroBmi160;
@@ -40,8 +36,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import bolts.Task;
 
@@ -57,12 +51,12 @@ public class MetaMotionService {
     private Settings m_metawearSettings = null;
 
     private FileOutputStream m_fosA;
-    private FileOutputStream m_fosG;
 
     private String m_fileName;
 
-    private boolean m_isLogging = false;
-
+    /**
+     * Static handlers for each subscriber to log to a single file set to env[0]
+     */
     private static Subscriber ACCELEROMETER_HANDLER = (Data data, Object... env) -> {
         try {
             String value = "a," + data.timestamp().getTimeInMillis() + "," +
@@ -95,40 +89,12 @@ public class MetaMotionService {
         }
     };
 
-    public void streamGyro() {
-        configureGyroscope();
-        m_gyroscope.angularVelocity().addRouteAsync(source -> {
-            source.stream((Data data, Object... env) -> {
-                /*String value = "g - " + data.timestamp().getTimeInMillis() + "," +
-                        data.formattedTimestamp() + "," +
-                        "0" + "," +
-                        data.value(AngularVelocity.class).x() + "," +
-                        data.value(AngularVelocity.class).y() + "," +
-                        data.value(AngularVelocity.class).z() + "\n";
-
-                Log.i(TAG, value);*/
-                Log.i(TAG, data.value(AngularVelocity.class).toString());
-            });
-        }).continueWith(task -> {
-            m_gyroscope.angularVelocity();
-            m_gyroscope.angularVelocity().start();
-            m_gyroscope.start();
-            return null;
-        });
-
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                m_gyroscope.stop();
-                disconnectBoard();
-            }
-        }, 10000);
-    }
-
-
     public MetaMotionService(MetaWearBoard board) { m_board = board; m_macAddress = m_board.getMacAddress(); }
 
+    /**
+     * Connects to the currently assigned Metawear board
+     * @return Task for the Async connect route
+     */
     public Task<Route> connectBoard() {
         return m_board.connectAsync().continueWithTask(task -> {
             if (task.isFaulted())   Log.i("MobilityAI", "Failed to configure app", task.getError());
@@ -150,6 +116,10 @@ public class MetaMotionService {
         });
     }
 
+    /**
+     * Disconnects from the currently connected board
+     * @return Task with the async disconnect route
+     */
     public Task<Route> disconnectBoard() {
         return m_board.disconnectAsync().continueWithTask(task -> {
             Log.i(TAG, "Disconnected: " + m_board.getMacAddress());
@@ -158,12 +128,11 @@ public class MetaMotionService {
         });
     }
 
+    /**
+     * Sets the Accelerometer Range (4g) and data rate (25hz)
+     */
     public void configureAccelerometer() {
         if(m_board.isConnected() && m_accelerometer != null) {
-            /*m_accelerometer.configure()
-                    .odr(25f)       // Set sampling frequency to 25Hz, or closest valid ODR
-                    .commit();*/
-
             m_accelerometer.configure()
                     .odr(AccelerometerBmi160.OutputDataRate.ODR_25_HZ)       // Set sampling frequency to 25Hz, or closest valid ODR
                     .range(AccelerometerBosch.AccRange.AR_4G)
@@ -172,6 +141,9 @@ public class MetaMotionService {
         }
     }
 
+    /**
+     * Sets the Gyroscope Range (2000 degrees) and data rate (25hz)
+     */
     public void configureGyroscope() {
         if(m_board.isConnected() && m_gyroscope != null) {
             m_gyroscope.configure()
@@ -183,6 +155,11 @@ public class MetaMotionService {
         }
     }
 
+    /**
+     * Sets the subscriber for the accelerometer to log on device memory
+     * @param context The callers context used to create the log file
+     * @return Task with the route for acceleration
+     */
     public Task<Route> configureAccelerometerLogging(Context context) {
         return m_accelerometer.acceleration().addRouteAsync(source -> {
             source.log(ACCELEROMETER_HANDLER);
@@ -192,16 +169,13 @@ public class MetaMotionService {
             writeIdFile(context, task, "a");
             return null;
         });
-                /*.continueWithTask(task -> {
-            return m_gyroscope.angularVelocity().addRouteAsync(source -> {
-                source.log(GYROSCOPE_HANDLER);
-            }).continueWithTask(task1 -> {
-                writeIdFile(context, task1, "g");
-                return null;
-            });
-        });*/
     }
 
+    /**
+     * Sets the subscriber for the gyroscope to log on device memory
+     * @param context The callers context used to create the log file
+     * @return Task with the route for angular velocity
+     */
     public Task<Route> configureGyroscopeLogging(Context context) {
         return m_gyroscope.angularVelocity().addRouteAsync(source -> {
             source.log(GYROSCOPE_HANDLER);
@@ -217,6 +191,12 @@ public class MetaMotionService {
         });
     }
 
+    /**
+     * Creates the route ID files
+     * @param context The callers context
+     * @param task The route from which to get the ID
+     * @param identifier 'a' or 'g' to identify whether it's accelerometer or gyroscope respectively
+     */
     private void writeIdFile(Context context, Task<Route> task, String identifier) {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("id_" + identifier + "_" + m_board.getMacAddress(), Context.MODE_PRIVATE));
@@ -226,6 +206,10 @@ public class MetaMotionService {
         } catch (IOException e) { Log.i(TAG, "Error Logging ID: " + e.toString()); }
     }
 
+    /**
+     * Sets the subscriber environments in order to log to a single file on device
+     * @param context The context used to create the file
+     */
     public void setEnvironment(Context context) {
         Log.i(TAG, "In set environs");
         try {
@@ -245,11 +229,9 @@ public class MetaMotionService {
                     String datetime = DateFormat.getDateTimeInstance().format(new Date());
                     m_fileName = m_board.getMacAddress() + "_" + datetime + ".csv";
                     m_fosA = context.openFileOutput(m_fileName, context.MODE_PRIVATE);
-//                m_fosA.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
                     Log.i(TAG, "Setting environs = " + routeId);
                     accelRoute.setEnvironment(0, m_fosA);
                 }
-                //TODO: Delete id file
             }
 
             InputStream inputStream2 = context.openFileInput("id_g_" + m_board.getMacAddress());
@@ -263,14 +245,10 @@ public class MetaMotionService {
                     //Set env for route
                     Route gyroRoute = m_board.lookupRoute(routeId);
                     String datetime = DateFormat.getDateTimeInstance().format(new Date());
-//                    m_fosG = context.openFileOutput(m_board.getMacAddress() + "_gyroscope_" + datetime, context.MODE_PRIVATE);
-//                m_fosG.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
                     Log.i(TAG, "Setting environs2 = " + routeId);
                     gyroRoute.setEnvironment(0, m_fosA);
 
                 }
-
-                //TODO: Delete id file
             }
         } catch (IOException e) { Log.i(TAG, "SETENVIRONMENT: " + e.getMessage()); Log.i(TAG, "Probably a new device."); }
     }
