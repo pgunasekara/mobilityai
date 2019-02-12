@@ -12,6 +12,8 @@ import BarGraph from './PatientBarGraphs';
 
 import { GetPatientActivities } from '../Lib/Api';
 
+//TODO: Remove temporary data once we get proper data from the server
+//TODO: Add better error logging if data cannot be found
 // const colours = ['#3498DB', '#1ABC9C', '#9B59B6', '#F1C40F', '#E74C3C'];
 // const data = [50, 10, 40, 95, 4, 24, 0, 85, 34, 0, 35, 53, 53];
 const data1 = [20, 35, 49, 24, 50, 20, 40, 19, 24, 50, 20, 40, 19];
@@ -66,6 +68,7 @@ export default class PatientData extends Component {
     };
 
     componentDidMount(){
+        //TODO: Remove hard coded dates/times once date picker works
         // let startTime = new Date(Date.UTC(2018, 11, 11, 0, 0, 0, 0)).getTime();
         // let endTime = new Date(Date.UTC(2018, 11, 11, 23, 0, 0, 0)).getTime();
 
@@ -98,8 +101,6 @@ export default class PatientData extends Component {
 
         const width = 250;
         const height = 250;
-
-        // let x = this.getCurrentData(id);
 
         const userActivities = [
             {
