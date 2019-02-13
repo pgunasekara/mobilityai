@@ -429,12 +429,7 @@ namespace mobilityAI.Controllers
                 float[] total = new float[5];
                 float[][] activityTotals = new float[5][];
                 for (int i = 0; i < 5; i++) activityTotals[i] = new float[13];
-                float totalRows = data.Count;                
-
-                // long firstHour = data[0].Start;
-                // long lastHour = data[data.Count-1].End;
-        
-                // long diff = lastHour - firstHour;
+                float totalRows = data.Count;
 
                 for(int i = 0; i < data.Count-1; i++) {
                     var element = data[i];
