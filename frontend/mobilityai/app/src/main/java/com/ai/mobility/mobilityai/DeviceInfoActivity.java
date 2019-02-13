@@ -70,6 +70,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     private Logging m_logging = null;
     private Settings m_metawearSettings = null;
 
+    private final static String ELAPSEDTIMEZERO = "0";
+
     AlertDialog.Builder builder;
 
     private static Subscriber DATA_HANDLER = new Subscriber() {
@@ -80,7 +82,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 String value =
                         data.timestamp().getTimeInMillis()+","
                                 +data.formattedTimestamp()+","+
-                                "0"+","
+                                ELAPSEDTIMEZERO +","
                                 +data.value(Acceleration.class).x()+","
                                 +data.value(Acceleration.class).y()+","
                                 +data.value(Acceleration.class).z()+"\n";
@@ -114,10 +116,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 
         //Serialize and save board state
         if(m_board != null) {
-            m_board.disconnectAsync().continueWithTask(task -> {
-                //serializeBoard();
-                return null;
-            });
+            m_board.disconnectAsync();
         }
     }
 

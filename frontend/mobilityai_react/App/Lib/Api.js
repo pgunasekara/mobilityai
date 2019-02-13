@@ -1,6 +1,6 @@
 import RNFetchBlob from 'rn-fetch-blob';
 
-// const SERVER_URL = "https://localhost:5001/";
+const DEV_SERVER_URL = "https://localhost:5001/";
 const SERVER_URL = "https://mobilityai.teovoinea.com/";
 
 export function AddPatientData(patientData) {

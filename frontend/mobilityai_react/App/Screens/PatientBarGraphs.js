@@ -24,7 +24,6 @@ export default class BarGraph extends Component {
                 />
                 <ScrollView horizontal={true} style={styles.bargraph}>
                     <View style={{ width: 500 }}>
-                        {/* TODO: Display Y Axis */}
                         <BarChart
                             style={{ height: 200 }}
                             data={this.props.data}

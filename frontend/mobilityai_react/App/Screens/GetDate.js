@@ -42,15 +42,3 @@ import DatePicker from 'react-native-datepicker'
         );
     }
 }
-
-const styles = StyleSheet.create({ 
-    dateButton: {
-        justifyContent: 'flex-end',
-    },
-
-    textInline: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-});

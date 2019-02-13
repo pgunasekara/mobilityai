@@ -21,7 +21,6 @@ export default class PatientList extends React.Component {
         });
     }
     render() {
-        console.disableYellowBox = true;
         const {navigate} = this.props.navigation;
         return (
             <View style={{flex: 1}}>
