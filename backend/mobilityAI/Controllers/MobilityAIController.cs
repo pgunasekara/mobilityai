@@ -13,7 +13,6 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using System.Text;
 using System.Security.Cryptography;
-using Debug = System.Diagnostics.Debugger;
 
 
 /// <summary>
@@ -33,6 +32,15 @@ namespace mobilityAI.Controllers
         private readonly MobilityAIContext _context;
         private static readonly HttpClient client = new HttpClient();
         private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
+
+        private enum ActivityType : int
+        {
+            sitting=0,
+            lyingDown=1,
+            walking=2,
+            standing=3,
+            unknown=4
+        };
 
         private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         
@@ -447,38 +455,38 @@ namespace mobilityAI.Controllers
                     }
                 }
 
-                total[0] = (count[0] / totalRows) * 100;
-                total[1] = (count[1] / totalRows) * 100;
-                total[2] = (count[2] / totalRows) * 100;
-                total[3] = (count[3] / totalRows) * 100;
-                total[4] = (count[4] / totalRows) * 100;
+                total[(int)ActivityType.sitting] = (count[0] / totalRows) * 100;
+                total[(int)ActivityType.lyingDown] = (count[(int)ActivityType.lyingDown] / totalRows) * 100;
+                total[(int)ActivityType.walking] = (count[(int)ActivityType.walking] / totalRows) * 100;
+                total[(int)ActivityType.standing] = (count[(int)ActivityType.standing] / totalRows) * 100;
+                total[(int)ActivityType.unknown] = (count[(int)ActivityType.unknown] / totalRows) * 100;
 
                 var retObj = new
                 {
                     sitting = new
                     {   
-                        total = total[0],
-                        bar = activityTotals[0]
+                        total = total[(int)ActivityType.sitting],
+                        bar = activityTotals[(int)ActivityType.sitting]
                     },
                     lyingDown = new
                     {
-                        total = total[1],
-                        bar = activityTotals[1]
+                        total = total[(int)ActivityType.lyingDown],
+                        bar = activityTotals[(int)ActivityType.lyingDown]
                     },
                     walking = new
                     {
-                        total = total[2],
-                        bar = activityTotals[2]
+                        total = total[(int)ActivityType.walking],
+                        bar = activityTotals[(int)ActivityType.walking]
                     },
                     standing = new
                     {
-                        total = total[3],
-                        bar = activityTotals[3]
+                        total = total[(int)ActivityType.standing],
+                        bar = activityTotals[(int)ActivityType.standing]
                     },
                     unknown = new
                     {
-                        total = total[4],
-                        bar = activityTotals[4]
+                        total = total[(int)ActivityType.unknown],
+                        bar = activityTotals[(int)ActivityType.unknown]
                     },
                 };
 
@@ -492,7 +500,7 @@ namespace mobilityAI.Controllers
         private static DateTime FromUnixTime(long time)
         {
             time = time/1000;
-            return DateTime.Now.AddSeconds(time);
+            return epoch.AddSeconds(time);
         }
 
         /// <summary>
