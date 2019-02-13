@@ -455,7 +455,7 @@ namespace mobilityAI.Controllers
                     }
                 }
 
-                total[(int)ActivityType.sitting] = (count[0] / totalRows) * 100;
+                total[(int)ActivityType.sitting] = (count[(int)ActivityType.sitting] / totalRows) * 100;
                 total[(int)ActivityType.lyingDown] = (count[(int)ActivityType.lyingDown] / totalRows) * 100;
                 total[(int)ActivityType.walking] = (count[(int)ActivityType.walking] / totalRows) * 100;
                 total[(int)ActivityType.standing] = (count[(int)ActivityType.standing] / totalRows) * 100;
