@@ -31,6 +31,7 @@
     "jest": "23.6.0",
     "jest-junit": "^6.2.1",
     "metro-react-native-babel-preset": "0.51.1",
+    "react-native-dotenv": "^0.2.0",
     "react-test-renderer": "16.6.3"
   },
   "jest": {
