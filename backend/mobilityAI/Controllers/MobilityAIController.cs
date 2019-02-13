@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Security.Cryptography;
 
+
 /// <summary>
 /// Endpoints for retrieving all data/range of data/writing data to/from the database
 /// Endpoints to add patient data, new user sign ups
@@ -27,9 +28,22 @@ namespace mobilityAI.Controllers
     {
         const string ML_SERVER_URL = "http://127.0.0.1:6000/";
         const string SERVER_URL = "http://127.0.0.1:5000/";
+        const string SERVER_SECURE_URL = "https://127.0.0.1:5001/";
         private readonly MobilityAIContext _context;
         private static readonly HttpClient client = new HttpClient();
         private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
+
+        private enum ActivityType : int
+        {
+            sitting=0,
+            lyingDown=1,
+            walking=2,
+            standing=3,
+            unknown=4
+        };
+
+        private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        
         private static bool isFirstRun = true;
         public MobilityAIController(MobilityAIContext context)
         {
@@ -129,6 +143,92 @@ namespace mobilityAI.Controllers
             return new JsonResult(dataRange.ToList());
         }
 
+        /// <summary>
+        /// Add a single file with accelerometer and gyroscope data into the database and into machine learning server
+        /// TODO: Handle larger files (ie: don't wait for the files to be added to the database before returning 200 or else the client will timeout)
+        /// </summary>
+        /// <param name="DataFile">
+        /// The file input for the data to be analyzed
+        /// </param>
+        /// <param name="patientID">
+        /// The patient id from which this data came from
+        /// </param>
+        [HttpPost("AddDataSingle", Name = "AddDataSingle")]
+        public async Task<IActionResult> AddDataSingle(IFormFile DataFile, int patientId) 
+        {
+            List<String> accel = new List<string>();
+            List<String> gyro = new List<string>();
+            string ac = "epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)" + Environment.NewLine;
+            string gy = "epoch (ms),time (-13:00),elapsed (s),x-axis (deg/s),y-axis (deg/s),z-axis (deg/s)" + Environment.NewLine;
+
+            using (var reader = new StreamReader(DataFile.OpenReadStream()))
+            {
+                while (reader.Peek() >= 0)
+                {
+                    String res = reader.ReadLine();
+                    if(String.Equals(res.Substring(0,2), "a,")) { accel.Add(res.Substring(2)); ac += res.Substring(2)+ Environment.NewLine; }
+                    if(String.Equals(res.Substring(0,2), "g,"))  { gyro.Add(res.Substring(2)); gy += res.Substring(2)+ Environment.NewLine; }
+                }
+            }
+
+            var AccelerometerObjects = accel.Select(line => line.Split(","))
+                                            .Select(tokens => new Accelerometer
+                                            {
+                                                Id = Guid.NewGuid().ToString(),
+                                                PatientId = Convert.ToInt32(patientId),
+                                                Epoch = Convert.ToInt64(tokens[0]),
+                                                Timestamp = DateTime.Parse(tokens[1]),
+                                                Elapsed = Convert.ToDouble(tokens[2]),
+                                                XAxis = Convert.ToDouble(tokens[3]),
+                                                YAxis = Convert.ToDouble(tokens[4]),
+                                                ZAxis = Convert.ToDouble(tokens[5])
+                                            })
+                                            .ToList();
+
+            _context.AccelerometerData.AddRange(AccelerometerObjects);
+
+            var GyroscopeObjects = gyro.Select(line => line.Split(","))
+                                        .Select(tokens => new Gyroscope
+                                        {
+                                            Id = Guid.NewGuid().ToString(),
+                                            PatientId = Convert.ToInt32(patientId),
+                                            Epoch = Convert.ToInt64(tokens[0]),
+                                            Timestamp = DateTime.Parse(tokens[1]),
+                                            Elapsed = Convert.ToDouble(tokens[2]),
+                                            XAxis = Convert.ToDouble(tokens[3]),
+                                            YAxis = Convert.ToDouble(tokens[4]),
+                                            ZAxis = Convert.ToDouble(tokens[5])
+                                        })
+                                        .ToList();
+
+            _context.GyroscopeData.AddRange(GyroscopeObjects);
+            _context.SaveChanges();
+
+
+            var accelMs = new MemoryStream(Encoding.UTF8.GetBytes(ac));
+            var gyroMs = new MemoryStream(Encoding.UTF8.GetBytes(gy));
+
+            var callbackId = Guid.NewGuid().ToString();
+
+            MultipartFormDataContent form = new MultipartFormDataContent();
+            string format = "Mddyyyyhhmmsstt";
+            string dt = String.Format("{0}",DateTime.Now.ToString(format));
+
+            form.Add(new StringContent("false"), "test");
+            form.Add(new StringContent(SERVER_URL + "api/MobilityAI/MlCallback?Id=" + callbackId), "callback_url");
+            form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", "accelerometer" + dt + ".csv");
+            form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", "gyroscope" + dt + ".csv");
+
+            HttpResponseMessage response = await client.PostAsync(ML_SERVER_URL + "windowify", form);
+
+            response.EnsureSuccessStatusCode();
+
+            mlCallbackIds.TryAdd(callbackId, patientId);
+
+            return Ok();
+        }
+
+
         //AddData function might need to be async (unsure as of now)
         /// <summary>
         /// Taking the list of lines files, converting each line to an Accelerometer/Gyroscope object, adding it into the database
@@ -194,7 +294,7 @@ namespace mobilityAI.Controllers
             MultipartFormDataContent form = new MultipartFormDataContent();
 
             form.Add(new StringContent("false"), "test");
-            form.Add(new StringContent(SERVER_URL + "api/SensorData/MlCallback?Id=" + callbackId), "callback_url");
+            form.Add(new StringContent(SERVER_URL + "api/MobilityAI/MlCallback?Id=" + callbackId), "callback_url");
             form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", AccelerometerFile.FileName);
             form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", GyroscopeFile.FileName);
 
@@ -308,19 +408,94 @@ namespace mobilityAI.Controllers
         }
 
         /// <summary>
-        /// Gets processed activity data for a specific device in a specific time range
+        /// Gets processed activity data for a specific device in a specific time range to be displayed on the UI
         /// </summary>
         /// <param name="Start">Epoch for beginning of time range</param>
         /// <param name="End"Epoch for end of time rante></param>
         /// <param name="patientId">Patient Id for the data you want to query</param>
         /// <returns></returns>
         [HttpGet("GetActivityData", Name = "GetActivityData")]
-        public IActionResult GetActivityData(long Start, long End, int patientId)
+        public IActionResult GetActivityData(long start, long end, int patientId)
         {
             var data = (from activities in _context.Activities
-                        where activities.Start >= Start && activities.End <= End && activities.PatientId == patientId
-                        select new { activities.Start, activities.End, activities.Type }).ToList();
-            return Ok(JsonConvert.SerializeObject(data));
+                        where activities.Start >= start && activities.End <= end && activities.PatientId == patientId
+                        orderby activities.Start ascending
+                        select new { activities.Start, activities.End, activities.Type })
+                        .ToList();
+
+            if(data.Count != 0) {
+
+                float[] count = new float[5];
+                float[] total = new float[5];
+                float[][] activityTotals = new float[5][];
+                for (int i = 0; i < 5; i++) activityTotals[i] = new float[13];
+                float totalRows = data.Count;
+
+                for(int i = 0; i < data.Count-1; i++) {
+                    var element = data[i];
+                    var nextElement = data[i+1];
+
+                    count[element.Type]++;
+
+                    int startHour = (FromUnixTime(element.Start/1000).Hour) - 12;
+                    activityTotals[element.Type][startHour] += (nextElement.Start - element.Start)/1000f;
+                }
+
+                int startHour2 = (FromUnixTime(data[data.Count-1].Start).Hour) - 12;
+                activityTotals[data[data.Count-1].Type][startHour2] += (data[data.Count-1].End - data[data.Count-1].Start)/1000f;
+
+                for (int i=0; i<5; i++){
+                    for (int j=0; j<13; j++){
+                        activityTotals[i][j] = activityTotals[i][j]/60;
+                    }
+                }
+
+                total[(int)ActivityType.sitting] = (count[(int)ActivityType.sitting] / totalRows) * 100;
+                total[(int)ActivityType.lyingDown] = (count[(int)ActivityType.lyingDown] / totalRows) * 100;
+                total[(int)ActivityType.walking] = (count[(int)ActivityType.walking] / totalRows) * 100;
+                total[(int)ActivityType.standing] = (count[(int)ActivityType.standing] / totalRows) * 100;
+                total[(int)ActivityType.unknown] = (count[(int)ActivityType.unknown] / totalRows) * 100;
+
+                var retObj = new
+                {
+                    sitting = new
+                    {   
+                        total = total[(int)ActivityType.sitting],
+                        bar = activityTotals[(int)ActivityType.sitting]
+                    },
+                    lyingDown = new
+                    {
+                        total = total[(int)ActivityType.lyingDown],
+                        bar = activityTotals[(int)ActivityType.lyingDown]
+                    },
+                    walking = new
+                    {
+                        total = total[(int)ActivityType.walking],
+                        bar = activityTotals[(int)ActivityType.walking]
+                    },
+                    standing = new
+                    {
+                        total = total[(int)ActivityType.standing],
+                        bar = activityTotals[(int)ActivityType.standing]
+                    },
+                    unknown = new
+                    {
+                        total = total[(int)ActivityType.unknown],
+                        bar = activityTotals[(int)ActivityType.unknown]
+                    },
+                };
+
+
+                return Ok(JsonConvert.SerializeObject(retObj));
+            }
+
+            return Ok();
+        }
+
+        private static DateTime FromUnixTime(long time)
+        {
+            time = time/1000;
+            return epoch.AddSeconds(time);
         }
 
         /// <summary>
@@ -406,6 +581,8 @@ namespace mobilityAI.Controllers
                 return builder.ToString();
             }
         }
+
+
 
         /// <summary>
         /// Returns a list of all patients
