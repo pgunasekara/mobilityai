@@ -2,25 +2,18 @@ import React from 'react';
 import { Alert, ScrollView, Platform, TouchableHighlight, Button, StyleSheet, Text, View, FlatList } from 'react-native';
 import { Input, Icon } from 'react-native-elements'
 
+// import { UserSignUp } from '../Lib/Api';
+
 export default class SignUp extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            patients: [
-                {
-                    key: "1",
-                    firstName: "Joe",
-                    lastName: "Johnson",
-                    bandId: "",
-                },
-                {
-                    key: "2",
-                    firstName: "Ruth",
-                    lastName: "Reynolds",
-                    bandId: "",
-                }
-            ]
-        }
+            email: "",
+            firstName: "",
+            lastName: "",
+            password: "",
+
+        };
 
     }
 
@@ -33,8 +26,12 @@ export default class SignUp extends React.Component {
     // }
 
     submitForm() {
-        console.log('work pls');
+        // let response = UserSignUp(this.state.email, this.state.firstName, this.state.lastName, this.state.password);
+        //let response = 
+        // UserSignUp('pg@email.com', 'Pasindu', 'Gunasekara', 'password');
+        // console.log(JSON.stringify(response));
     }
+
 
     render() {
         const { navigate } = this.props.navigation;
@@ -59,8 +56,8 @@ export default class SignUp extends React.Component {
                                 }
                             />
                             <Input
-                                onChangeText={(fname) => this.setState({ fname })}
-                                value={this.state.fname}
+                                onChangeText={(firstName) => this.setState({ firstName })}
+                                value={this.state.firstName}
                                 placeholder='First Name'
                                 leftIcon={
                                     <Icon
@@ -71,8 +68,8 @@ export default class SignUp extends React.Component {
                                 }
                             />
                             <Input
-                                onChangeText={(lname) => this.setState({ lname })}
-                                value={this.state.lname}
+                                onChangeText={(lastName) => this.setState({ lastName })}
+                                value={this.state.lastName}
                                 placeholder='Last Name'
                                 leftIcon={
                                     <Icon
@@ -103,7 +100,8 @@ export default class SignUp extends React.Component {
                     <View style={[styles.container, styles.btn]}>
                         <Button
                             title='Sign Up'
-                            onPress={this.submitForm}
+                            // onPress={() => this.submitForm()}
+                            onPress={() => navigate('SignIn', {})}
                             color="#5DACBD"
                         />
                     </View>

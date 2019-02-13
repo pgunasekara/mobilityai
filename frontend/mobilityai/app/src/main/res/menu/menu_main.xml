@@ -3,8 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.ai.mobility.mobilityai.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_syncall"
         android:orderInCategory="100"
+        android:title="Sync All Devices"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="200"
         android:title="@string/action_settings"
         app:showAsAction="never" />
 </menu>

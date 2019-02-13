@@ -1,31 +1,44 @@
 import React, { Component } from 'react';
 import { View, Button, StyleSheet } from 'react-native';
+import DatePicker from 'react-native-datepicker'
 
 
  // Getting the current date
  export default class GetDate extends Component {
+    constructor(props) {
+        super(props);
+
+        const date = new Date().toLocaleDateString('en-CA');
+
+        this.state = {
+            date: date,
+        };
+    }
+
     render() {
-        const date = new Date().getDate().toString();
-        const month = new Date().getMonth() + 1;
-        const year = new Date().getFullYear();
-
         return (
-            <View style={[styles.textInline, styles.dateButton]}>
-                <Button style={[styles.dateButton]} title={date + '/' + month + '/' + year} />
-            </View>
+            <DatePicker
+                style={{width: 200}}
+                date={this.state.date}
+                mode="date"
+                placeholder="select date"
+                format="YYYY-MM-DD"
+                minDate="2019-01-01"
+                confirmBtnText="Confirm"
+                cancelBtnText="Cancel"
+                customStyles={{
+                    dateIcon: {
+                        position: 'absolute',
+                        left: 0,
+                        top: 4,
+                        marginLeft: 0
+                    },
+                    dateInput: {
+                        marginLeft: 36
+                    }
+                }}
+                onDateChange={(date) => {this.setState({date: date})}}
+            />
         );
-
     }
 }
-
-const styles = StyleSheet.create({ 
-    dateButton: {
-        justifyContent: 'flex-end',
-    },
-
-    textInline: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-});

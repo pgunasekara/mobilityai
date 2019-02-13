@@ -11,42 +11,48 @@ export default class BarGraph extends Component {
         const contentInset = { top: 30, bottom: 30 }
 
         return (
-            <ScrollView horizontal={true} style={styles.bargraph}>
-                <View style={{ width: 500 }}>
-                    {/* TODO: Display Y Axis
-                        <YAxis
-                        data={data}
-                        contentInset={contentInset}
-                        svg={{
-                            fill: 'grey',
-                            fontSize: 10,
-                        }}
-                        numberOfTicks={13}
-                        formatLabel={value => `${value}ºC`}
-                    /> */}
-                    <BarChart
-                        style={{ height: 200 }}
-                        data={this.props.data}
-                        svg={{ fill }}
-                        contentInset={{ top: 30, bottom: 30 }}
-                    >
-                        <Grid />
-                    </BarChart>
-                    <XAxis
-                        style={{ marginHorizontal: -10 }}
-                        data={this.props.data}
-                        formatLabel={(value, index) => time[index]}
-                        contentInset={{ left: 30, right: 30 }}
-                        svg={{ fontSize: 10, fill: 'black' }}
-                    />
-                </View>
-            </ScrollView>
-
-        )
+            <View style={styles.graphContainer}>
+                <YAxis
+                    data={[0, 10, 20, 30, 40, 50, 60]}
+                    contentInset={contentInset}
+                    svg={{
+                        fill: 'grey',
+                        fontSize: 10,
+                    }}
+                    numberOfTicks={6}
+                    style={{ height: 200 }}
+                />
+                <ScrollView horizontal={true} style={styles.bargraph}>
+                    <View style={{ width: 500 }}>
+                        <BarChart
+                            style={{ height: 200 }}
+                            data={this.props.data}
+                            svg={{ fill }}
+                            contentInset={{ top: 30, bottom: 30 }}
+                            yMin={0}
+                            yMax={60}
+                        >
+                            <Grid />
+                        </BarChart>
+                        <XAxis
+                            style={{ marginHorizontal: -10 }}
+                            data={this.props.data}
+                            formatLabel={(value, index) => time[index]}
+                            contentInset={{ left: 30, right: 30 }}
+                            svg={{ fontSize: 10, fill: 'black' }}
+                        />
+                    </View>
+                </ScrollView>
+            </View>
+        );
     }
 }
 
 const styles = StyleSheet.create({ 
+    graphContainer: {
+        flex: 1,
+        flexDirection: 'row',
+    },
     bargraph: {
         marginLeft: 10,
         marginRight: 10,

@@ -1,5 +1,6 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View, ScrollView, TextInput, Slider, Button, Picker} from 'react-native';
+const Field = (props) => <TextInput style={styles.field} {...props}/>;
 
 import { CheckBox } from 'react-native-elements'
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
@@ -61,7 +62,6 @@ export default class PatientForm extends React.Component {
     render() {
         const maxHours = 24;
         const baselineStepSize = 0.25;
-        const Field = (props) => <TextInput style={styles.field} {...props}/>;
         const SliderField = (props) => {
             return <Slider style={styles.slider} 
                 {...props}
@@ -123,7 +123,8 @@ export default class PatientForm extends React.Component {
                             />
                         <Field onChangeText={(lastName) => this.setState({lastName})}
                             placeholder="Enter Last Name..."
-                            value={this.state.lastName}/>
+                            value={this.state.lastName}
+                            />
                         <Text style={styles.sliderText}>Daily time spent standing: {this.state.baselineStand} hours</Text>
                         <SliderField onChange={(baselineStand) => this.setState({baselineStand})}
                             onSlidingComplete={(baselineStand) => this.setState({baselineStand})}
