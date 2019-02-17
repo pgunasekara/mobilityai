@@ -1,259 +1,34 @@
 {
 	"info": {
-		"_postman_id": "ec145c7f-c7bb-43d2-ab08-f9b7a81b2bbc",
+		"_postman_id": "bf7db70e-6222-4397-b2d4-940eb6931583",
 		"name": "MobilityAI",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "http://localhost:5000/api/MobilityAI/AddData?PatientId=1",
+			"name": "Upload sensor data as single file",
 			"request": {
 				"method": "POST",
 				"header": [
 					{
-						"key": "",
-						"value": "",
-						"type": "text",
-						"disabled": true
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
 					}
 				],
 				"body": {
-					"mode": "formdata",
-					"formdata": [
+					"mode": "urlencoded",
+					"urlencoded": [
 						{
-							"key": "AccelerometerFile",
-							"type": "file",
-							"src": ""
-						},
-						{
-							"key": "GyroscopeFile",
-							"type": "file",
-							"src": ""
-						}
-					]
-				},
-				"url": {
-					"raw": "http://localhost:5000/api/MobilityAI/AddData?PatientId=1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"MobilityAI",
-						"AddData"
-					],
-					"query": [
-						{
-							"key": "PatientId",
-							"value": "1"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:5000/api/MobilityAI/AddPatientData?PatientData={\"age\" : \"32\", \"hometown\" : \"Missoula, MT\", \"gender\" : \"female\" }",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "http://localhost:5000/api/MobilityAI/AddPatientData?PatientData={\"age\" : \"32\", \"hometown\" : \"Missoula, MT\", \"gender\" : \"female\" }",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"MobilityAI",
-						"AddPatientData"
-					],
-					"query": [
-						{
-							"key": "PatientData",
-							"value": "{\"age\" : \"32\", \"hometown\" : \"Missoula, MT\", \"gender\" : \"female\" }"
-						},
-						{
-							"key": "",
+							"key": "dataFile",
 							"value": "",
-							"disabled": true
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:5000/api/MobilityAI/GetRangeAccelerometer?start=1542838645520&end=1542838763183&patientId=2",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "http://localhost:5000/api/MobilityAI/GetRangeGyroscope?start=1542838645520&end=1542838763183&patientId=2",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"MobilityAI",
-						"GetRangeGyroscope"
-					],
-					"query": [
-						{
-							"key": "start",
-							"value": "1542838645520"
-						},
-						{
-							"key": "end",
-							"value": "1542838763183"
-						},
-						{
-							"key": "patientId",
-							"value": "2"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:5000/api/MobilityAI/GetRangeGyroscope?start=1542838645520&end=1542838763183&patientId=2",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "http://localhost:5000/api/MobilityAI/GetRangeGyroscope?start=1542838645520&end=1542838763183&patientId=2",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"MobilityAI",
-						"GetRangeGyroscope"
-					],
-					"query": [
-						{
-							"key": "start",
-							"value": "1542838645520"
-						},
-						{
-							"key": "end",
-							"value": "1542838763183"
-						},
-						{
-							"key": "patientId",
-							"value": "2"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:5000/api/MobilityAI/SignUpUser?email=rebeccatran@email.com&firstName=Rebecca&lastName=Tran&password=123Password",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "",
-						"value": "",
-						"type": "text",
-						"disabled": true
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "AccelerometerFile",
-							"type": "file",
-							"src": "",
-							"disabled": true
-						},
-						{
-							"key": "GyroscopeFile",
-							"type": "file",
-							"src": "",
-							"disabled": true
-						},
-						{
-							"key": "PatientID",
-							"value": "4",
-							"type": "text",
-							"disabled": true
-						},
-						{
-							"key": "",
-							"value": "",
-							"type": "text",
-							"disabled": true
+							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/MobilityAI/SignUpUser?email=rebeccatran@email.com&firstName=Rebecca&lastName=Tran&password=123Password",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"api",
-						"MobilityAI",
-						"SignUpUser"
-					],
-					"query": [
-						{
-							"key": "email",
-							"value": "rebeccatran@email.com"
-						},
-						{
-							"key": "firstName",
-							"value": "Rebecca"
-						},
-						{
-							"key": "lastName",
-							"value": "Tran"
-						},
-						{
-							"key": "password",
-							"value": "123Password"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetPatients",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "https://localhost:5001/api/MobilityAI/GetPatients",
+					"raw": "https://localhost:5001/api/SensorData/0",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -261,8 +36,278 @@
 					"port": "5001",
 					"path": [
 						"api",
-						"MobilityAI",
-						"GetPatients"
+						"SensorData",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload sensor data as separate accelerometer and gyropscope files",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "accelerometerFile",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "gyroscopeFile",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/SensorData/0",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"SensorData",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ml service callback with activities file",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/SensorData/Callback?activities",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"SensorData",
+						"Callback"
+					],
+					"query": [
+						{
+							"key": "activities",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update device association",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/Devices/0?name&patientId&lastsync",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Devices",
+						"0"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": ""
+						},
+						{
+							"key": "patientId",
+							"value": ""
+						},
+						{
+							"key": "lastsync",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get device info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/Devices/0",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Devices",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all patients",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/Patients",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Patients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add new patient and corresponding data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/Patients?patientData",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Patients"
+					],
+					"query": [
+						{
+							"key": "patientData",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a patient's activity data",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/Patients/0/Activity?start&end",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Patients",
+						"0",
+						"Activity"
+					],
+					"query": [
+						{
+							"key": "start",
+							"value": ""
+						},
+						{
+							"key": "end",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign up new user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:5001/api/Users?email&firstName&lastName&password",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Users"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": ""
+						},
+						{
+							"key": "firstName",
+							"value": ""
+						},
+						{
+							"key": "lastName",
+							"value": ""
+						},
+						{
+							"key": "password",
+							"value": ""
+						}
 					]
 				}
 			},

@@ -28,4 +28,13 @@ namespace mobilityAI.Models {
             get; set;
         }
     }
+
+    public enum ActivityType : int
+    {
+        sitting=0,
+        lyingDown=1,
+        walking=2,
+        standing=3,
+        unknown=4
+    };
 }
