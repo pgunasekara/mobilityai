@@ -1,8 +1,10 @@
 import RNFetchBlob from 'rn-fetch-blob';
 import { SERVER_URL} from 'react-native-dotenv'
+// const SERVER_URL = "https://mobilityai.teovoinea.com/";
 
 export function AddPatientData(patientData) {
     const route = "api/MobilityAI/AddPatientData?PatientData=";
+
     let url = encodeURI(SERVER_URL + route + patientData);
     console.log("AddPatientData: Make a post request to: " + url);
     return RNFetchBlob.config({
