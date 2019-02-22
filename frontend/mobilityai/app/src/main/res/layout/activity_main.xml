@@ -60,21 +60,4 @@
         app:layout_anchorGravity="right|center"
         android:background="@android:color/transparent"
         android:textColor="@android:color/transparent"/>
-
-    <Button
-        android:id="@+id/tmpBtn4"
-        android:layout_width="115dp"
-        android:layout_height="wrap_content"
-        android:text="Stop"
-        app:layout_anchor="@+id/include"
-        app:layout_anchorGravity="left|center" />
-
-    <Button
-        android:id="@+id/tmpBtn5"
-        android:layout_width="128dp"
-        android:layout_height="wrap_content"
-        android:text="Read"
-        app:layout_anchor="@+id/tmpBtn3"
-        app:layout_anchorGravity="left|center" />
-
 </android.support.design.widget.CoordinatorLayout>

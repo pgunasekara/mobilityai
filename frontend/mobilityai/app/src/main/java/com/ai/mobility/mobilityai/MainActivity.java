@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 //Deserialize, set environment, stop sensors, get logging data
                 currTask = currTask.continueWithTask(task -> {
-                    Log.i(TAG, "HERE1");
+                    Log.i(TAG, "Starting data collection");
                     return collectData(d);
                 }).continueWithTask(task -> {
                     m_boards.getBoard(d.getMacAddr()).disconnectBoard();
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 connectToBoard(d).continueWithTask(task -> {
                     MetaMotionService m = m_boards.getBoard(d.getMacAddr());
                     m.configureStepCounter();
-                    m.configureStepCounter(this).continueWith(task1 -> {
+                    m.configureStepCounterLogging(this).continueWith(task1 -> {
                         m.startSensors();
                         Log.i(TAG, "______________ Started sensors");
                         return null;
@@ -137,24 +137,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     return null;
                 });
                 break;
-            }
-        });
-
-        Button tmpBtn3 = findViewById(R.id.tmpBtn4);
-        tmpBtn3.setOnClickListener(l -> {
-            for(MetaMotionDevice d : m_deviceList) {
-                MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-                m.stopSensors();
-                m.disconnectBoard();
-                break;
-            }
-        });
-
-        Button tmpBtn5 = findViewById(R.id.tmpBtn5);
-        tmpBtn5.setOnClickListener(l -> {
-            for(MetaMotionDevice d : m_deviceList) {
-                MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-                m.readStepCounter();
             }
         });
 
@@ -458,6 +440,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private Task<Route> collectData(MetaMotionDevice d) {
         MetaMotionService m = m_boards.getBoard(d.getMacAddr());
 
+        m.readStepCounter();
         m.stopSensors();
         m.stopLogging();
 
@@ -488,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 //Upload file
                 String filePath = this.getFilesDir() + "/" + m.getFileName();
-                m_rqueue.add(m.uploadData(filePath, this));
+//                m_rqueue.add(m.uploadData(filePath, this));
 
                 //Update Last Sync
                 lastSync.setText("Last Sync: " + Calendar.getInstance().getTime().toString());
@@ -515,12 +498,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         //Reconfigure sensors
         m.configureAccelerometer();
         m.configureGyroscope();
+        m.configureStepCounter();
 
         //Configure logging environments
-        Task<Route> result = m.configureGyroscopeLogging(this);
+        Task<Route> result = m.configureStepCounterLogging(this);
+        result = result.continueWithTask(task -> { return m.configureGyroscopeLogging(this);     });
         result = result.continueWithTask(task -> { return m.configureAccelerometerLogging(this); });
         return result.continueWith(task -> {
             m.startSensors();
+            m.resetStepCounter();
             //Serialize board state before logging starts
             m.serializeBoard(this.getFilesDir());
 
