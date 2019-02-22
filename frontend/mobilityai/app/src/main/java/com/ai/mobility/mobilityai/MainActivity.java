@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 //Deserialize, set environment, stop sensors, get logging data
                 currTask = currTask.continueWithTask(task -> {
-                    Log.i(TAG, "HERE1");
+                    Log.i(TAG, "Starting data collection");
                     return collectData(d);
                 }).continueWithTask(task -> {
                     m_boards.getBoard(d.getMacAddr()).disconnectBoard();
@@ -115,20 +115,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 //TODO: Handle multiple boards
                 break;
             }
-        });
-
-        //Leaving this for now until DevActivity gets completed
-        tmpBtn2 = findViewById(R.id.tmpBtn2);
-        tmpBtn2.setOnClickListener(l -> {
-            /*for(MetaMotionDevice d : m_deviceList) {
-                //dc all boards
-                connectToBoard(d).continueWithTask(task -> {
-                    MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-                    m.streamGyro();
-                    return null;
-                });
-                break;
-            }*/
         });
 
         tmpBtn3 = findViewById(R.id.tmpBtn3);
@@ -431,6 +417,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private Task<Route> collectData(MetaMotionDevice d) {
         MetaMotionService m = m_boards.getBoard(d.getMacAddr());
 
+        m.readStepCounter();
         m.stopSensors();
         m.stopLogging();
 
@@ -488,12 +475,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         //Reconfigure sensors
         m.configureAccelerometer();
         m.configureGyroscope();
+        m.configureStepCounter();
 
         //Configure logging environments
-        Task<Route> result = m.configureGyroscopeLogging(this);
+        Task<Route> result = m.configureStepCounterLogging(this);
+        result = result.continueWithTask(task -> { return m.configureGyroscopeLogging(this);     });
         result = result.continueWithTask(task -> { return m.configureAccelerometerLogging(this); });
         return result.continueWith(task -> {
             m.startSensors();
+            m.resetStepCounter();
             //Serialize board state before logging starts
             m.serializeBoard(this.getFilesDir());
 

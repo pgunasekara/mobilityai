@@ -1,23 +1,20 @@
 import React, { Component } from 'react';
 
 import { Text, View, ScrollView, TouchableHighlight, StyleSheet, ART } from 'react-native';
+
 const { Group, Shape, Surface } = ART;
 
 import * as d3 from 'd3'
-// import * as scale from 'd3-scale'
 
 import GetDate from './GetDate.js';
 import Circle from './PatientCircles';
 import BarGraph from './PatientBarGraphs';
 
 import { GetPatientActivities } from '../Lib/Api';
+import moment from 'moment';
 
 //TODO: Remove temporary data once we get proper data from the server
 //TODO: Add better error logging if data cannot be found
-// const colours = ['#3498DB', '#1ABC9C', '#9B59B6', '#F1C40F', '#E74C3C'];
-// const data = [50, 10, 40, 95, 4, 24, 0, 85, 34, 0, 35, 53, 53];
-const data1 = [20, 35, 49, 24, 50, 20, 40, 19, 24, 50, 20, 40, 19];
-const data2 = [30, 25, 29, 50, 60, 22, 60, 19, 45, 60, 40, 43, 39];
 
 var arrayColours = {
     standing: '#3498DB',
@@ -27,13 +24,14 @@ var arrayColours = {
     unknown: '#E74C3C',
 };
 
-export default class PatientData extends Component {
-    static navigationOptions = ({ navigation }) => {
-        return {
-          title: navigation.getParam('firstName') + " " + navigation.getParam('lastName'),
-        };
-    };
+const Tabs = {
+    daily: 0, 
+    weekly: 1, 
+    monthly: 2,
+    overall: 3,
+};
 
+export default class PatientData extends Component {
     constructor(props) {
         super(props);
 
@@ -43,10 +41,9 @@ export default class PatientData extends Component {
             lastName: props.lastName,
             barColour: arrayColours['unknown'],
             data: [0,0,0,0,0,0,0,0,0,0,0,0,0],
+            date: props.date,
             movementPercentages: {'sitting': {total: 0, bar: new Array(13)}, 'standing': {total: 0, bar: new Array(13)}, 'lyingDown': {total: 0, bar: new Array(13)}, 'walking': {total: 0, bar: new Array(13)}, 'unknown': {total: 0, bar: new Array(13)}},
         }
-        // this.onPress = this.onPress.bind(this);
-        //this.props.navigate = props.navigate;
     };
 
     _onPressButton(activityColour, newData) {
@@ -54,50 +51,67 @@ export default class PatientData extends Component {
         this.setState({ data: newData });
     };
 
-    // TODO: Have Nav Header display patient name
-    //  static navigationOptions = ({ this.props.navigate }) => ({
-    //     title: firstName + " " + lastName,
-    //      headerTitleStyle : {textAlign: 'center',alignSelf:'center'},
-    //         headerStyle:{
-    //             backgroundColor:'white',
-    //         },
-    //     });
+    getPatientData() {
+        var startDate = this.state.date;
+        var endDate = new Date(this.state.date);
 
-    pieColour(i) {
+        switch(this.props.tabView) {
+            case Tabs.daily:
+                endDate = moment(endDate).add(1, 'days').toDate();
+                break;
+            case Tabs.weekly: 
+                endDate = moment(endDate).add(1, 'weeks').toDate();
+                break;
+            case Tabs.monthly:
+                endDate = moment(endDate).add(1, 'months').toDate();
+                break;
+            
+            //TODO: FIX TO GET OVERALL TIME OF THE PATIENT
+            case Tabs.overall:
+                endDate = moment(endDate).add(1, 'months').toDate();
+                break;
+            default:
+                endDate = moment(endDate).add(1, 'days').toDate();
+                break;
+            
+        }
 
-    };
-
-    componentDidMount(){
-        //TODO: Remove hard coded dates/times once date picker works
-        // let startTime = new Date(Date.UTC(2018, 11, 11, 0, 0, 0, 0)).getTime();
-        // let endTime = new Date(Date.UTC(2018, 11, 11, 23, 0, 0, 0)).getTime();
-
-        let startTime = new Date(Date.UTC(2019, 1, 9, 0, 0, 0, 0)).getTime();
-        let endTime = new Date(Date.UTC(2019, 1, 9, 23, 0, 0, 0)).getTime();
-
-        const { navigation } = this.props;
-        const id = navigation.getParam('id');
-
-        GetPatientActivities(startTime, endTime, id).then((activitiesJson) => {
+        console.log("props: " + this.props.tabView + ", " + this.props.date);
+        console.log('endDate: ' + endDate);
+        
+        GetPatientActivities(startDate.getTime(),endDate.getTime(), this.props.id).then((activitiesJson) => {
             if (activitiesJson === undefined) {
                 this.setState({error: 'Error retrieving patient activity data'});
-            }
-            console.log('\n\n' + activitiesJson);
-            this.setState({movementPercentages: activitiesJson});
+            } else {
+                this.setState({movementPercentages: activitiesJson});
+                this.setState({error: null});
+            }            
         });
+    }
+
+    componentDidMount(){
+        this.getPatientData();
     };
+
+    setDate(rDate) {
+        this.setState({date: rDate});
+        console.log(this.state.date);
+        this.getPatientData();
+    }
 
     render() {
         if (this.state.error) {
             return (
-                <View>
-                    <Text style={styles.errorText}>{this.state.error}</Text>
-                </View>
+                <ScrollView>
+                    <View>
+                        <Text style={styles.errorText}>{this.state.error}</Text>
+                        <GetDate 
+                            date={this.setDate.bind(this)}
+                            newDate={this.state.date}/>
+                    </View>
+                </ScrollView>
             );
         }
-
-        const { navigation } = this.props;
-        const id = navigation.getParam('id');
 
         const width = 250;
         const height = 250;
@@ -139,7 +153,10 @@ export default class PatientData extends Component {
                 <View>
                     <View style={styles.textInline}>
                         <Text style={styles.center}>Daily User Activity</Text> 
-                        <GetDate />
+                        <GetDate 
+                            date={this.setDate.bind(this)}
+                            newDate={this.state.date}
+                        />
                     </View>
 
                     {/* Displaying the pie chart of all the activities */}
@@ -192,6 +209,7 @@ export default class PatientData extends Component {
         );
     }
 }
+
 
 const styles = StyleSheet.create({
     errorText: {
