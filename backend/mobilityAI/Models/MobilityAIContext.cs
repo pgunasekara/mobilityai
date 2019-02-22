@@ -43,6 +43,11 @@ namespace mobilityAI.Models
         {
             get; set;
         }
+
+        public DbSet<Achievement> Achievements
+        {
+            get; set;
+        }
         public DbSet<Condition> Conditions
         {
             get; set;

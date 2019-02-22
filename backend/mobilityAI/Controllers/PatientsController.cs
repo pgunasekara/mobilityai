@@ -14,7 +14,8 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Security.Cryptography;
 
-namespace mobilityAI.Controllers {
+namespace mobilityAI.Controllers
+{
     [Route("api/[controller]")]
     [ApiController]
     public class PatientsController : ControllerBase
@@ -23,7 +24,8 @@ namespace mobilityAI.Controllers {
         private static bool isFirstRun = true;
         private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public PatientsController(MobilityAIContext context){
+        public PatientsController(MobilityAIContext context)
+        {
             _context = context;
         }
 
@@ -32,7 +34,8 @@ namespace mobilityAI.Controllers {
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public JsonResult GetPatients() {
+        public JsonResult GetPatients()
+        {
             if (isFirstRun)
             {
                 var demoPatients = new List<Patient> {
@@ -94,7 +97,8 @@ namespace mobilityAI.Controllers {
                         select new { activities.Start, activities.End, activities.Type })
                         .ToList();
 
-            if(data.Count != 0) {
+            if (data.Count != 0)
+            {
 
                 float[] count = new float[5];
                 float[] total = new float[5];
@@ -102,22 +106,25 @@ namespace mobilityAI.Controllers {
                 for (int i = 0; i < 5; i++) activityTotals[i] = new float[13];
                 float totalRows = data.Count;
 
-                for(int i = 0; i < data.Count-1; i++) {
+                for (int i = 0; i < data.Count - 1; i++)
+                {
                     var element = data[i];
-                    var nextElement = data[i+1];
+                    var nextElement = data[i + 1];
 
                     count[element.Type]++;
 
-                    int startHour = (FromUnixTime(element.Start/1000).Hour) - 12;
-                    activityTotals[element.Type][startHour] += (nextElement.Start - element.Start)/1000f;
+                    int startHour = (FromUnixTime(element.Start / 1000).Hour) - 12;
+                    activityTotals[element.Type][startHour] += (nextElement.Start - element.Start) / 1000f;
                 }
 
-                int startHour2 = (FromUnixTime(data[data.Count-1].Start).Hour) - 12;
-                activityTotals[data[data.Count-1].Type][startHour2] += (data[data.Count-1].End - data[data.Count-1].Start)/1000f;
+                int startHour2 = (FromUnixTime(data[data.Count - 1].Start).Hour) - 12;
+                activityTotals[data[data.Count - 1].Type][startHour2] += (data[data.Count - 1].End - data[data.Count - 1].Start) / 1000f;
 
-                for (int i=0; i<5; i++){
-                    for (int j=0; j<13; j++){
-                        activityTotals[i][j] = activityTotals[i][j]/60;
+                for (int i = 0; i < 5; i++)
+                {
+                    for (int j = 0; j < 13; j++)
+                    {
+                        activityTotals[i][j] = activityTotals[i][j] / 60;
                     }
                 }
 
@@ -130,7 +137,7 @@ namespace mobilityAI.Controllers {
                 var retObj = new
                 {
                     sitting = new
-                    {   
+                    {
                         total = total[(int)ActivityType.sitting],
                         bar = activityTotals[(int)ActivityType.sitting]
                     },
@@ -163,6 +170,71 @@ namespace mobilityAI.Controllers {
             return Ok();
         }
 
+        /// <summary>
+        /// Adding patient achievements. If current achievement stats exist, update the information. 
+        /// If it doesn't exist, add a new row to the database for that patient
+        /// </summary>
+        /// <param name="patientId">
+        /// The id value of the patient
+        /// </param>
+        /// <param name="steps">
+        /// The number of steps goal that the patient wishes to achieve 
+        /// </param>
+        /// <param name="activityTime">
+        /// The number of steps goal that the patient wishes to achieve
+        /// </param>
+        /// <returns>
+        /// 200 if successful
+        /// </returns>
+        [HttpPost("PatientAchievements")]
+        public IActionResult PatientAchievements(int patientId, int steps, int activityTime)
+        {
+            Achievement dataQuery = (from a in _context.Achievements
+                                 where (a.Id == patientId)
+                                 select a).SingleOrDefault();
+
+            if (dataQuery == null)
+            {
+                Achievement data = new Achievement();
+
+                data.Id = patientId;
+                data.Steps = steps;
+                data.ActivityTime = activityTime;
+
+                _context.Achievements.Add(data);
+            } else {
+                dataQuery.Id = patientId;
+                dataQuery.Steps = steps;
+                dataQuery.ActivityTime = activityTime;
+            }
+
+            _context.SaveChanges();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Returning the patient achievements stats
+        /// </summary>
+        /// <param name="patientId">
+        /// The id value of the patient
+        /// </param>
+        /// <returns>
+        /// If the patient does not have any achievement stats, returns -1
+        /// If the patient has achievement stats, returns the stats
+        /// </returns>
+        [HttpGet("GetPatientAchievements")]
+        public JsonResult GetPatientAchievements(int patientId) {
+            Achievement data = (from a in _context.Achievements
+                       where a.Id == patientId
+                       select a).SingleOrDefault();
+
+            if (data == null) {
+                return new JsonResult(-1);
+            }
+
+            return new JsonResult(data);
+        }
+
         /*
         [HttpPut("{patientId}")]
         public IActionResult UpdatePatient(string patientId, string PatientData) { ... }
@@ -173,7 +245,7 @@ namespace mobilityAI.Controllers {
 
         private static DateTime FromUnixTime(long time)
         {
-            time = time/1000;
+            time = time / 1000;
             return epoch.AddSeconds(time);
         }
     }
