@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Text, View, Button, StyleSheet, TouchableOpacity } from 'react-native';
 
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import moment from 'moment';
 
 
 // Getting the current date
@@ -17,26 +18,14 @@ export default class GetDate extends Component {
         this._hideDateTimePicker();
         this.props.date(date);
         this.setState({date: date});
-        var fDate = this.getFormattedDate(this.state.date);
+        var fDate = moment(this.state.date).format('MMMM Do YYYY');
         this.setState({formattedDate: fDate});
     };
-
-    getFormattedDate(date) {
-        var weekdays = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
-        var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec" ];
-       
-        let weekday = date.getDay();
-        let month = date.getMonth();
-        let day = date.getDate();
-        let year = date.getFullYear();
-       
-        return(weekdays[weekday] + ' ' + monthNames[month] + ' ' + day + ', ' + year);
-    }
 
     constructor(props) {
         super(props);
         const date = new Date(props.newDate);
-        var fDate = this.getFormattedDate(date);
+        var fDate = moment(date).format('MMMM Do YYYY');
         this.state = {
             date: date,
             formattedDate: fDate,
@@ -46,7 +35,7 @@ export default class GetDate extends Component {
     render() {
         return (
             <View style={{ flex: 1 }}>
-                <Button onPress={this._showDateTimePicker} title={this.state.formattedDate}>
+                <Button onPress={this._showDateTimePicker} title={moment(this.state.date).format('MMMM Do YYYY')}>
                 </Button>
                 <DateTimePicker
                     isVisible={this.state.isDateTimePickerVisible}

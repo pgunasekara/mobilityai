@@ -11,6 +11,7 @@ import Circle from './PatientCircles';
 import BarGraph from './PatientBarGraphs';
 
 import { GetPatientActivities } from '../Lib/Api';
+import moment from 'moment';
 
 //TODO: Remove temporary data once we get proper data from the server
 //TODO: Add better error logging if data cannot be found
@@ -23,7 +24,7 @@ var arrayColours = {
     unknown: '#E74C3C',
 };
 
-var Tabs = {
+const Tabs = {
     daily: 0, 
     weekly: 1, 
     monthly: 2,
@@ -56,26 +57,27 @@ export default class PatientData extends Component {
 
         switch(this.props.tabView) {
             case Tabs.daily:
-                endDate.setDate(endDate.getDate() + 1);
+                endDate = moment(endDate).add(1, 'days').toDate();
                 break;
             case Tabs.weekly: 
-                endDate.setDate(endDate.getDate() + 7);
+                endDate = moment(endDate).add(1, 'weeks').toDate();
                 break;
             case Tabs.monthly:
-                endDate.setDate(endDate.getDate() + 30);
+                endDate = moment(endDate).add(1, 'months').toDate();
                 break;
             
             //TODO: FIX TO GET OVERALL TIME OF THE PATIENT
             case Tabs.overall:
-                endDate.setDate(endDate.getDate() + 60);
+                endDate = moment(endDate).add(1, 'months').toDate();
                 break;
             default:
-                endDate.setDate(endDate.getDate() + 1);
+                endDate = moment(endDate).add(1, 'days').toDate();
                 break;
             
         }
 
         console.log("props: " + this.props.tabView + ", " + this.props.date);
+        console.log('endDate: ' + endDate);
         
         GetPatientActivities(startDate.getTime(),endDate.getTime(), this.props.id).then((activitiesJson) => {
             if (activitiesJson === undefined) {
