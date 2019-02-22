@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -117,18 +118,44 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
         });
 
+        MetaMotionService mx = null;
+
         //Leaving this for now until DevActivity gets completed
         tmpBtn2 = findViewById(R.id.tmpBtn2);
         tmpBtn2.setOnClickListener(l -> {
-            /*for(MetaMotionDevice d : m_deviceList) {
+            for(MetaMotionDevice d : m_deviceList) {
                 //dc all boards
                 connectToBoard(d).continueWithTask(task -> {
                     MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-                    m.streamGyro();
+                    m.configureStepCounter();
+                    m.configureStepCounter(this).continueWith(task1 -> {
+                        m.startSensors();
+                        Log.i(TAG, "______________ Started sensors");
+                        return null;
+                    });
+
                     return null;
                 });
                 break;
-            }*/
+            }
+        });
+
+        Button tmpBtn3 = findViewById(R.id.tmpBtn4);
+        tmpBtn3.setOnClickListener(l -> {
+            for(MetaMotionDevice d : m_deviceList) {
+                MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+                m.stopSensors();
+                m.disconnectBoard();
+                break;
+            }
+        });
+
+        Button tmpBtn5 = findViewById(R.id.tmpBtn5);
+        tmpBtn5.setOnClickListener(l -> {
+            for(MetaMotionDevice d : m_deviceList) {
+                MetaMotionService m = m_boards.getBoard(d.getMacAddr());
+                m.readStepCounter();
+            }
         });
 
         tmpBtn3 = findViewById(R.id.tmpBtn3);

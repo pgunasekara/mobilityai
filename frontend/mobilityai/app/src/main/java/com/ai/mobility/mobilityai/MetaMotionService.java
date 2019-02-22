@@ -53,6 +53,7 @@ public class MetaMotionService {
     private FileOutputStream m_fosA;
 
     private String m_fileName;
+    private int steps = 0;
 
     /**
      * Static handlers for each subscriber to log to a single file set to env[0]
@@ -86,6 +87,17 @@ public class MetaMotionService {
             fos.write(value.getBytes());
         } catch (IOException ex) {
             Log.i("MobilityAI", "Gyroscope Subscriber: Error writing to file:" + ex.toString());
+        }
+    };
+
+    private static Subscriber STEP_DETECTION_HANDLER = (Data data, Object... env) -> {
+        try {
+//            steps++;
+            String value = "";
+            FileOutputStream fos = (FileOutputStream) env[0];
+            fos.write(value.getBytes());
+        } catch(IOException ex) {
+            Log.i("MobilityAI", "Step Subscriber: Error writing to file:" + ex.toString());
         }
     };
 
@@ -155,6 +167,17 @@ public class MetaMotionService {
         }
     }
 
+    public void configureStepCounter() {
+        if(m_board.isConnected() && m_accelerometer != null) {
+            m_accelerometer.stepCounter()
+                    .configure()
+                    .mode(AccelerometerBmi160.StepDetectorMode.NORMAL)
+                    .commit();
+        }
+
+        steps = 0;
+    }
+
     /**
      * Sets the subscriber for the accelerometer to log on device memory
      * @param context The callers context used to create the log file
@@ -188,6 +211,15 @@ public class MetaMotionService {
 
             writeIdFile(context, task, "g");
             return null;
+        });
+    }
+
+    public Task<Route> configureStepCounter(Context context) {
+        return m_accelerometer.stepCounter().addRouteAsync(source -> {
+            source.stream((Data data, Object... env) -> {
+                Log.i(TAG, "Steps: " + steps++);// + data.value(AccelerometerBmi160.StepDetectorDataProducer.class).toString());
+                Log.i(TAG, "RSteps: " + data.value(Integer.class));
+            });
         });
     }
 
@@ -274,6 +306,16 @@ public class MetaMotionService {
         m_accelerometer.stop();
         m_gyroscope.angularVelocity().stop();
         m_gyroscope.stop();
+    }
+
+    public void readStepCounter() {
+        Log.i(TAG, "Read Step Counter");
+        m_accelerometer.stepCounter().read();
+    }
+
+    public void resetStepCounter() {
+        Log.i(TAG, "Resetting step counter");
+        m_accelerometer.stepCounter().reset();
     }
 
     /**
