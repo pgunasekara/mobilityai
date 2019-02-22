@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-
 import { Text, View, ScrollView, TouchableHighlight, StyleSheet, ART } from 'react-native';
-
 const { Group, Shape, Surface } = ART;
 
 import * as d3 from 'd3'
@@ -40,14 +38,14 @@ export default class PatientData extends Component {
             firstName: props.firstName,
             lastName: props.lastName,
             barColour: arrayColours['unknown'],
-            data: [0,0,0,0,0,0,0,0,0,0,0,0,0],
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             date: props.date,
-            movementPercentages: {'sitting': {total: 0, bar: new Array(13)}, 'standing': {total: 0, bar: new Array(13)}, 'lyingDown': {total: 0, bar: new Array(13)}, 'walking': {total: 0, bar: new Array(13)}, 'unknown': {total: 0, bar: new Array(13)}},
+            movementPercentages: { 'sitting': { total: 0, bar: new Array(13) }, 'standing': { total: 0, bar: new Array(13) }, 'lyingDown': { total: 0, bar: new Array(13) }, 'walking': { total: 0, bar: new Array(13) }, 'unknown': { total: 0, bar: new Array(13) } },
         }
     };
 
     _onPressButton(activityColour, newData) {
-        this.setState({ barColour: arrayColours[activityColour]});
+        this.setState({ barColour: arrayColours[activityColour] });
         this.setState({ data: newData });
     };
 
@@ -55,7 +53,7 @@ export default class PatientData extends Component {
         var startDate = this.state.date;
         var endDate = new Date(this.state.date);
 
-        switch(this.props.tabView) {
+        switch (this.props.tabView) {
             case Tabs.daily:
                 endDate = moment(endDate).add(1, 'days').toDate();
                 break;
@@ -65,7 +63,7 @@ export default class PatientData extends Component {
             case Tabs.monthly:
                 endDate = moment(endDate).add(1, 'months').toDate();
                 break;
-            
+
             //TODO: FIX TO GET OVERALL TIME OF THE PATIENT
             case Tabs.overall:
                 endDate = moment(endDate).add(1, 'months').toDate();
@@ -73,7 +71,7 @@ export default class PatientData extends Component {
             default:
                 endDate = moment(endDate).add(1, 'days').toDate();
                 break;
-            
+
         }
 
         console.log("props: " + this.props.tabView + ", " + this.props.date);
@@ -81,20 +79,20 @@ export default class PatientData extends Component {
         
         GetPatientActivities(startDate.getTime(),endDate.getTime(), this.props.id).then((activitiesJson) => {
             if (activitiesJson === undefined) {
-                this.setState({error: 'Error retrieving patient activity data'});
+                this.setState({ error: 'Error retrieving patient activity data' });
             } else {
-                this.setState({movementPercentages: activitiesJson});
-                this.setState({error: null});
-            }            
+                this.setState({ movementPercentages: activitiesJson });
+                this.setState({ error: null });
+            }
         });
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.getPatientData();
     };
 
     setDate(rDate) {
-        this.setState({date: rDate});
+        this.setState({ date: rDate });
         console.log(this.state.date);
         this.getPatientData();
     }
@@ -105,9 +103,9 @@ export default class PatientData extends Component {
                 <ScrollView>
                     <View>
                         <Text style={styles.errorText}>{this.state.error}</Text>
-                        <GetDate 
+                        <GetDate
                             date={this.setDate.bind(this)}
-                            newDate={this.state.date}/>
+                            newDate={this.state.date} />
                     </View>
                 </ScrollView>
             );
@@ -140,7 +138,7 @@ export default class PatientData extends Component {
 
         ];
 
-        const sectionAngles = d3.pie().value(d => d.movement)(userActivities.sort( function (a,b) { return (b.movement - a.movement); }));
+        const sectionAngles = d3.pie().value(d => d.movement)(userActivities.sort(function (a, b) { return (b.movement - a.movement); }));
 
         // Creating the pie chart
         const path = d3.arc()
@@ -152,11 +150,13 @@ export default class PatientData extends Component {
             <ScrollView>
                 <View>
                     <View style={styles.textInline}>
-                        <Text style={styles.center}>Daily User Activity</Text> 
-                        <GetDate 
+                        <Text style={styles.center}>Daily User Activity</Text>
+                        <GetDate
                             date={this.setDate.bind(this)}
                             newDate={this.state.date}
                         />
+                        <View>
+                        </View>
                     </View>
 
                     {/* Displaying the pie chart of all the activities */}

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, Button, StyleSheet, Text, View, Image } from 'react-native';
+import { TouchableHighlight, Button, StyleSheet, Text, View, Image } from 'react-native';
 
 export default class Homescreen extends Component {
   render() {
@@ -11,20 +11,34 @@ export default class Homescreen extends Component {
         <View style={styles.container2}>
           <Image
             style={styles.img}
-            source={{ uri: 'https://raw.githubusercontent.com/pgunasekara/4zp6/master/media/logo_transparent.png'}}
+            source={{ uri: 'https://raw.githubusercontent.com/pgunasekara/4zp6/master/media/logo_transparent.png' }}
           />
+        </View>
+
+        {/* TEMP */}
+        <View >
+          <TouchableHighlight onPress={() => navigate('PatientAchievements', {
+            id: 0,
+            firstName: 'Rebecca',
+            lastName: 'Tran',
+            navigation: this.props.navigation
+          })}>
+            <View>
+              <Text style={styles.regText}>Achievements</Text>
+            </View>
+          </TouchableHighlight>
         </View>
 
         {/* Button redirecting users to Sign Up page */}
         <View style={styles.buttons}>
-          <Button 
+          <Button
             title='Sign Up'
             onPress={() => navigate('SignUp', {})}
             color="#5DACBD"
           />
 
-        {/* Button redirecting users to Sign in page */}
-          <Button 
+          {/* Button redirecting users to Sign in page */}
+          <Button
             title='Sign In'
             onPress={() => navigate('SignIn', {})}
             color="#5DACBD"
