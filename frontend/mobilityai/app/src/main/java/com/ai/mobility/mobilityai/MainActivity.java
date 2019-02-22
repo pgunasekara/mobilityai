@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
