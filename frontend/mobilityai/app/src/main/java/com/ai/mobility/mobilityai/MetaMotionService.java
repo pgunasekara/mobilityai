@@ -282,29 +282,6 @@ public class MetaMotionService {
             assignEnvironmentVariables(context, "id_a_" + m_board.getMacAddress(), m_fosA, "Accelerometer");
             assignEnvironmentVariables(context, "id_g_" + m_board.getMacAddress(), m_fosG, "Gyroscope");
             assignEnvironmentVariables(context, "id_s_" + m_board.getMacAddress(), m_fosS, "Step Counter");
-
-            /*
-            String filename = "id_s_" + m_board.getMacAddress();
-            try {
-                InputStream inputStream = context.openFileInput(filename);
-
-                if(inputStream != null) {
-                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                    String res = bufferedReader.readLine();
-
-                    if(!res.equals("")) {
-                        int routeId = Integer.parseInt(res);
-                        //Set environment for route
-                        Route route = m_board.lookupRoute(routeId);
-                        Log.i(TAG, "Setting Step Detector environment = " + routeId);
-                        route.setEnvironment(0, m_fosS);
-                    }
-                }
-            } catch(IOException e) {
-                Log.i(TAG, "Error reading: " + filename + ". " + e.toString());
-            }*/
-
         } catch (IOException e) { Log.i(TAG, "MetaMotionService::setEnvironment(): " + e.getMessage()); Log.i(TAG, "Probably a new device."); }
     }
 

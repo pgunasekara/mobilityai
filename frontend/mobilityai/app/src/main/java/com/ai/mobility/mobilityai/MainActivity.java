@@ -117,28 +117,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
         });
 
-        MetaMotionService mx = null;
-
-        //Leaving this for now until DevActivity gets completed
-        tmpBtn2 = findViewById(R.id.tmpBtn2);
-        tmpBtn2.setOnClickListener(l -> {
-            for(MetaMotionDevice d : m_deviceList) {
-                //dc all boards
-                connectToBoard(d).continueWithTask(task -> {
-                    MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-                    m.configureStepCounter();
-                    m.configureStepCounterLogging(this).continueWith(task1 -> {
-                        m.startSensors();
-                        Log.i(TAG, "______________ Started sensors");
-                        return null;
-                    });
-
-                    return null;
-                });
-                break;
-            }
-        });
-
         tmpBtn3 = findViewById(R.id.tmpBtn3);
         tmpBtn3.setOnClickListener(l -> {
             Toast.makeText(this, "Start Data Collection", Toast.LENGTH_SHORT).show();
@@ -470,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 //Upload file
                 String filePath = this.getFilesDir() + "/" + m.getFileName();
-//                m_rqueue.add(m.uploadData(filePath, this));
+                m_rqueue.add(m.uploadData(filePath, this));
 
                 //Update Last Sync
                 lastSync.setText("Last Sync: " + Calendar.getInstance().getTime().toString());
