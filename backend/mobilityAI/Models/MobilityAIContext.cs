@@ -44,7 +44,7 @@ namespace mobilityAI.Models
             get; set;
         }
 
-        public DbSet<Achievement> Achievements
+        public DbSet<ActivityGoal> ActivityGoals
         {
             get; set;
         }

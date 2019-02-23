@@ -181,28 +181,30 @@ namespace mobilityAI.Controllers
         /// The number of steps goal that the patient wishes to achieve 
         /// </param>
         /// <param name="activityTime">
-        /// The number of steps goal that the patient wishes to achieve
+        /// The goal for total activity time to move  the patient wishes to achieve
         /// </param>
         /// <returns>
         /// 200 if successful
         /// </returns>
-        [HttpPost("PatientAchievements")]
+        [HttpPost("{patientId}/Achievements")]
         public IActionResult PatientAchievements(int patientId, int steps, int activityTime)
         {
-            Achievement dataQuery = (from a in _context.Achievements
-                                 where (a.Id == patientId)
-                                 select a).SingleOrDefault();
+            ActivityGoal dataQuery = (from a in _context.ActivityGoals
+                                     where (a.Id == patientId)
+                                     select a).SingleOrDefault();
 
             if (dataQuery == null)
             {
-                Achievement data = new Achievement();
+                ActivityGoal data = new ActivityGoal();
 
                 data.Id = patientId;
                 data.Steps = steps;
                 data.ActivityTime = activityTime;
 
-                _context.Achievements.Add(data);
-            } else {
+                _context.ActivityGoals.Add(data);
+            }
+            else
+            {
                 dataQuery.Id = patientId;
                 dataQuery.Steps = steps;
                 dataQuery.ActivityTime = activityTime;
@@ -222,14 +224,18 @@ namespace mobilityAI.Controllers
         /// If the patient does not have any achievement stats, returns -1
         /// If the patient has achievement stats, returns the stats
         /// </returns>
-        [HttpGet("GetPatientAchievements")]
-        public JsonResult GetPatientAchievements(int patientId) {
-            Achievement data = (from a in _context.Achievements
-                       where a.Id == patientId
-                       select a).SingleOrDefault();
+        [HttpGet("{patientId}/Achievements")]
+        public JsonResult GetPatientAchievements(int patientId)
+        {
+            ActivityGoal data = (from a in _context.ActivityGoals
+                                where a.Id == patientId
+                                select a).SingleOrDefault();
 
-            if (data == null) {
-                return new JsonResult(-1);
+            if (data == null)
+            {
+                ActivityGoal a = new ActivityGoal();
+                a.Id = -1;
+                return new JsonResult(a);
             }
 
             return new JsonResult(data);

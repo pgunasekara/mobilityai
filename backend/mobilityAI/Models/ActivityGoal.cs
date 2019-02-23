@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace mobilityAI.Models {
-    public class Achievement {
+    public class ActivityGoal {
         [Key, ForeignKey("Patients")]
         public int Id {
             get; set;
