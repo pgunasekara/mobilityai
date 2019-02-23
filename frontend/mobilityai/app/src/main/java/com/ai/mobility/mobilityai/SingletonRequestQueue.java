@@ -4,12 +4,15 @@ import android.content.Context;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.request.SimpleMultiPartRequest;
 import com.android.volley.toolbox.Volley;
 
 class SingletonRequestQueue {
     private static SingletonRequestQueue m_instance;
     private RequestQueue m_requestQueue;
     private static Context m_ctx;
+
+    private final static String URL = "https://mobilityai.teovoinea.com/api/";
 
     private SingletonRequestQueue(Context ctx) {
         m_ctx = ctx;
@@ -33,4 +36,6 @@ class SingletonRequestQueue {
     public <T> void addToRequestQueue(Request<T> req) {
         getRequestQueue().add(req);
     }
+
+    public static String getUrl() { return URL; }
 }

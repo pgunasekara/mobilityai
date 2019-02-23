@@ -2,7 +2,6 @@ package com.ai.mobility.mobilityai;
 
 import android.content.Context;
 import android.os.Build;
-import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,7 +52,9 @@ public class MetaMotionService {
 
     private FileOutputStream m_fosA, m_fosG, m_fosS;
 
-    private String m_fileName, m_accelerometerFileName, m_gyroscopeFileName, m_stepCounterFileName;
+    private String m_accelerometerFileName;
+    private String m_gyroscopeFileName;
+    private String m_stepCounterFileName;
 
     /**
      * Static handlers for each subscriber to log to a single file set to env[0]
@@ -366,8 +368,12 @@ public class MetaMotionService {
      * @param context Calling context
      * @return
      */
-    public SimpleMultiPartRequest uploadData(String filePath, Context context) {
-        String url = "https://mobilityai.teovoinea.com/api/mobilityai/AddDataSingle";
+    public SimpleMultiPartRequest uploadSensorData(String filePath, Context context) {
+        String url = SingletonRequestQueue.getUrl();
+        String accelerometerFile = filePath + "/" + getAccelerometerFileName();
+        String accelerometerGyroscope = filePath + "/" + getGyroscopeFileName();
+
+
 
         Log.i(TAG, "Starting data upload");
 
@@ -417,15 +423,43 @@ public class MetaMotionService {
         return smr;
     }
 
-    public String getFileName() {
-        return m_fileName;
-    }
-
     public MetaWearBoard getBoard() {
         return m_board;
     }
 
     public Logging getLogging() {
         return m_logging;
+    }
+
+    public String getAccelerometerFileName() { return m_accelerometerFileName; }
+
+    public String getGyroscopeFileName() { return m_gyroscopeFileName; }
+
+    public int getStepCount(Context context) {
+        int steps = 0;
+
+        try {
+            File file = new File(context.getFilesDir(), m_stepCounterFileName);
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            if((line = br.readLine()) != null)
+                steps = Integer.parseInt(line);
+        } catch(IOException e) {
+            Log.i(TAG, "Error getting step count: " + e.toString());
+        }
+
+        return steps;
+    }
+
+    public String getStepCountDate() {
+        int firstIndex = m_stepCounterFileName.indexOf('_');
+        int secondIndex = m_stepCounterFileName.indexOf('_', firstIndex + 1);
+
+        return m_stepCounterFileName.substring(firstIndex+1, secondIndex);
+    }
+
+    //TODO: Get correct patient IDs
+    public int getPatientId() {
+        return 7;
     }
 }
