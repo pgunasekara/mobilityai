@@ -2,7 +2,6 @@ package com.ai.mobility.mobilityai;
 
 import android.content.Context;
 import android.os.Build;
-import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,16 +50,18 @@ public class MetaMotionService {
     private Logging m_logging = null;
     private Settings m_metawearSettings = null;
 
-    private FileOutputStream m_fosA;
+    private FileOutputStream m_fosA, m_fosG, m_fosS;
 
-    private String m_fileName;
+    private String m_accelerometerFileName;
+    private String m_gyroscopeFileName;
+    private String m_stepCounterFileName;
 
     /**
      * Static handlers for each subscriber to log to a single file set to env[0]
      */
     private static Subscriber ACCELEROMETER_HANDLER = (Data data, Object... env) -> {
         try {
-            String value = "a," + data.timestamp().getTimeInMillis() + "," +
+            String value = data.timestamp().getTimeInMillis() + "," +
                     data.formattedTimestamp() + "," +
                     "0" + "," +
                     data.value(Acceleration.class).x() + "," +
@@ -75,7 +77,7 @@ public class MetaMotionService {
 
     private static Subscriber GYROSCOPE_HANDLER = (Data data, Object... env) -> {
         try {
-            String value = "g," + data.timestamp().getTimeInMillis() + "," +
+            String value = data.timestamp().getTimeInMillis() + "," +
                     data.formattedTimestamp() + "," +
                     "0" + "," +
                     data.value(AngularVelocity.class).x() + "," +
@@ -86,6 +88,16 @@ public class MetaMotionService {
             fos.write(value.getBytes());
         } catch (IOException ex) {
             Log.i("MobilityAI", "Gyroscope Subscriber: Error writing to file:" + ex.toString());
+        }
+    };
+
+    private static Subscriber STEP_COUNTING_HANDLER = (Data data, Object... env) -> {
+        try {
+            String value = data.value(Integer.class).toString() + "\n";
+            FileOutputStream fos = (FileOutputStream) env[0];
+            fos.write(value.getBytes());
+        } catch(IOException ex) {
+            Log.i("MobilityAI", "Step Subscriber: Error writing to file:" + ex.toString());
         }
     };
 
@@ -123,7 +135,6 @@ public class MetaMotionService {
     public Task<Route> disconnectBoard() {
         return m_board.disconnectAsync().continueWithTask(task -> {
             Log.i(TAG, "Disconnected: " + m_board.getMacAddress());
-            //Serialize board?
             return null;
         });
     }
@@ -152,6 +163,15 @@ public class MetaMotionService {
                     .commit();
 
             Log.i(TAG, "Gyroscope Configured");
+        }
+    }
+
+    public void configureStepCounter() {
+        if(m_board.isConnected() && m_accelerometer != null) {
+            m_accelerometer.stepCounter()
+                    .configure()
+                    .mode(AccelerometerBmi160.StepDetectorMode.NORMAL)
+                    .commit();
         }
     }
 
@@ -191,6 +211,22 @@ public class MetaMotionService {
         });
     }
 
+    public Task<Route> configureStepCounterLogging(Context context) {
+        return m_accelerometer.stepCounter().addRouteAsync(source -> {
+            source.log(STEP_COUNTING_HANDLER);
+            Log.i(TAG, "Step Counter Subscriber set");
+        }).continueWith((Task<Route> task) -> {
+            if(task.isFaulted()) {
+                Log.i(TAG, "Step Counter task faulted");
+            }
+
+            Log.i(TAG, "Step producer id: " + task.getResult().id());
+
+            writeIdFile(context, task, "s");
+            return null;
+        });
+    }
+
     /**
      * Creates the route ID files - format: id_[ag]_[currentdatetime]
      * @param context The callers context
@@ -206,50 +242,48 @@ public class MetaMotionService {
         } catch (IOException e) { Log.i(TAG, "Error Logging ID: " + e.toString()); }
     }
 
+    private void assignEnvironmentVariables(Context context, String filename, FileOutputStream fos, String type) {
+        try {
+            InputStream inputStream = context.openFileInput(filename);
+
+            if(inputStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String res = bufferedReader.readLine();
+
+                if(!res.equals("")) {
+                    int routeId = Integer.parseInt(res);
+                    //Set environment for route
+                    Route route = m_board.lookupRoute(routeId);
+                    Log.i(TAG, "Setting " + type + " environment = " + routeId);
+                    route.setEnvironment(0, fos);
+                }
+            }
+        } catch(IOException e) {
+            Log.i(TAG, "Error reading: " + filename + ". " + e.toString());
+        }
+    }
+
     /**
      * Sets the subscriber environments in order to log to a single file on device
      * @param context The context used to create the file
      */
     public void setEnvironment(Context context) {
-        Log.i(TAG, "In set environs");
+        Log.i(TAG, "Setting Environment");
         try {
             //Retrieve Log route id
-            Log.i(TAG, "Getting IS");
-            InputStream inputStream = context.openFileInput("id_a_" + m_board.getMacAddress());
-            Log.i(TAG, "got IS");
-            if(inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String datetime = DateFormat.getDateTimeInstance().format(new Date());
+            m_accelerometerFileName = m_board.getMacAddress() + "_" + datetime + "_accelerometer" + ".csv";
+            m_gyroscopeFileName = m_board.getMacAddress() + "_" + datetime + "_gyroscope" + ".csv";
+            m_stepCounterFileName = m_board.getMacAddress() + "_" + datetime + "_steps" + ".csv";
 
-                String res = bufferedReader.readLine();
-                if(!res.equals("")) {
-                    int routeId = Integer.parseInt(res);
-                    //Set env for route
-                    Route accelRoute = m_board.lookupRoute(routeId);
-                    String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                    m_fileName = m_board.getMacAddress() + "_" + datetime + ".csv";
-                    m_fosA = context.openFileOutput(m_fileName, context.MODE_PRIVATE);
-                    Log.i(TAG, "Setting accelerometer environment = " + routeId);
-                    accelRoute.setEnvironment(0, m_fosA);
-                }
-            }
+            m_fosA = context.openFileOutput(m_accelerometerFileName, context.MODE_PRIVATE);
+            m_fosG = context.openFileOutput(m_gyroscopeFileName, context.MODE_PRIVATE);
+            m_fosS = context.openFileOutput(m_stepCounterFileName, context.MODE_PRIVATE);
 
-            InputStream inputStream2 = context.openFileInput("id_g_" + m_board.getMacAddress());
-            if(inputStream2 != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream2);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-                String res = bufferedReader.readLine();
-                if(!res.equals("")) {
-                    int routeId = Integer.parseInt(res);
-                    //Set env for route
-                    Route gyroRoute = m_board.lookupRoute(routeId);
-                    String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                    Log.i(TAG, "Setting gyroscope environment  = " + routeId);
-                    gyroRoute.setEnvironment(0, m_fosA);
-
-                }
-            }
+            assignEnvironmentVariables(context, "id_a_" + m_board.getMacAddress(), m_fosA, "Accelerometer");
+            assignEnvironmentVariables(context, "id_g_" + m_board.getMacAddress(), m_fosG, "Gyroscope");
+            assignEnvironmentVariables(context, "id_s_" + m_board.getMacAddress(), m_fosS, "Step Counter");
         } catch (IOException e) { Log.i(TAG, "MetaMotionService::setEnvironment(): " + e.getMessage()); Log.i(TAG, "Probably a new device."); }
     }
 
@@ -274,6 +308,16 @@ public class MetaMotionService {
         m_accelerometer.stop();
         m_gyroscope.angularVelocity().stop();
         m_gyroscope.stop();
+    }
+
+    public void readStepCounter() {
+        Log.i(TAG, "Read Step Counter");
+        m_accelerometer.stepCounter().read();
+    }
+
+    public void resetStepCounter() {
+        Log.i(TAG, "Resetting step counter");
+        m_accelerometer.stepCounter().reset();
     }
 
     /**
@@ -324,8 +368,12 @@ public class MetaMotionService {
      * @param context Calling context
      * @return
      */
-    public SimpleMultiPartRequest uploadData(String filePath, Context context) {
-        String url = "https://mobilityai.teovoinea.com/api/mobilityai/AddDataSingle";
+    public SimpleMultiPartRequest uploadSensorData(String filePath, Context context) {
+        String url = SingletonRequestQueue.getUrl();
+        String accelerometerFile = filePath + "/" + getAccelerometerFileName();
+        String accelerometerGyroscope = filePath + "/" + getGyroscopeFileName();
+
+
 
         Log.i(TAG, "Starting data upload");
 
@@ -375,15 +423,43 @@ public class MetaMotionService {
         return smr;
     }
 
-    public String getFileName() {
-        return m_fileName;
-    }
-
     public MetaWearBoard getBoard() {
         return m_board;
     }
 
     public Logging getLogging() {
         return m_logging;
+    }
+
+    public String getAccelerometerFileName() { return m_accelerometerFileName; }
+
+    public String getGyroscopeFileName() { return m_gyroscopeFileName; }
+
+    public int getStepCount(Context context) {
+        int steps = 0;
+
+        try {
+            File file = new File(context.getFilesDir(), m_stepCounterFileName);
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            if((line = br.readLine()) != null)
+                steps = Integer.parseInt(line);
+        } catch(IOException e) {
+            Log.i(TAG, "Error getting step count: " + e.toString());
+        }
+
+        return steps;
+    }
+
+    public String getStepCountDate() {
+        int firstIndex = m_stepCounterFileName.indexOf('_');
+        int secondIndex = m_stepCounterFileName.indexOf('_', firstIndex + 1);
+
+        return m_stepCounterFileName.substring(firstIndex+1, secondIndex);
+    }
+
+    //TODO: Get correct patient IDs
+    public int getPatientId() {
+        return 7;
     }
 }

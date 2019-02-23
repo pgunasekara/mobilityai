@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, ScrollView, StyleSheet, Text, View, TextInput } from 'react-native';
 import { Input, Icon } from 'react-native-elements'
+import { GetPatientAchievements, AddPatientAchievements } from '../Lib/Api';
 
 export default class SignIn extends React.Component {
     static navigationOptions = ({ navigation }) => {
@@ -10,7 +11,7 @@ export default class SignIn extends React.Component {
 
         if(lname.substring(lname.length - 1) != 's') { t += 's'}
         t += ' Profile'
-        
+
         return {
             title: t,
         };
@@ -22,7 +23,23 @@ export default class SignIn extends React.Component {
             id: props.id,
             firstName: props.firstName,
             lastName: props.lastName,
+            steps: 0,
+            activeTime: 0,
         }
+    }
+
+    componentDidMount() {
+        GetPatientAchievements(this.props.id).then((achievementsJson) => {
+            this.setState({ steps: achievementsJson.steps });
+            this.setState({ activityGoal: achievementsJson.activityTime });
+        });
+
+        // this.setState({ steps: 10 });
+        // this.setState({ activityGoal: 10 });
+    };
+
+    saveAchievements() {
+        AddPatientAchievements(this.props.id, this.state.steps, this.state.activityGoal);
     }
 
     render() {
@@ -43,18 +60,19 @@ export default class SignIn extends React.Component {
                             <TextInput
                                 style={styles.inputBox}
                                 keyboardType='numeric'
-                                onChangeText={(steps) => this.setState({ steps })}
-                                value={this.state.steps}
+                                onChangeText={(steps) => this.setState({ steps: steps })}
+                                defaultValue={this.state.steps.toString()}
                                 placeholder='Steps'
                             />
+                            
                         </View>
                         <View>
-                            <Text>Active Time</Text>
+                            <Text>Active Time/Hour</Text>
                             <TextInput
                                 style={styles.inputBox}
                                 keyboardType='numeric'
-                                onChangeText={(activeTime) => this.setState({ activeTime })}
-                                value={this.state.activeTime}
+                                onChangeText={(activeTime) => this.setState({ activeTime: activeTime })}
+                                defaultValue={this.state.activeTime.toString()}
                                 placeholder='Active Time'
                             />
                         </View>
@@ -63,7 +81,7 @@ export default class SignIn extends React.Component {
                 <View style={styles.saveBtn}>
                     <Button
                         title='Save'
-                        onPress={() => alert('saved')}
+                        onPress={() => saveAchievements.bind(this)}
                         color="#5DACBD"
                     />
                 </View>

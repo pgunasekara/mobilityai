@@ -11,6 +11,8 @@ import PatientForm from './App/Screens/NewPatientForm';
 import SignUp from './App/Screens/SignUpForm';
 import SignIn from './App/Screens/SignInForm';
 
+import PatientDataContainer from './App/Screens/PatientDataContainer';
+
 
 const AppNavigator = createStackNavigator({
   Home: {screen: Homescreen},

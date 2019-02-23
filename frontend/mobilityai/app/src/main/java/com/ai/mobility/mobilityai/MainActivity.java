@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private Random r = new Random();
     private Button tmpBtn, tmpBtn2, tmpBtn3;
 
-    RequestQueue m_rqueue;
+    SingletonRequestQueue m_rqueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        m_rqueue = Volley.newRequestQueue(this);
+//        m_rqueue = Volley.newRequestQueue(this);
+        m_rqueue = SingletonRequestQueue.getInstance(this);
 
         //Temporary buttons to start and stop logging manually
         tmpBtn = findViewById(R.id.tmpBtn);
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 //Deserialize, set environment, stop sensors, get logging data
                 currTask = currTask.continueWithTask(task -> {
-                    Log.i(TAG, "HERE1");
+                    Log.i(TAG, "Starting data collection");
                     return collectData(d);
                 }).continueWithTask(task -> {
                     m_boards.getBoard(d.getMacAddr()).disconnectBoard();
@@ -115,20 +116,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 //TODO: Handle multiple boards
                 break;
             }
-        });
-
-        //Leaving this for now until DevActivity gets completed
-        tmpBtn2 = findViewById(R.id.tmpBtn2);
-        tmpBtn2.setOnClickListener(l -> {
-            /*for(MetaMotionDevice d : m_deviceList) {
-                //dc all boards
-                connectToBoard(d).continueWithTask(task -> {
-                    MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-                    m.streamGyro();
-                    return null;
-                });
-                break;
-            }*/
         });
 
         tmpBtn3 = findViewById(R.id.tmpBtn3);
@@ -431,6 +418,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private Task<Route> collectData(MetaMotionDevice d) {
         MetaMotionService m = m_boards.getBoard(d.getMacAddr());
 
+        m.readStepCounter();
         m.stopSensors();
         m.stopLogging();
 
@@ -459,9 +447,26 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 Log.i(TAG, "Log Location: " + this.getFilesDir().getAbsolutePath());
 
-                //Upload file
-                String filePath = this.getFilesDir() + "/" + m.getFileName();
-                m_rqueue.add(m.uploadData(filePath, this));
+                //Upload files
+                String filePath = this.getFilesDir().toString();
+                m_rqueue.addToRequestQueue(WebRequest.getInstance().uploadSensorData(
+                        this,
+                        8,
+                        filePath,
+                        m.getAccelerometerFileName(),
+                        m.getGyroscopeFileName()
+                ));
+
+                //Upload step counts
+                m_rqueue.addToRequestQueue(WebRequest
+                        .getInstance()
+                        .uploadStepCount(
+                                this,
+                                m.getPatientId(),
+                                m.getStepCount(this),
+                                m.getStepCountDate()
+                        )
+                );
 
                 //Update Last Sync
                 lastSync.setText("Last Sync: " + Calendar.getInstance().getTime().toString());
@@ -488,12 +493,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         //Reconfigure sensors
         m.configureAccelerometer();
         m.configureGyroscope();
+        m.configureStepCounter();
 
         //Configure logging environments
-        Task<Route> result = m.configureGyroscopeLogging(this);
+        Task<Route> result = m.configureStepCounterLogging(this);
+        result = result.continueWithTask(task -> { return m.configureGyroscopeLogging(this);     });
         result = result.continueWithTask(task -> { return m.configureAccelerometerLogging(this); });
         return result.continueWith(task -> {
             m.startSensors();
+            m.resetStepCounter();
             //Serialize board state before logging starts
             m.serializeBoard(this.getFilesDir());
 

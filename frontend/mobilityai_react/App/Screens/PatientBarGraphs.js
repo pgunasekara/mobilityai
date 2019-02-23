@@ -33,6 +33,7 @@ export default class BarGraph extends Component {
                             yMax={60}
                         >
                             <Grid />
+                            <View style={[styles.hr, {bottom: this.props.activityTime}]}/>
                         </BarChart>
                         <XAxis
                             style={{ marginHorizontal: -10 }}
@@ -57,4 +58,10 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginRight: 10,
     },
+
+    hr: {
+        borderBottomColor: 'black',
+        borderBottomWidth: 1,
+        bottom: 30,
+    }
 });
