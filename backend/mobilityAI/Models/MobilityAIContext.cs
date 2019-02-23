@@ -43,6 +43,11 @@ namespace mobilityAI.Models
         {
             get; set;
         }
+
+        public DbSet<ActivityGoal> ActivityGoals
+        {
+            get; set;
+        }
         public DbSet<Condition> Conditions
         {
             get; set;
