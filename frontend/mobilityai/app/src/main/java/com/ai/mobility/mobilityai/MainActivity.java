@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private Random r = new Random();
     private Button tmpBtn, tmpBtn2, tmpBtn3;
 
-    RequestQueue m_rqueue;
+    SingletonRequestQueue m_rqueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        m_rqueue = Volley.newRequestQueue(this);
+//        m_rqueue = Volley.newRequestQueue(this);
+        m_rqueue = SingletonRequestQueue.getInstance(this);
 
         //Temporary buttons to start and stop logging manually
         tmpBtn = findViewById(R.id.tmpBtn);
@@ -446,9 +447,26 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 Log.i(TAG, "Log Location: " + this.getFilesDir().getAbsolutePath());
 
-                //Upload file
-                String filePath = this.getFilesDir() + "/" + m.getFileName();
-                m_rqueue.add(m.uploadData(filePath, this));
+                //Upload files
+                String filePath = this.getFilesDir().toString();
+                m_rqueue.addToRequestQueue(WebRequest.getInstance().uploadSensorData(
+                        this,
+                        8,
+                        filePath,
+                        m.getAccelerometerFileName(),
+                        m.getGyroscopeFileName()
+                ));
+
+                //Upload step counts
+                m_rqueue.addToRequestQueue(WebRequest
+                        .getInstance()
+                        .uploadStepCount(
+                                this,
+                                m.getPatientId(),
+                                m.getStepCount(this),
+                                m.getStepCountDate()
+                        )
+                );
 
                 //Update Last Sync
                 lastSync.setText("Last Sync: " + Calendar.getInstance().getTime().toString());
