@@ -431,25 +431,19 @@ public class MetaMotionService {
         return m_logging;
     }
 
-    public String getAccelerometerFileName() {
-        return m_accelerometerFileName;
-    }
+    public String getAccelerometerFileName() { return m_accelerometerFileName; }
 
-    public String getGyroscopeFileName() {
-        return m_gyroscopeFileName;
-    }
+    public String getGyroscopeFileName() { return m_gyroscopeFileName; }
 
     public int getStepCount(Context context) {
         int steps = 0;
 
         try {
             File file = new File(context.getFilesDir(), m_stepCounterFileName);
-
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
-            if((line = br.readLine()) != null) {
+            if((line = br.readLine()) != null)
                 steps = Integer.parseInt(line);
-            }
         } catch(IOException e) {
             Log.i(TAG, "Error getting step count: " + e.toString());
         }
