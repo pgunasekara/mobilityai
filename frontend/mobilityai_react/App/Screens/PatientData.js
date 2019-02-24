@@ -9,7 +9,7 @@ import GetDate from './GetDate.js';
 import Circle from './PatientCircles';
 import BarGraph from './PatientBarGraphs';
 
-import { GetPatientActivities } from '../Lib/Api';
+import { GetPatientActivities, GetPatientAchievements } from '../Lib/Api';
 import moment from 'moment';
 
 //TODO: Remove temporary data once we get proper data from the server
@@ -24,8 +24,8 @@ var arrayColours = {
 };
 
 const Tabs = {
-    daily: 0, 
-    weekly: 1, 
+    daily: 0,
+    weekly: 1,
     monthly: 2,
     overall: 3,
 };
@@ -43,7 +43,7 @@ export default class PatientData extends Component {
             stepGoal: 0,
             data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             date: props.date,
-            movementPercentages: {'sitting': {total: 0, bar: new Array(13)}, 'standing': {total: 0, bar: new Array(13)}, 'lyingDown': {total: 0, bar: new Array(13)}, 'walking': {total: 0, bar: new Array(13)}, 'unknown': {total: 0, bar: new Array(13)}},
+            movementPercentages: { 'sitting': { total: 0, bar: new Array(13) }, 'standing': { total: 0, bar: new Array(13) }, 'lyingDown': { total: 0, bar: new Array(13) }, 'walking': { total: 0, bar: new Array(13) }, 'unknown': { total: 0, bar: new Array(13) } },
         }
     };
 
@@ -56,17 +56,17 @@ export default class PatientData extends Component {
         var startDate = this.state.date;
         var endDate = new Date(this.state.date);
 
-        switch(this.props.tabView) {
+        switch (this.props.tabView) {
             case Tabs.daily:
                 endDate = moment(endDate).add(1, 'days').toDate();
                 break;
-            case Tabs.weekly: 
+            case Tabs.weekly:
                 endDate = moment(endDate).add(1, 'weeks').toDate();
                 break;
             case Tabs.monthly:
                 endDate = moment(endDate).add(1, 'months').toDate();
                 break;
-            
+
             //TODO: FIX TO GET OVERALL TIME OF THE PATIENT
             case Tabs.overall:
                 endDate = moment(endDate).add(1, 'months').toDate();
@@ -74,19 +74,19 @@ export default class PatientData extends Component {
             default:
                 endDate = moment(endDate).add(1, 'days').toDate();
                 break;
-            
+
         }
 
         console.log("props: " + this.props.tabView + ", " + this.props.date);
         console.log('endDate: ' + endDate);
-        
-        GetPatientActivities(startDate.getTime(),endDate.getTime(), this.props.id).then((activitiesJson) => {
+
+        GetPatientActivities(startDate.getTime(), endDate.getTime(), this.props.id).then((activitiesJson) => {
             if (activitiesJson === undefined) {
-                this.setState({error: 'Error retrieving patient activity data'});
+                this.setState({ error: 'Error retrieving patient activity data, please select a date' });
             } else {
-                this.setState({movementPercentages: activitiesJson});
-                this.setState({error: null});
-            }            
+                this.setState({ movementPercentages: activitiesJson });
+                this.setState({ error: null });
+            }
         });
 
         GetPatientAchievements(this.props.id).then((achievementsJson) => {
@@ -97,19 +97,19 @@ export default class PatientData extends Component {
                 actTime = achievementsJson.activityTime;
                 actTime = ((actTime / 60) * 138) + 30;
 
-                this.setState({activityTime: actTime});
-                this.setState({stepGoal: achievementsJson.steps});
+                this.setState({ activityTime: actTime });
+                this.setState({ stepGoal: achievementsJson.steps });
             }
-            
+
         });
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.getPatientData();
     };
 
     setDate(rDate) {
-        this.setState({date: rDate});
+        this.setState({ date: rDate });
         console.log(this.state.date);
         this.getPatientData();
     }
@@ -117,14 +117,20 @@ export default class PatientData extends Component {
     render() {
         if (this.state.error) {
             return (
+                // <ScrollView>
+                // {/* <View style={[styles.center, styles.widthSize, {flexDirection: 'column'}]}> */}
                 <ScrollView>
                     <View>
                         <Text style={styles.errorText}>{this.state.error}</Text>
-                        <GetDate 
-                            date={this.setDate.bind(this)}
-                            newDate={this.state.date}/>
+                        <View style={[styles.center, styles.widthSize]}>
+                            <GetDate
+                                date={this.setDate.bind(this)}
+                                newDate={this.state.date}
+                            />
+                        </View>
                     </View>
                 </ScrollView>
+                // </ScrollView>
             );
         }
 
@@ -167,8 +173,10 @@ export default class PatientData extends Component {
             <ScrollView>
                 <View>
                     <View style={styles.textInline}>
-                        <Text style={styles.center}>Daily User Activity</Text> 
-                        <GetDate 
+                        <Text style={[styles.flexDir, styles.tabInfo]}>
+                            {this.props.tabTitle}
+                        </Text>
+                        <GetDate
                             date={this.setDate.bind(this)}
                             newDate={this.state.date}
                         />
@@ -217,9 +225,9 @@ export default class PatientData extends Component {
                     </View>
 
                     <View>
-                        <BarGraph 
-                            color={this.state.barColour} 
-                            data={this.state.data} 
+                        <BarGraph
+                            color={this.state.barColour}
+                            data={this.state.data}
                             activityTime={this.state.activityTime}
                         />
                     </View>
@@ -233,7 +241,9 @@ export default class PatientData extends Component {
 const styles = StyleSheet.create({
     errorText: {
         fontWeight: 'bold',
-        color: 'red'
+        color: 'red',
+        textAlign: 'center',
+        marginBottom: 100,
     },
     circle: {
         width: 60,
@@ -256,6 +266,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
 
+    center2: {
+        flex: 1,
+        alignItems: 'stretch',
+        justifyContent: 'center'
+    },
+
     titleFont: {
         fontSize: 35,
         textAlign: 'center',
@@ -265,6 +281,18 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between'
+    },
+
+    widthSize: {
+        width: 200,
+        marginTop: 150,
+    },
+
+    tabInfo: {
+        color: 'black',
+        fontSize: 15,
+        marginLeft: 10,
+        marginTop: 10,
     }
 
 });

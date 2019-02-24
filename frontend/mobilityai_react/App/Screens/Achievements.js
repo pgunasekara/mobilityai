@@ -1,15 +1,17 @@
 import React from 'react';
-import { Button, ScrollView, StyleSheet, Text, View, TextInput } from 'react-native';
+import { TouchableOpacity, Button, ScrollView, StyleSheet, Text, View, TextInput } from 'react-native';
 import { Input, Icon } from 'react-native-elements'
 import { GetPatientAchievements, AddPatientAchievements } from '../Lib/Api';
 
-export default class SignIn extends React.Component {
+export default class PatientAchievements extends React.Component {
     static navigationOptions = ({ navigation }) => {
         var fname = navigation.getParam('firstName');
         var lname = navigation.getParam('lastName');
         var t = fname + " " + lname + '\'';
 
-        if(lname.substring(lname.length - 1) != 's') { t += 's'}
+        if (lname.substring(lname.length - 1) != 's') {
+            t += 's'
+        }
         t += ' Profile'
 
         return {
@@ -33,19 +35,14 @@ export default class SignIn extends React.Component {
             this.setState({ steps: achievementsJson.steps });
             this.setState({ activityGoal: achievementsJson.activityTime });
         });
-
-        // this.setState({ steps: 10 });
-        // this.setState({ activityGoal: 10 });
     };
 
     saveAchievements() {
-        AddPatientAchievements(this.props.id, this.state.steps, this.state.activityGoal);
+        // AddPatientAchievements(this.props.id, this.state.steps, this.state.activityGoal);
+        alert("Saved");
     }
 
     render() {
-        // const { navigation } = this.props;
-        // navigation.getParam('firstName') + " " + navigation.getParam('lastName');
-
         return (
             // <ScrollView>
             <View style={styles.container}>
@@ -64,7 +61,7 @@ export default class SignIn extends React.Component {
                                 defaultValue={this.state.steps.toString()}
                                 placeholder='Steps'
                             />
-                            
+
                         </View>
                         <View>
                             <Text>Active Time/Hour</Text>
@@ -81,7 +78,8 @@ export default class SignIn extends React.Component {
                 <View style={styles.saveBtn}>
                     <Button
                         title='Save'
-                        onPress={() => saveAchievements.bind(this)}
+                        // onPress={() => saveAchievements.bind(this)}
+                        onPress={() => alert('Saved!!')}
                         color="#5DACBD"
                     />
                 </View>
@@ -126,5 +124,5 @@ const styles = StyleSheet.create({
         fontSize: 20,
         padding: 10,
         color: "#5DACBD",
-    },  
+    },
 });
