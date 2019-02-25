@@ -35,7 +35,11 @@ export default class GetDate extends Component {
     render() {
         return (
             <View style={{ flex: 1 }}>
-                <Button onPress={this._showDateTimePicker} title={moment(this.state.date).format('MMMM Do YYYY')}>
+                <Button 
+                    onPress={this._showDateTimePicker} 
+                    title={moment(this.state.date).format('MMMM Do YYYY')}
+                    color="#5DACBD"    
+                >
                 </Button>
                 <DateTimePicker
                     isVisible={this.state.isDateTimePickerVisible}

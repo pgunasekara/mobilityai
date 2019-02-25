@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Platform, TouchableHighlight, Button, StyleSheet, Text, View } from 'react-native';
+import { TextInput, ScrollView, Platform, TouchableHighlight, Button, StyleSheet, Text, View } from 'react-native';
 import { Input, Icon } from 'react-native-elements'
 
 export default class SignIn extends React.Component {
@@ -33,55 +33,60 @@ export default class SignIn extends React.Component {
                     <Text style={styles.regText}>Sign in below to access your account</Text>
 
                     {/* Generating the sign in form */}
-                    <View style={styles.container}>
-                        <View style={[styles.formStyle, styles.formBorder]}>
-                            <Input
-                                onChangeText={(email) => this.setState({ email })}
-                                value={this.state.email}
-                                placeholder='Email'
-                                leftIcon={
-                                    <Icon
-                                        name='email'
-                                        size={24}
-                                    />
-                                }
-                            />
-                            <Input
-                                onChangeText={(password) => this.setState({ password })}
-                                value={this.state.password}
-                                placeholder='Password'
-                                leftIcon={
-                                    <Icon
+                    <View style={styles.containerBorder}>
+                        <View style={styles.container}>
+                            <View style={[styles.formStyle, styles.formBorder]}>
+                                <Text>Email</Text>
+                                <TextInput
+                                    onChangeText={(email) => this.setState({ email })}
+                                    value={this.state.email}
+                                    placeholder='Email'
+                                    underlineColorAndroid = "black"
+                                    leftIcon={
+                                        <Icon
+                                            name='email'
+                                            size={24}
+                                        />
+                                    }
+                                />
+                                <Text>Password</Text>
+                                <TextInput
+                                    onChangeText={(password) => this.setState({ password })}
+                                    value={this.state.password}
+                                    placeholder='Password'
+                                    underlineColorAndroid = "black"
+                                    leftIcon={
+                                        <Icon
 
-                                        name='lock'
-                                        size={24}
-                                        type={'font-awesome'}
-                                    />
-                                }
-                                password={true}
-                                secureTextEntry={true}
+                                            name='lock'
+                                            size={24}
+                                            type={'font-awesome'}
+                                        />
+                                    }
+                                    password={true}
+                                    secureTextEntry={true}
+                                />
+                            </View>
+                        </View>
+
+                        {/* Button to navigate after signing in */}
+                        <View style={[styles.formBorder, styles.btn]}>
+                            <Button
+                                title='Sign In'
+                                onPress={() => navigate('PatientList', {})}
+                                color="#5DACBD"
                             />
                         </View>
-                    </View>
 
-                    {/* Button to navigate after signing in */}
-                    <View style={[styles.formBorder, styles.btn]}>
-                        <Button
-                            title='Sign In'
-                            onPress={() => navigate('PatientList', {})}
-                            color="#5DACBD"
-                        />
+                        {/* Redirect users to sign up form, if they do not have an existing account */}
+                        <View >
+                            <TouchableHighlight onPress={() => navigate('SignUp', {})}>
+                                <View>
+                                    <Text style={styles.regText}>Don't have an account? <Text style={styles.boldText}>Sign up</Text></Text>
+                                </View>
+                            </TouchableHighlight>
+                        </View>
                     </View>
-
-                    {/* Redirect users to sign up form, if they do not have an existing account */}
-                    <View >
-                        <TouchableHighlight onPress={() => navigate('SignUp', {})}>
-                            <View>
-                                <Text style={styles.regText}>Don't have an account? <Text style={styles.boldText}>Sign up</Text></Text>
-                            </View>
-                        </TouchableHighlight>
-                    </View>
-
                 </View>
             </ScrollView>
         );
@@ -93,6 +98,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+
+    containerBorder: {
+        borderColor: '#5DACBD',
+        borderWidth: 4,
+        borderRadius: 10,
+        margin: 5,
     },
 
     formStyle: {

@@ -1,25 +1,71 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import Swiper from 'react-native-swiper';
+import { Icon } from 'react-native-elements'
 
 import PatientData from './PatientData';
 
-
 export default class PatientDataContainer extends Component {
-    static navigationOptions = ({ navigation }) => {
-        return {
-          title: navigation.getParam('firstName') + " " + navigation.getParam('lastName'),
-        };
-    };
-
     constructor(props) {
         super(props);
     };
 
+    static navigationOptions = ({ navigation }) => {
+        var id = navigation.getParam('id');
+        var firstName = navigation.getParam('firstName');
+        var lastName = navigation.getParam('lastName');
+        return {
+            title: firstName + ' ' + lastName,
+            headerRight: (
+                // TODO: Hook up date picker to this button instead of button below
+                <View style={styles.center}>
+                    <View style={[styles.shift]}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                navigation.navigate('PatientAchievements', {
+                                    id: id,
+                                    firstName: firstName,
+                                    lastName: lastName,
+                                    navigation: navigation
+                                })
+                            }}
+                        >
+                            <Icon
+                                name='calendar'
+                                size={30}
+                                type='font-awesome'
+                                color='black'
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{paddingRight: 10}}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                navigation.navigate('PatientAchievements', {
+                                    id: id,
+                                    firstName: firstName,
+                                    lastName: lastName,
+                                    navigation: navigation
+                                })
+                            }}
+                        >
+                            <Icon
+                                name='trophy'
+                                size={30}
+                                type='font-awesome'
+                                color='black'
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )
+        };
+    };
+
     render() {
-        const { navigation }= this.props;
+        const navigation = this.props.navigation;
         return (
-            
             <Swiper>
                 <View>
                     <PatientData
@@ -28,6 +74,7 @@ export default class PatientDataContainer extends Component {
                         lastName={this.props.lastName}
                         date={new Date()}
                         tabView={0}
+                        tabTitle='Daily Patient Activity'                       
                     />
                 </View>
                 <View>
@@ -37,7 +84,8 @@ export default class PatientDataContainer extends Component {
                         lastName={this.props.lastName}
                         date={new Date()}
                         tabView={1}
-                    />               
+                        tabTitle='Weekly Patient Activity'
+                    />
                 </View>
                 <View>
                     <PatientData
@@ -46,7 +94,8 @@ export default class PatientDataContainer extends Component {
                         lastName={this.props.lastName}
                         date={new Date()}
                         tabView={2}
-                    />                
+                        tabTitle='Monthly Patient Activity'
+                    />
                 </View>
                 <View>
                     <PatientData
@@ -55,9 +104,25 @@ export default class PatientDataContainer extends Component {
                         lastName={this.props.lastName}
                         date={new Date()}
                         tabView={3}
-                    />                
+                        tabTitle='Overall Patient Activity'
+                    />
                 </View>
             </Swiper>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    center: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    menu: {
+        paddingRight: 50,
+    },
+    shift: {
+        marginRight: 20,
+    },
+});
