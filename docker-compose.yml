@@ -1,0 +1,18 @@
+version: "3"
+services:
+  web:
+    build: "backend/mobilityAI/"
+    ports: 
+      - "5000:5000"
+    depends_on:
+      - db
+      - ml
+  ml:
+    build: "machine_learning/"
+    ports:
+      - "6000:6000"
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
