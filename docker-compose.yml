@@ -3,7 +3,7 @@ services:
   web:
     build: "backend/mobilityAI/"
     ports: 
-      - "5000:5000"
+      - "80:80"
     depends_on:
       - db
       - ml
