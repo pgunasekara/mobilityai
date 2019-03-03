@@ -19,26 +19,6 @@ export default class PatientDataContainer extends Component {
             headerRight: (
                 // TODO: Hook up date picker to this button instead of button below
                 <View style={styles.center}>
-                    <View style={[styles.shift]}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                navigation.navigate('PatientAchievements', {
-                                    id: id,
-                                    firstName: firstName,
-                                    lastName: lastName,
-                                    navigation: navigation
-                                })
-                            }}
-                        >
-                            <Icon
-                                name='calendar'
-                                size={30}
-                                type='font-awesome'
-                                color='black'
-                            />
-                        </TouchableOpacity>
-                    </View>
-
                     <View style={{paddingRight: 10}}>
                         <TouchableOpacity
                             onPress={() => {

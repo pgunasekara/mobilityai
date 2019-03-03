@@ -44,6 +44,7 @@ export default class PatientData extends Component {
             data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             date: props.date,
             movementPercentages: { 'sitting': { total: 0, bar: new Array(13) }, 'standing': { total: 0, bar: new Array(13) }, 'lyingDown': { total: 0, bar: new Array(13) }, 'walking': { total: 0, bar: new Array(13) }, 'unknown': { total: 0, bar: new Array(13) } },
+            steps: this.getRandomInt(300, 1500),
         }
     };
 
@@ -51,6 +52,12 @@ export default class PatientData extends Component {
         this.setState({ barColour: arrayColours[activityColour] });
         this.setState({ data: newData });
     };
+
+    getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
     getPatientData() {
         var startDate = this.state.date;
@@ -184,6 +191,10 @@ export default class PatientData extends Component {
 
                     {/* Displaying the pie chart of all the activities */}
                     <View style={styles.center}>
+                        <View style={styles.stepsContainer}>
+                            <Text style={styles.stepsText}>{this.state.steps}</Text>
+                            <Text style={{textAlign: 'center'}}>Steps</Text>
+                        </View>
                         <Surface width={width} height={height}>
                             <Group x={width / 2} y={height / 2}>
                                 {
@@ -244,6 +255,13 @@ const styles = StyleSheet.create({
         color: 'red',
         textAlign: 'center',
         marginBottom: 100,
+    },
+    stepsContainer: {
+        position: 'absolute',
+    },
+    stepsText: {  
+        fontSize: 30,
+        fontWeight: 'bold',
     },
     circle: {
         width: 60,
