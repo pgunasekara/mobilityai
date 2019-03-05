@@ -9,7 +9,7 @@ def main():
     old_accel = pd.read_csv('./training_sets/untagged_sets/new-7-roberto-dec11_MetaWear_2018-12-11T17.00.45.816_D18711D8F3C0_Accelerometer_25.000Hz_1.4.4.csv')
     old_gyro = pd.read_csv('./training_sets/untagged_sets/new-7-roberto-dec11_MetaWear_2018-12-11T17.00.45.816_D18711D8F3C0_Gyroscope_25.000Hz_1.4.4.csv')
 
-    new_starting_time = 1550308889000 #feb 16, 9AM
+    new_starting_time = 1550390444700 #feb 16, 9AM
     old_accel_starting_time = old_accel.iloc[0]['epoch (ms)']
     old_gyro_starting_time = old_gyro.iloc[0]['epoch (ms)']
 
@@ -18,7 +18,7 @@ def main():
 
     upload_count = 0
 
-    while new_starting_time < 1550316089000: #feb 16, 11AM
+    while new_starting_time < 1550525642000: #feb 16, 11AM
         print("currently uploading file: " + str(upload_count))
         accel_diff_time = new_starting_time - old_accel_starting_time
         gyro_diff_time = new_starting_time - old_gyro_starting_time
