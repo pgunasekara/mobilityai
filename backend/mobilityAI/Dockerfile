@@ -6,8 +6,6 @@ WORKDIR /app
 COPY *.csproj ./
 RUN dotnet restore
 
-EXPOSE 80
-
 # Copy everything else and build
 COPY . ./
 RUN dotnet publish -c Release -o out
@@ -16,4 +14,7 @@ RUN dotnet publish -c Release -o out
 FROM microsoft/dotnet:aspnetcore-runtime
 WORKDIR /app
 COPY --from=build-env /app/out .
+
+EXPOSE 5000
+
 ENTRYPOINT ["dotnet", "mobilityAI.dll"]

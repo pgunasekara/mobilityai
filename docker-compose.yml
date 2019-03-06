@@ -1,18 +1,31 @@
 version: "3"
 services:
   web:
-    build: "backend/mobilityAI/"
+    build: "./backend/mobilityAI"
     ports: 
-      - "80:80"
+      - "5000:5000"
     depends_on:
       - db
       - ml
+    networks:
+      - mobilityai-network
   ml:
-    build: "machine_learning/"
+    build: "./machine_learning"
+    networks:
+      - mobilityai-network
     ports:
       - "6000:6000"
   db:
     image: postgres
+    ports: 
+      - "5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "SensorDatabase"
+    networks:
+      - mobilityai-network
+
+networks:
+  mobilityai-network:
+    driver: bridge
