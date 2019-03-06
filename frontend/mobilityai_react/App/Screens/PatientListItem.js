@@ -27,7 +27,8 @@ export default class PatientListItem extends Component {
                             {
                                 id: this.state.id,
                                 firstName: this.state.firstName,
-                                lastName: this.state.lastName
+                                lastName: this.state.lastName,
+                                navigation: this.props.navigation
                             }
                     );}}
                     underlayColor="rgba(0, 0, 0, 0.1)"

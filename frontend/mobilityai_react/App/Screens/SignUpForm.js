@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, ScrollView, Platform, TouchableHighlight, Button, StyleSheet, Text, View, FlatList } from 'react-native';
+import { TextInput, Alert, ScrollView, Platform, TouchableHighlight, Button, StyleSheet, Text, View, FlatList } from 'react-native';
 import { Input, Icon } from 'react-native-elements'
 
 // import { UserSignUp } from '../Lib/Api';
@@ -42,79 +42,88 @@ export default class SignUp extends React.Component {
                     <Text style={styles.regText}>Sign up below and create your account</Text>
 
                     {/* Generating the sign up form */}
-                    <View style={styles.container}>
-                        <View style={[styles.formStyle, styles.formBorder]}>
-                            <Input
-                                onChangeText={(email) => this.setState({ email })}
-                                value={this.state.email}
-                                placeholder='Email'
-                                leftIcon={
-                                    <Icon
-                                        name='email'
-                                        size={24}
-                                    />
-                                }
-                            />
-                            <Input
-                                onChangeText={(firstName) => this.setState({ firstName })}
-                                value={this.state.firstName}
-                                placeholder='First Name'
-                                leftIcon={
-                                    <Icon
-                                        name='user-circle'
-                                        size={24}
-                                        type={'font-awesome'}
-                                    />
-                                }
-                            />
-                            <Input
-                                onChangeText={(lastName) => this.setState({ lastName })}
-                                value={this.state.lastName}
-                                placeholder='Last Name'
-                                leftIcon={
-                                    <Icon
-                                        name='user-circle'
-                                        size={24}
-                                        type={'font-awesome'}
-                                    />
-                                }
-                            />
-                            <Input
-                                onChangeText={(password) => this.setState({ password })}
-                                value={this.state.password}
-                                placeholder='Password'
-                                leftIcon={
-                                    <Icon
+                    <View style={styles.containerBorder}>
+                        <View style={styles.container}>
+                            <View style={[styles.formStyle, styles.formBorder]}>
+                                <Text>Email</Text>
+                                <TextInput
+                                    onChangeText={(email) => this.setState({ email })}
+                                    value={this.state.email}
+                                    placeholder='Email'
+                                    underlineColorAndroid="black"
+                                    leftIcon={
+                                        <Icon
+                                            name='email'
+                                            size={24}
+                                        />
+                                    }
+                                />
+                                <Text>First Name</Text>
+                                <TextInput
+                                    onChangeText={(firstName) => this.setState({ firstName })}
+                                    value={this.state.firstName}
+                                    placeholder='First Name'
+                                    underlineColorAndroid="black"
+                                    leftIcon={
+                                        <Icon
+                                            name='user-circle'
+                                            size={24}
+                                            type={'font-awesome'}
+                                        />
+                                    }
+                                />
+                                <Text>Last Name</Text>
+                                <TextInput
+                                    onChangeText={(lastName) => this.setState({ lastName })}
+                                    value={this.state.lastName}
+                                    placeholder='Last Name'
+                                    underlineColorAndroid="black"
+                                    leftIcon={
+                                        <Icon
+                                            name='user-circle'
+                                            size={24}
+                                            type={'font-awesome'}
+                                        />
+                                    }
+                                />
+                                <Text>Password</Text>
+                                <TextInput
+                                    onChangeText={(password) => this.setState({ password })}
+                                    value={this.state.password}
+                                    placeholder='Password'
+                                    underlineColorAndroid="black"
+                                    leftIcon={
+                                        <Icon
 
-                                        name='lock'
-                                        size={24}
-                                        type={'font-awesome'}
-                                    />
-                                }
-                                password={true}
-                                secureTextEntry={true}
+                                            name='lock'
+                                            size={24}
+                                            type={'font-awesome'}
+                                        />
+                                    }
+                                    password={true}
+                                    secureTextEntry={true}
+                                />
+                            </View>
+                        </View>
+                        {/* Button for users to submit their information */}
+                        <View style={[styles.container, styles.btn]}>
+                            <Button
+                                title='Sign Up'
+                                // onPress={() => this.submitForm()}
+                                onPress={() => navigate('SignIn', {})}
+                                color="#5DACBD"
                             />
                         </View>
-                    </View>
-                    {/* Button for users to submit their information */}
-                    <View style={[styles.container, styles.btn]}>
-                        <Button
-                            title='Sign Up'
-                            // onPress={() => this.submitForm()}
-                            onPress={() => navigate('SignIn', {})}
-                            color="#5DACBD"
-                        />
-                    </View>
 
-                    {/* Redirecting to users to sign in page, if they already have an existing account */}
-                    <View >
-                        <TouchableHighlight onPress={() => navigate('SignIn', {})}>
-                            <View>
-                                <Text style={styles.regText}>Already have an account? <Text style={styles.boldText}>Sign in</Text></Text>
-                            </View>
-                        </TouchableHighlight>
+                        {/* Redirecting to users to sign in page, if they already have an existing account */}
+                        <View >
+                            <TouchableHighlight onPress={() => navigate('SignIn', {})}>
+                                <View>
+                                    <Text style={styles.regText}>Already have an account? <Text style={styles.boldText}>Sign in</Text></Text>
+                                </View>
+                            </TouchableHighlight>
+                        </View>
                     </View>
-
                 </View>
             </ScrollView>
         );
@@ -130,6 +139,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+
+    containerBorder: {
+        borderColor: '#5DACBD',
+        borderWidth: 4,
+        borderRadius: 10,
+        margin: 5,
     },
 
     formStyle: {

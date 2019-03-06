@@ -1,44 +1,64 @@
 import React, { Component } from 'react';
-import { View, Button, StyleSheet } from 'react-native';
-import DatePicker from 'react-native-datepicker'
+import { Text, View, Button, StyleSheet, TouchableOpacity } from 'react-native';
+
+import DateTimePicker from 'react-native-modal-datetime-picker';
+import moment from 'moment';
 
 
- // Getting the current date
- export default class GetDate extends Component {
+// Getting the current date
+export default class GetDate extends Component {
+    state = {
+        isDateTimePickerVisible: false,
+    };
+
+    _showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true });
+    _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
+    _handleDatePicked = (date) => {
+        console.log('A date has been picked: ', date);
+        this._hideDateTimePicker();
+        this.props.date(date);
+        this.setState({date: date});
+        var fDate = moment(this.state.date).format('MMMM Do YYYY');
+        this.setState({formattedDate: fDate});
+    };
+
     constructor(props) {
         super(props);
-
-        const date = new Date().toLocaleDateString('en-CA');
-
+        const date = new Date(props.newDate);
+        var fDate = moment(date).format('MMMM Do YYYY');
         this.state = {
             date: date,
+            formattedDate: fDate,
         };
     }
 
     render() {
         return (
-            <DatePicker
-                style={{width: 200}}
-                date={this.state.date}
-                mode="date"
-                placeholder="select date"
-                format="YYYY-MM-DD"
-                minDate="2019-01-01"
-                confirmBtnText="Confirm"
-                cancelBtnText="Cancel"
-                customStyles={{
-                    dateIcon: {
-                        position: 'absolute',
-                        left: 0,
-                        top: 4,
-                        marginLeft: 0
-                    },
-                    dateInput: {
-                        marginLeft: 36
-                    }
-                }}
-                onDateChange={(date) => {this.setState({date: date})}}
-            />
+            <View style={{ flex: 1 }}>
+                <Button 
+                    onPress={this._showDateTimePicker} 
+                    title={moment(this.state.date).format('MMMM Do YYYY')}
+                    color="#5DACBD"    
+                >
+                </Button>
+                <DateTimePicker
+                    isVisible={this.state.isDateTimePickerVisible}
+                    onConfirm={this._handleDatePicked.bind(this)}
+                    onCancel={this._hideDateTimePicker}
+                    date={this.state.date}
+                    customStyles={{
+                        dateIcon: {
+                            position: 'absolute',
+                            left: 0,
+                            top: 4,
+                            marginLeft: 0
+                        },
+                        dateInput: {
+                            marginLeft: 36
+                        }
+                    }}
+                />
+            </View>
         );
     }
 }

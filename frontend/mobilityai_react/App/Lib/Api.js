@@ -3,6 +3,7 @@ import { SERVER_URL} from 'react-native-dotenv'
 
 export function AddPatientData(patientData) {
     const route = "api/MobilityAI/AddPatientData?PatientData=";
+
     let url = encodeURI(SERVER_URL + route + patientData);
     console.log("AddPatientData: Make a post request to: " + url);
     return RNFetchBlob.config({
@@ -44,6 +45,35 @@ export function GetPatientActivities(start, end, patientId) {
         .catch((error) => console.log(JSON.stringify(error)));
 }
 
+export function GetPatientAchievements(patientId) {
+    const route = "api/Patients/GetPatientAchievements?patientId=";
+    let url = encodeURI(SERVER_URL + route + patientId);
+    console.log("GetPatientAchievements: Make get request to: " + url);
+
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('GET', url)
+        .then((response) => {
+            console.log(JSON.stringify(response));
+            return response.json();
+        })
+        .catch((error) => console.log(JSON.stringify(error)));
+}
+
+export function AddPatientAchievements(patientId, steps, activityTime) {
+    const route = "api/Patients/AddPatientAchievements?patientId=" + patientId + "&steps=" + steps + "&activityTime=" + activityTime;
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("AddPatientAchievements: Make a post request to: " + url);
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('POST', url)
+        .then((response) => console.log(JSON.stringify(response)))
+        .catch((error) => console.log(JSON.stringify(error)));
+};
+
 
 /* Ignore, work in progress */
 /*
@@ -82,4 +112,4 @@ export function UserSignUp(email, firstName, lastName, password) {
     //   .catch(error => console.log('Error: ', JSON.stringify(error)));
 }
 */
-export default { AddPatientData, GetPatients, GetPatientActivities }
+export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements }

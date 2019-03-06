@@ -60,5 +60,4 @@
         app:layout_anchorGravity="right|center"
         android:background="@android:color/transparent"
         android:textColor="@android:color/transparent"/>
-
 </android.support.design.widget.CoordinatorLayout>

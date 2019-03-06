@@ -8,6 +8,11 @@ import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-
 import { AddPatientData } from '../Lib/Api';
 
 export default class PatientForm extends React.Component {
+    static navigationOptions = ({ navigation }) => {
+        return {
+            title: "Create New Patient",
+        };
+    };
     constructor(props){
         super(props);
         this.state = {
@@ -35,6 +40,7 @@ export default class PatientForm extends React.Component {
             walkingSituation: "",
             difficultyWithBasicMobility: "",
             difficultyWithDailyAcitity: "",
+            steps: "",
         }
     }
 
@@ -113,9 +119,7 @@ export default class PatientForm extends React.Component {
         
         return (
             <View style={styles.container}>
-                <ScrollView contentContainerStyle={styles.scrollable}>
-                    <Text style={styles.titleText}>Create New Patient</Text>
-                    
+                <ScrollView contentContainerStyle={styles.scrollable}>                    
                     <View style={{paddingBottom: 100}}>
                         <Field onChangeText={(firstName) => this.setState({firstName})}
                             value={this.state.firstName}
@@ -243,6 +247,16 @@ export default class PatientForm extends React.Component {
                                 <Picker.Item label="A Little" value="A Little"/>
                                 <Picker.Item label="None" value="None"/>
                             </Picker>
+                        </View>
+
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.sliderText}>Step Goal</Text>
+                            <TextInput
+                                style={{height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10}}
+                                keyboardType='numeric'
+                                onChangeText={(text)=> this.onChanged(text)}
+                                value={this.state.steps}
+                            />
                         </View>
                         <Button style={styles.submit} onPress={() => this.submitForm()} 
                             title="Submit"

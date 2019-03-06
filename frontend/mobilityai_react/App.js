@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import {createStackNavigator, createAppContainer} from 'react-navigation';
 import Homescreen from './App/Screens/Homescreen';
+import PatientDataContainer from './App/Screens/PatientDataContainer';
+import PatientAchievements from './App/Screens/Achievements';
 import PatientData from './App/Screens/PatientData';
 import PatientList from './App/Screens/PatientList';
 import PatientListItem from './App/Screens/PatientListItem';
@@ -13,7 +15,8 @@ const AppNavigator = createStackNavigator({
   Home: {screen: Homescreen},
   PatientListItem: {screen: PatientListItem},
   PatientList: {screen: PatientList},
-  PatientData: {screen: PatientData},
+  PatientData: {screen: PatientDataContainer},
+  PatientAchievements: {screen: PatientAchievements},
   PatientForm: {screen: PatientForm},
   SignUp: {screen: SignUp},
   SignIn: {screen: SignIn},
