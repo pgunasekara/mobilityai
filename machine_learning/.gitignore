@@ -1,0 +1,7 @@
+*.pyc
+__pycache__
+.benchmarks
+.pytest_cache
+coverage.xml
+junit.xml
+.coverage
