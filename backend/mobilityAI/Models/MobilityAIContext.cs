@@ -48,6 +48,11 @@ namespace mobilityAI.Models
         {
             get; set;
         }
+        
+        public DbSet<Step> Steps
+        {
+            get; set;
+        }
         public DbSet<Condition> Conditions
         {
             get; set;
