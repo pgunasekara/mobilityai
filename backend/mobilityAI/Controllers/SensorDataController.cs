@@ -113,7 +113,7 @@ namespace mobilityAI.Controllers {
         /// <param name="patientId">ID of patient</param>
         /// <param name="steps">List of epochs when steps occured</param>
         /// <returns>Status 200 if successful</returns>
-        [HttpPost("{patientId/AddSteps")]
+        [HttpPost("{patientId}/AddSteps")]
         public IActionResult AddSteps(int patientId, IFormFile steps) 
         {
             /*
