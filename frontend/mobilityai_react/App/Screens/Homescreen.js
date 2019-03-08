@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     height: 225,
     paddingBottom: 125,
     width: 250,
-    "alignSelf": "center"
+    alignSelf: "center"
   },
   mainButton: {
     borderColor : "#5DACBD",
