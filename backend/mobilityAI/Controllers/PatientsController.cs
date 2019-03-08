@@ -241,6 +241,26 @@ namespace mobilityAI.Controllers
             return new JsonResult(data);
         }
 
+        [HttpPost("{patientId}/GetSteps")]
+        public IActionResult GetSteps(int patientId, String startDate, String endDate)
+        {
+            long startEpoch = ToUnixTime(DateTime.Parse(startDate));
+            long endEpoch = ToUnixTime(DateTime.Parse(endDate));
+
+            var data = (from steps in _context.Steps
+                        where steps.Epoch >= startEpoch && steps.Epoch <= endEpoch && steps.PatientId == patientId
+                        orderby steps.Epoch ascending
+                        select new { steps.Epoch })
+                        .ToList();
+
+            if (data != null)
+            {
+                return new JsonResult(data);
+            }
+
+            return new JsonResult(new List<Step>()); //Empty list indicates that no data was found
+        }
+
         /*
         [HttpPut("{patientId}")]
         public IActionResult UpdatePatient(string patientId, string PatientData) { ... }
@@ -253,6 +273,12 @@ namespace mobilityAI.Controllers
         {
             time = time / 1000;
             return epoch.AddSeconds(time);
+        }
+
+        private static long ToUnixTime(DateTime time) 
+        {
+            TimeSpan diff = time.ToUniversalTime() - epoch;
+            return (long)Math.Floor(diff.TotalSeconds);
         }
     }
 }

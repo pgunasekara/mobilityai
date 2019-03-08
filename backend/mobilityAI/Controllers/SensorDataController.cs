@@ -108,87 +108,27 @@ namespace mobilityAI.Controllers {
         }
 
         /// <summary>
-        /// Add a single file with accelerometer and gyroscope data into the database and into machine learning server
-        /// TODO: Handle larger files (ie: don't wait for the files to be added to the database before returning 200 or else the client will timeout)
+        /// Adds steps for a given patient id
         /// </summary>
-        /// <param name="dataFile">
-        /// The file input for the data to be analyzed
-        /// </param>
-        /// <param name="patientID">
-        /// The patient id from which this data came from
-        /// </param>
-        [HttpPost("{patientId}")]
-        public async Task<IActionResult> AddSensorDataSingle(int patientId, IFormFile dataFile)
+        /// <param name="patientId">ID of patient</param>
+        /// <param name="steps">List of epochs when steps occured</param>
+        /// <returns>Status 200 if successful</returns>
+        [HttpPost("{patientId}/AddSteps")]
+        public IActionResult AddSteps(int patientId, IFormFile steps) 
         {
-            List<String> accel = new List<string>();
-            List<String> gyro = new List<string>();
-            string ac = "epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)" + Environment.NewLine;
-            string gy = "epoch (ms),time (-13:00),elapsed (s),x-axis (deg/s),y-axis (deg/s),z-axis (deg/s)" + Environment.NewLine;
+            /*
+             * Format of Step count file: { epoch \n [epoch \n] }
+             */
+            var data = readData(steps);
+            var stepObjects = data.Select(line => line)
+                                  .Select(tokens => new Step 
+                                  {
+                                      PatientId = patientId,
+                                      Epoch = Convert.ToInt64(tokens[0])
+                                  }).ToList();
 
-            using (var reader = new StreamReader(dataFile.OpenReadStream()))
-            {
-                while (reader.Peek() >= 0)
-                {
-                    String res = reader.ReadLine();
-                    if(String.Equals(res.Substring(0,2), "a,")) { accel.Add(res.Substring(2)); ac += res.Substring(2)+ Environment.NewLine; }
-                    if(String.Equals(res.Substring(0,2), "g,"))  { gyro.Add(res.Substring(2)); gy += res.Substring(2)+ Environment.NewLine; }
-                }
-            }
-
-            var accelerometerObjects = accel.Select(line => line.Split(","))
-                                            .Select(tokens => new Accelerometer
-                                            {
-                                                Id = Guid.NewGuid().ToString(),
-                                                PatientId = Convert.ToInt32(patientId),
-                                                Epoch = Convert.ToInt64(tokens[0]),
-                                                Timestamp = DateTime.Parse(tokens[1]),
-                                                Elapsed = Convert.ToDouble(tokens[2]),
-                                                XAxis = Convert.ToDouble(tokens[3]),
-                                                YAxis = Convert.ToDouble(tokens[4]),
-                                                ZAxis = Convert.ToDouble(tokens[5])
-                                            })
-                                            .ToList();
-
-            _context.AccelerometerData.AddRange(accelerometerObjects);
-
-            var gyroscopeObjects = gyro.Select(line => line.Split(","))
-                                        .Select(tokens => new Gyroscope
-                                        {
-                                            Id = Guid.NewGuid().ToString(),
-                                            PatientId = Convert.ToInt32(patientId),
-                                            Epoch = Convert.ToInt64(tokens[0]),
-                                            Timestamp = DateTime.Parse(tokens[1]),
-                                            Elapsed = Convert.ToDouble(tokens[2]),
-                                            XAxis = Convert.ToDouble(tokens[3]),
-                                            YAxis = Convert.ToDouble(tokens[4]),
-                                            ZAxis = Convert.ToDouble(tokens[5])
-                                        })
-                                        .ToList();
-
-            _context.GyroscopeData.AddRange(gyroscopeObjects);
+            _context.Steps.AddRange(stepObjects);
             _context.SaveChanges();
-
-
-            var accelMs = new MemoryStream(Encoding.UTF8.GetBytes(ac));
-            var gyroMs = new MemoryStream(Encoding.UTF8.GetBytes(gy));
-
-            var callbackId = Guid.NewGuid().ToString();
-
-            MultipartFormDataContent form = new MultipartFormDataContent();
-            string format = "Mddyyyyhhmmsstt";
-            string dt = String.Format("{0}",DateTime.Now.ToString(format));
-
-            form.Add(new StringContent("false"), "test");
-            form.Add(new StringContent(SERVER_URL + "api/SensorData/Callback?Id=" + callbackId), "callback_url");
-            form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", "accelerometer" + dt + ".csv");
-            form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", "gyroscope" + dt + ".csv");
-
-            HttpResponseMessage response = await client.PostAsync(ML_SERVER_URL + "windowify", form);
-
-            response.EnsureSuccessStatusCode();
-
-            mlCallbackIds.TryAdd(callbackId, patientId);
-
             return Ok();
         }
 
