@@ -84,6 +84,16 @@ def confidence_filter(row):
         return 4
     return cl
 
+"""
+p                                    current
+r                  Sitting | Lying in bed | Walking | Standing | Unknown
+e    Sitting          true      true          false     true      true
+v    Lying in bed     true      true          false     false     true
+i    Walking          false     false         true      true      true
+o    Standing         true      false         true      true      true
+u    Unknown          true      true          true      true      true
+s
+"""
 transition_matrix = [[True,  True,  False, True,  True],
                      [True,  True,  False, False, True],
                      [False, False, True,  True,  True],
