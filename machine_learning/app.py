@@ -84,6 +84,15 @@ def confidence_filter(row):
         return 4
     return cl
 
+transition_matrix = [[True,  True,  False, True,  True],
+                     [True,  True,  False, False, True],
+                     [False, False, True,  True,  True],
+                     [True,  False, True,  True,  True],
+                     [True,  True,  True,  True,  True]]
+
+def validate_transition(prev, current):
+  return transition_matrix[prev][current]
+
 def save_results(accel_gyro_df,predWithConf):
     #pred = pd.DataFrame({'type': pred})
     predWithConf = pd.DataFrame({'type': predWithConf})
@@ -116,13 +125,17 @@ def process_data(accel_df, gyro_df, callback_url, test=False):
     pWithConfidence = pd.DataFrame(clf.predict_proba(newX))
     pWithConfidence = pWithConfidence.apply(confidence_filter, axis=1)
 
+    for i in range(5,len(pWithConfidence)):
+        if not validate_transition(pWithConfidence[i-1], pWithConfidence[i]):
+            pWithConfidence[i] = pWithConfidence.iloc[i-5:i].value_counts().idxmax()
+
     file_name = save_results(accel_gyro_df, pWithConfidence)
  
     with open(file_name,'rb') as activities_file:
         files = {'Activities': activities_file}
         r = requests.post(callback_url, files=files, verify=False)
 
-    if not test:
+    if not pWithConfidence:
         os.remove(file_name) 
 
 def allowed_file(filename):
