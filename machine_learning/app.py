@@ -145,7 +145,7 @@ def process_data(accel_df, gyro_df, callback_url, test=False):
         files = {'Activities': activities_file}
         r = requests.post(callback_url, files=files, verify=False)
 
-    if not pWithConfidence:
+    if not test:
         os.remove(file_name) 
 
 def allowed_file(filename):
