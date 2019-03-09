@@ -15,7 +15,6 @@ export default class Homescreen extends Component {
           />
         </View>
 
-        {/* TEMP */}
         <View >
           <TouchableHighlight onPress={() => navigate('PatientAchievements', {
             id: 0,
@@ -24,7 +23,7 @@ export default class Homescreen extends Component {
             navigation: this.props.navigation
           })}>
             <View>
-              <Text style={styles.regText}>Achievements</Text>
+              
             </View>
           </TouchableHighlight>
         </View>
@@ -32,6 +31,7 @@ export default class Homescreen extends Component {
         {/* Button redirecting users to Sign Up page */}
         <View style={styles.buttons}>
           <Button
+            style={styles.mainButton}
             title='Sign Up'
             onPress={() => navigate('SignUp', {})}
             color="#5DACBD"
@@ -39,6 +39,7 @@ export default class Homescreen extends Component {
 
           {/* Button redirecting users to Sign in page */}
           <Button
+            style={styles.mainButton}
             title='Sign In'
             onPress={() => navigate('SignIn', {})}
             color="#5DACBD"
@@ -70,7 +71,14 @@ const styles = StyleSheet.create({
   },
 
   buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: 225,
+    paddingBottom: 125,
+    width: 250,
+    alignSelf: "center"
   },
+  mainButton: {
+    borderColor : "#5DACBD",
+  }
 });
