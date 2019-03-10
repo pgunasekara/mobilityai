@@ -298,16 +298,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                     };
 
                                     m_rqueue.addToRequestQueue(WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress()));
-
-                                    /*m_adapter.update(new MetaMotionDevice(
-                                                    "Rebecca",
-                                                    "Tran",
-                                                    result.getDevice().getAddress(),
-                                                    50,
-                                                    cal.getTime().toString(),
-                                                    result.getRssi()
-                                            )
-                                    );*/
                                 }
                             }
                         });
