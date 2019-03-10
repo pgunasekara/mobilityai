@@ -51,6 +51,7 @@ class WebRequest {
 
     public JsonObjectRequest getDeviceInfo(Context context, Response.Listener<JSONObject> listener, Response.ErrorListener eListener, String macAddr) {
         String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr;
+        Log.i("MobilityAI", url);
         return new JsonObjectRequest(Request.Method.GET, url, null, listener, eListener);
     }
 

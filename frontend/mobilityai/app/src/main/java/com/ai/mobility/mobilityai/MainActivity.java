@@ -283,23 +283,23 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                     Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
                                     //Make request to get device information
 
-                                    // Response.Listener ls = new Response.Listener<JSONObject>() {
-                                    //     @Override
-                                    //     public void onResponse(JSONObject response) {
-                                    //         addNewDevice(response, result.getDevice().getAddress(), result.getRssi());
-                                    //     }
-                                    // };
+                                    Response.Listener ls = new Response.Listener<JSONObject>() {
+                                        @Override
+                                        public void onResponse(JSONObject response) {
+                                            addNewDevice(response, result.getDevice().getAddress(), result.getRssi());
+                                        }
+                                    };
 
-                                    // Response.ErrorListener el = new Response.ErrorListener() {
-                                    //     @Override
-                                    //     public void onErrorResponse(VolleyError error) {
-                                    //         addNewDevice(null, result.getDevice().getAddress(), result.getRssi());
-                                    //     }
-                                    // };
+                                    Response.ErrorListener el = new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            addNewDevice(null, result.getDevice().getAddress(), result.getRssi());
+                                        }
+                                    };
 
-                                    // m_rqueue.addToRequestQueue(WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress()));
+                                    m_rqueue.addToRequestQueue(WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress()));
 
-                                    m_adapter.update(new MetaMotionDevice(
+                                    /*m_adapter.update(new MetaMotionDevice(
                                                     "Rebecca",
                                                     "Tran",
                                                     result.getDevice().getAddress(),
@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                                     cal.getTime().toString(),
                                                     result.getRssi()
                                             )
-                                    );
+                                    );*/
                                 }
                             }
                         });
@@ -612,18 +612,20 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private void addNewDevice(JSONObject response, String macAddr, int rssi) {
         String firstName = "Unregistered Device";
         String lastName = "";
-        String lastSync = "";
+        String lastSync = "Never";
 
-        try {
-            String id = response.getString("id");
+        if(response != null) {
+            try {
+                String id = response.getString("id");
 
-            if(id != null && !id.equals("-1")) {
-                firstName = response.getString("FirstName");
-                lastName = response.getString("LastName");
-                lastSync = response.getString("LastSync");
+                if (!id.equals("-1")) {
+                    firstName = response.getString("FirstName");
+                    lastName = response.getString("LastName");
+                    lastSync = response.getString("LastSync");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         m_adapter.update(new MetaMotionDevice(firstName, lastName, macAddr, 50, lastSync, rssi));
