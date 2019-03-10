@@ -21,7 +21,7 @@ namespace mobilityAI.Controllers {
     {
         private readonly MobilityAIContext _context;
         private static readonly HttpClient client = new HttpClient();
-        const string ML_SERVER_URL = "http://127.0.0.1:6000/";
+        const string ML_SERVER_URL = "http://ml:6000/";
         const string SERVER_URL = "http://127.0.0.1:5000/";
         const string SERVER_SECURE_URL = "https://127.0.0.1:5001/";
         private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
