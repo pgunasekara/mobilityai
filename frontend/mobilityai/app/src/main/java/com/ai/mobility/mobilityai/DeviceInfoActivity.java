@@ -328,7 +328,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
      * Populate fields with intent extras passed in from caller activity
      */
     private void populateFields() {
-        String name = getIntent().getStringExtra("EXTRA_USER");
+        String name = getIntent().getStringExtra("EXTRA_FNAME") + getIntent().getStringExtra("EXTRA_LNAME");
         String macAddr = "MAC Address: " + getIntent().getStringExtra("EXTRA_MAC_ADDR");
         int rssi = getIntent().getIntExtra("EXTRA_RSSI", -100);
         String lastSync = "Last Sync: " + getIntent().getStringExtra("EXTRA_LAST_SYNC");
