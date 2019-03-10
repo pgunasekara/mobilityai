@@ -84,23 +84,23 @@ public class MetaMotionDeviceAdapter extends RecyclerView.Adapter<MetaMotionDevi
                     batteryLevel = String.format("Battery Level: %d", device.getBattery());
             signalString += getRssiString(device.getRssi());
             
-            devName.setText(device.getName());
-            devAssignedUser.setText(device.getAssignedUser());
+//            devName.setText(device.getFirstName() + device.getLastName());
+            devAssignedUser.setText(device.getFirstName() + " " + device.getLastName());
             devMacAddr.setText(macaddrString);
-            if(device.getAssignedUser().equals("Unassigned")) {
+            /*if(device.getAssignedUser().equals("Unassigned")) {
                 devMacAddr.setTextSize(15);
                 devMacAddr.setPadding(1,1,1,1);
             } else {
                 devMacAddr.setTextSize(0);
                 devMacAddr.setPadding(0,0,0,0);
-            }
+            }*/
 
             devBattery.setText(batteryLevel);
             devLastSync.setText(lastSynced);
             devSignalStrength.setText(signalString);
 
             devProfileImage.setColorFilter(device.getColour());
-            devInitials.setText(device.getAssignedUser().substring(0, 1));
+            devInitials.setText(device.getFirstName().substring(0, 1));
 
             devBatteryLevel.setVisibility(View.GONE);
             devBatteryLevelCircle.setColorFilter(device.getColour(), PorterDuff.Mode.MULTIPLY);

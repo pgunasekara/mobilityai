@@ -9,7 +9,11 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.error.VolleyError;
+import com.android.volley.request.JsonObjectRequest;
+import com.android.volley.request.JsonRequest;
 import com.android.volley.request.SimpleMultiPartRequest;
+
+import org.json.JSONObject;
 
 class WebRequest {
     private static final WebRequest ourInstance = new WebRequest();
@@ -43,6 +47,11 @@ class WebRequest {
         smr.addFile("accelerometerFile", stepFile);
 
         return smr;
+    }
+
+    public JsonObjectRequest getDeviceInfo(Context context, Response.Listener<JSONObject> listener, Response.ErrorListener eListener, String macAddr) {
+        String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr;
+        return new JsonObjectRequest(Request.Method.GET, url, null, listener, eListener);
     }
 
     private SimpleMultiPartRequest getSMRObject(Context context, String url) {

@@ -38,7 +38,11 @@ namespace mobilityAI.Controllers {
             var data = from a in _context.Devices
                        join b in _context.Users on a.PatientID equals b.Id
                        where (a.Id == deviceId)
-                       select new { a.FriendlyName, b.FirstName, b.LastName, a.LastSync };
+                       select new { a.Id, a.FriendlyName, b.FirstName, b.LastName, a.LastSync };
+
+            //Return -1 to indicate that a device was not found
+            if(data == null)
+                data = new Device() { Id = "-1", FriendlyName="", PatientID=-1, LastSync=DateTime.Today };
 
             return new JsonResult(data);
         }

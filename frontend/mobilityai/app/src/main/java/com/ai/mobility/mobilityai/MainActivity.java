@@ -33,13 +33,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.Route;
 import com.mbientlab.metawear.android.BtleService;
 import com.mbientlab.metawear.module.Logging;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -274,9 +281,27 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 Log.i(TAG, "Found: " + result.getDevice().getAddress());
                                 if(result.getDevice().getAddress().equals("D1:87:11:D8:F3:C0")) {
                                     Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
+                                    //Make request to get device information
+
+                                    // Response.Listener ls = new Response.Listener<JSONObject>() {
+                                    //     @Override
+                                    //     public void onResponse(JSONObject response) {
+                                    //         addNewDevice(response, result.getDevice().getAddress(), result.getRssi());
+                                    //     }
+                                    // };
+
+                                    // Response.ErrorListener el = new Response.ErrorListener() {
+                                    //     @Override
+                                    //     public void onErrorResponse(VolleyError error) {
+                                    //         addNewDevice(null, result.getDevice().getAddress(), result.getRssi());
+                                    //     }
+                                    // };
+
+                                    // m_rqueue.addToRequestQueue(WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress()));
+
                                     m_adapter.update(new MetaMotionDevice(
-                                                    "MetaMotion A",
-                                                    getRandomName(),
+                                                    "Rebecca",
+                                                    "Tran",
                                                     result.getDevice().getAddress(),
                                                     50,
                                                     cal.getTime().toString(),
@@ -529,8 +554,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         Intent intent = new Intent(getBaseContext(), DeviceInfoActivity.class);
                         intent.putExtra("EXTRA_MAC_ADDR", device.getMacAddr());
                         intent.putExtra("EXTRA_RSSI", device.getRssi());
-                        intent.putExtra("EXTRA_USER", device.getAssignedUser());
-                        intent.putExtra("EXTRA_NAME", device.getName());
+                        intent.putExtra("EXTRA_FNAME", device.getFirstName());
+                        intent.putExtra("EXTRA_LNAME", device.getLastName());
                         intent.putExtra("EXTRA_LAST_SYNC", device.getLastSync());
                         startActivity(intent);
                     }
@@ -582,5 +607,25 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 return null;
             });
         }
+    }
+
+    private void addNewDevice(JSONObject response, String macAddr, int rssi) {
+        String firstName = "Unregistered Device";
+        String lastName = "";
+        String lastSync = "";
+
+        try {
+            String id = response.getString("id");
+
+            if(id != null && !id.equals("-1")) {
+                firstName = response.getString("FirstName");
+                lastName = response.getString("LastName");
+                lastSync = response.getString("LastSync");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        m_adapter.update(new MetaMotionDevice(firstName, lastName, macAddr, 50, lastSync, rssi));
     }
 }
