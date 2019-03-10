@@ -8,14 +8,15 @@ import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-
 import { AddPatientData } from '../Lib/Api';
 
 export default class PatientForm extends React.Component {
-    static navigationOptions = ({ navigation }) => {
-        return {
-            title: "Create New Patient",
-        };
-    };
+    // static navigationOptions = ({ navigation }) => {
+    //     return {
+    //         title: "Create New Patient",
+    //     };
+    // };
     constructor(props){
         super(props);
         this.state = {
+            id: props.id,
             firstName: "",
             lastName: "",
             baselineWalk: 4,
@@ -41,11 +42,46 @@ export default class PatientForm extends React.Component {
             difficultyWithBasicMobility: "",
             difficultyWithDailyAcitity: "",
             steps: "",
+            update: this.props.update,
         }
     }
 
+    static navigationOptions = ({ navigation }) => {
+        var update = navigation.getParam('update')
+
+        if (update) {
+            return {
+                title: "Patient Information"
+            }
+        } else {
+            return {
+                title: "Create New Patient"
+            }
+        }
+    }
+
+    getSurveyData() {
+        var update = this.props.navigation.getParam('update');
+
+        if (update) {
+            PatientData(this.props.id).then((patientJson) => {
+                this.setState({surveyInfo: patientJson})
+
+                this.setState ({
+                    
+                })
+            })
+        } else {
+
+        }
+    }
+
+    componentDidMount() {
+        this.getSurveyData();
+    };
+
     submitForm(){
-        let response = AddPatientData(JSON.stringify(this.state));
+        let response = CreatePatient(JSON.stringify(this.state));
         console.log(JSON.stringify(response));
     }
 

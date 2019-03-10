@@ -17,9 +17,28 @@ export default class PatientDataContainer extends Component {
         return {
             title: firstName + ' ' + lastName,
             headerRight: (
-                // TODO: Hook up date picker to this button instead of button below
                 <View style={styles.center}>
-                    <View style={{paddingRight: 10}}>
+                    <View style={styles.menu}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                navigation.navigate('PatientForm', {
+                                    id: id,
+                                    firstName: firstName,
+                                    lastName: lastName,
+                                    navigation: navigation,
+                                    update: true,
+                                })
+                            }}
+                        >
+                            <Icon
+                                name='info-circle'
+                                size={30}
+                                type='font-awesome'
+                                color='black'
+                            />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ paddingRight: 10 }}>
                         <TouchableOpacity
                             onPress={() => {
                                 navigation.navigate('PatientAchievements', {
@@ -54,7 +73,7 @@ export default class PatientDataContainer extends Component {
                         lastName={this.props.lastName}
                         date={new Date()}
                         tabView={0}
-                        tabTitle='Daily Patient Activity'                       
+                        tabTitle='Daily Patient Activity'
                     />
                 </View>
                 <View>

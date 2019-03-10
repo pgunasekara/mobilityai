@@ -9,7 +9,7 @@ import GetDate from './GetDate.js';
 import Circle from './PatientCircles';
 import BarGraph from './PatientBarGraphs';
 
-import { GetPatientActivities, GetPatientAchievements } from '../Lib/Api';
+import { GetPatientActivities, GetPatientAchievements, GetPatientData } from '../Lib/Api';
 import moment from 'moment';
 
 //TODO: Remove temporary data once we get proper data from the server
@@ -107,8 +107,8 @@ export default class PatientData extends Component {
                 this.setState({ activityTime: actTime });
                 this.setState({ stepGoal: achievementsJson.steps });
             }
-
         });
+
     }
 
     componentDidMount() {

@@ -1,11 +1,12 @@
 import RNFetchBlob from 'rn-fetch-blob';
-import { SERVER_URL} from 'react-native-dotenv'
+// import { SERVER_URL} from 'react-native-dotenv'
+const SERVER_URL = "http://mobilityai.teovoinea.com/"
 
 export function AddPatientData(patientData) {
-    const route = "api/MobilityAI/AddPatientData?PatientData=";
+    const route = "api/Patients?patientData=" + patientData;
 
-    let url = encodeURI(SERVER_URL + route + patientData);
-    console.log("AddPatientData: Make a post request to: " + url);
+    let url = encodeURI(SERVER_URL + route);
+    console.log("CreatePatient: Make a post request to: " + url);
     return RNFetchBlob.config({
         trusty: true
     })
@@ -15,8 +16,9 @@ export function AddPatientData(patientData) {
 };
 
 export function GetPatients() {
-    const route = "api/MobilityAI/GetPatients";
+    const route = "api/Patients";
     let url = encodeURI(SERVER_URL + route);
+    console.log(SERVER_URL);
     console.log("GetPatients: Make get request to: " + url);
     return RNFetchBlob.config({
         trusty: true
@@ -30,7 +32,7 @@ export function GetPatients() {
 };
 
 export function GetPatientActivities(start, end, patientId) {
-    const route = "api/MobilityAI/GetActivityData?start=" + start + "&end=" + end + "&patientId=" + patientId;
+    const route = "api/Patients/" + patientId + "/Activity?start=" + start + "&end=" + end;
     let url = encodeURI(SERVER_URL + route);
     console.log("GetPatientActivities: Make get request to: " + url);
 
@@ -46,7 +48,7 @@ export function GetPatientActivities(start, end, patientId) {
 }
 
 export function GetPatientAchievements(patientId) {
-    const route = "api/Patients/GetPatientAchievements?patientId=";
+    const route = "api/Patients/" + patientId + "/Achievements";
     let url = encodeURI(SERVER_URL + route + patientId);
     console.log("GetPatientAchievements: Make get request to: " + url);
 
@@ -62,7 +64,7 @@ export function GetPatientAchievements(patientId) {
 }
 
 export function AddPatientAchievements(patientId, steps, activityTime) {
-    const route = "api/Patients/AddPatientAchievements?patientId=" + patientId + "&steps=" + steps + "&activityTime=" + activityTime;
+    const route = "api/Patients/" + patientId + "/Achievements?steps=" + steps + "&activityTime=" + activityTime;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("AddPatientAchievements: Make a post request to: " + url);
@@ -74,6 +76,35 @@ export function AddPatientAchievements(patientId, steps, activityTime) {
         .catch((error) => console.log(JSON.stringify(error)));
 };
 
+export function PatientData(patientId) {
+    const route = "api/Patients/" + patientId + "/PatientData";
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("GetPatientData: Make get request to: " + url);
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('GET', url)
+        .then((response) => {
+            console.log(JSON.stringify(response));
+            return response.json();
+        })
+        .catch((error) => console.log(JSON.stringify(error)));
+}
+
+export function UserSignUp(email, firstName, lastName, password) {
+    const route = "api/Users?email=" + email + "&firstName=" + firstName + "&lastName=" + lastName + "&password=" + password;
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("SignUp: Make post request to: " + url);
+
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('POST', url)
+        .then((response) => console.log(JSON.stringify(response)))
+        .catch((error) => console.log(JSON.stringify(error)));
+}
 
 /* Ignore, work in progress */
 /*
@@ -112,4 +143,4 @@ export function UserSignUp(email, firstName, lastName, password) {
     //   .catch(error => console.log('Error: ', JSON.stringify(error)));
 }
 */
-export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements }
+export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp }
