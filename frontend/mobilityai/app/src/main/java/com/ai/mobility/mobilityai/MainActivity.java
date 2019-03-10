@@ -418,7 +418,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private Task<Route> collectData(MetaMotionDevice d) {
         MetaMotionService m = m_boards.getBoard(d.getMacAddr());
 
-        m.readStepCounter();
         m.stopSensors();
         m.stopLogging();
 
@@ -463,8 +462,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         .uploadStepCount(
                                 this,
                                 m.getPatientId(),
-                                m.getStepCount(this),
-                                m.getStepCountDate()
+                                filePath,
+                                m.getStepCountFileName()
                         )
                 );
 
@@ -501,7 +500,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         result = result.continueWithTask(task -> { return m.configureAccelerometerLogging(this); });
         return result.continueWith(task -> {
             m.startSensors();
-            m.resetStepCounter();
             //Serialize board state before logging starts
             m.serializeBoard(this.getFilesDir());
 

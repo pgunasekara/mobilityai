@@ -22,27 +22,25 @@ class WebRequest {
     private WebRequest() { }
 
     public SimpleMultiPartRequest uploadSensorData(Context context, int patientId, String path, String aFile, String gFile) {
-        String url = SingletonRequestQueue.getUrl() + "SensorData/AddSensorData";
+        String url = SingletonRequestQueue.getUrl() + "SensorData/" + patientId + "/AddSensorData";
         String accelerometerFile = path + "/" + aFile;
         String gyroscopeFile = path + "/" + gFile;
 
         SimpleMultiPartRequest smr = getSMRObject(context, url);
 
-        smr.addStringParam("patientId", "25");
         smr.addFile("accelerometerFile", accelerometerFile);
         smr.addFile("gyroscopeFile", gyroscopeFile);
 
         return smr;
     }
 
-    public SimpleMultiPartRequest uploadStepCount(Context context, int patientId, int steps, String date) {
-        String url = SingletonRequestQueue.getUrl() + "SensorData/AddStepCount";
+    public SimpleMultiPartRequest uploadStepCount(Context context, int patientId, String path, String sFile) {
+        String url = SingletonRequestQueue.getUrl() + "SensorData/" + patientId + "/AddSteps";
+        String stepFile = path + "/" + sFile;
 
         SimpleMultiPartRequest smr = getSMRObject(context, url);
 
-        smr.addStringParam("patientId", "25");
-        smr.addStringParam("steps", Integer.toString(steps));
-        smr.addStringParam("date", date);
+        smr.addFile("accelerometerFile", stepFile);
 
         return smr;
     }
