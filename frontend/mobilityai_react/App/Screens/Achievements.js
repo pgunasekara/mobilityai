@@ -26,6 +26,10 @@ export default class PatientAchievements extends React.Component {
             firstName: props.firstName,
             lastName: props.lastName,
             steps: 0,
+            sitting: 0,
+            standing: 0,
+            lyingDown: 0,
+            walking: 0,
             activeTime: 0,
         }
     }
@@ -33,6 +37,10 @@ export default class PatientAchievements extends React.Component {
     componentDidMount() {
         GetPatientAchievements(this.props.id).then((achievementsJson) => {
             this.setState({ steps: achievementsJson.steps });
+            this.setState({ sitting: achievementsJson.sitting });
+            this.setState({ standing: achievementsJson.standing });
+            this.setState({ lyingDown: achievementsJson.lyingDown });
+            this.setState({ walking: achievementsJson.walking });
             this.setState({ activityGoal: achievementsJson.activityTime });
         });
     };
@@ -44,37 +52,82 @@ export default class PatientAchievements extends React.Component {
 
     render() {
         return (
-            // <ScrollView>
             <View style={styles.container}>
                 <View>
                     <Text style={styles.title}>Activity Goals</Text>
                 </View>
 
                 <View style={styles.container}>
-                    <View style={styles.boxLayout}>
-                        <View>
-                            <Text>Steps</Text>
-                            <TextInput
-                                style={styles.inputBox}
-                                keyboardType='numeric'
-                                onChangeText={(steps) => this.setState({ steps: steps })}
-                                defaultValue={this.state.steps.toString()}
-                                placeholder='Steps'
-                            />
-
+                    <View style={{ paddingBottom: 10 }}>
+                        <View style={styles.boxLayout2}>
+                            <View>
+                                <Text>Steps</Text>
+                                <TextInput
+                                    style={styles.inputBox}
+                                    keyboardType='numeric'
+                                    onChangeText={(steps) => this.setState({ steps: steps })}
+                                    defaultValue={this.state.steps.toString()}
+                                    placeholder='Steps'
+                                />
+                            </View>
+                            <View>
+                                <Text>Active Time/Hour</Text>
+                                <TextInput
+                                    style={styles.inputBox}
+                                    keyboardType='numeric'
+                                    onChangeText={(activeTime) => this.setState({ activeTime: activeTime })}
+                                    defaultValue={this.state.activeTime.toString()}
+                                    placeholder='Active Time'
+                                />
+                            </View>
                         </View>
-                        <View>
-                            <Text>Active Time/Hour</Text>
-                            <TextInput
-                                style={styles.inputBox}
-                                keyboardType='numeric'
-                                onChangeText={(activeTime) => this.setState({ activeTime: activeTime })}
-                                defaultValue={this.state.activeTime.toString()}
-                                placeholder='Active Time'
-                            />
+                        <View style={styles.boxLayout2}>
+                            <View>
+                                <Text>Sitting</Text>
+                                <TextInput
+                                    style={styles.inputBox}
+                                    keyboardType='numeric'
+                                    onChangeText={(sitting) => this.setState({ sitting: sitting })}
+                                    defaultValue={this.state.sitting.toString()}
+                                    placeholder='Sitting'
+                                />
+                            </View>
+                            <View>
+                                <Text>Standing</Text>
+                                <TextInput
+                                    style={styles.inputBox}
+                                    keyboardType='numeric'
+                                    onChangeText={(standing) => this.setState({ standing: standing })}
+                                    defaultValue={this.state.standing.toString()}
+                                    placeholder='Standing'
+                                />
+                            </View>
+                        </View>
+                        <View style={styles.boxLayout2}>
+                            <View>
+                                <Text>Lying Down</Text>
+                                <TextInput
+                                    style={styles.inputBox}
+                                    keyboardType='numeric'
+                                    onChangeText={(lyingDown) => this.setState({ lyingDown: lyingDown })}
+                                    defaultValue={this.state.lyingDown.toString()}
+                                    placeholder='Lying Down'
+                                />
+                            </View>
+                            <View>
+                                <Text>Walking</Text>
+                                <TextInput
+                                    style={styles.inputBox}
+                                    keyboardType='numeric'
+                                    onChangeText={(walking) => this.setState({ walking: walking })}
+                                    defaultValue={this.state.walking.toString()}
+                                    placeholder='Walking'
+                                />
+                            </View>
                         </View>
                     </View>
                 </View>
+
                 <View style={styles.saveBtn}>
                     <Button
                         title='Save'
@@ -83,10 +136,7 @@ export default class PatientAchievements extends React.Component {
                         color="#5DACBD"
                     />
                 </View>
-
-
             </View>
-            // </ScrollView>
         );
     }
 }
@@ -94,12 +144,18 @@ export default class PatientAchievements extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        // justifyContent: 'center',
         alignItems: 'stretch',
     },
 
     boxLayout: {
         flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+    },
+
+    boxLayout2: {
         flexDirection: 'row',
         justifyContent: 'space-evenly',
     },

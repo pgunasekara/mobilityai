@@ -1,8 +1,8 @@
 import React from 'react';
 import { TextInput, Alert, ScrollView, Platform, TouchableHighlight, Button, StyleSheet, Text, View, FlatList } from 'react-native';
-import { Input, Icon } from 'react-native-elements'
+import { Input, Icon, CheckBox } from 'react-native-elements'
 
-// import { UserSignUp } from '../Lib/Api';
+import { UserSignUp } from '../Lib/Api';
 
 export default class SignUp extends React.Component {
     constructor(props) {
@@ -12,24 +12,20 @@ export default class SignUp extends React.Component {
             firstName: "",
             lastName: "",
             password: "",
-
+            terms: false,
         };
 
     }
 
-    // //TODO: Have the web request post the data that is submitted
-    // submitForm = () => {
-    //     console.log("TADA");
-
-    //     // const value = this._form.getValue();
-    //     // console.log('value: ', value);
-    // }
-
     submitForm() {
-        // let response = UserSignUp(this.state.email, this.state.firstName, this.state.lastName, this.state.password);
-        //let response = 
-        // UserSignUp('pg@email.com', 'Pasindu', 'Gunasekara', 'password');
-        // console.log(JSON.stringify(response));
+        if (this.state.terms) {
+            let response = UserSignUp(this.state.email, this.state.firstName, this.state.lastName, this.state.password);
+            console.log(JSON.stringify(response));
+            //TODO: Navigate to the Sign In page 
+            // this.props.navigation.navigate('SignUp', {});
+        } else {
+            alert("Please agree to the terms and conditions");
+        }
     }
 
 
@@ -103,14 +99,23 @@ export default class SignUp extends React.Component {
                                     password={true}
                                     secureTextEntry={true}
                                 />
+                                <CheckBox
+                                    title='I Agree to the Terms and Conditions'
+                                    checked={this.state.terms}
+                                    onPress={() => { 
+                                        let terms = !this.state.terms;
+                                        this.setState({ terms: terms});
+                                    }}
+                                />
                             </View>
                         </View>
+
                         {/* Button for users to submit their information */}
                         <View style={[styles.container, styles.btn]}>
                             <Button
                                 title='Sign Up'
                                 // onPress={() => this.submitForm()}
-                                onPress={() => navigate('SignIn', {})}
+                                onPress={() => this.submitForm()}
                                 color="#5DACBD"
                             />
                         </View>

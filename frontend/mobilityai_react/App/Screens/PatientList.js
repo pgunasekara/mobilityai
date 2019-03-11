@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {Platform, StyleSheet, Text, View, FlatList, Button} from 'react-native';
 import NavigatorMenu from './Navigator';
 
@@ -40,35 +41,39 @@ export default class PatientList extends React.Component {
     componentDidMount() {
         GetPatients().then((patientsJson) => {
             console.log(patientsJson);
-            this.setState({patients: patientsJson});
+            this.setState({ patients: patientsJson });
         });
     }
 
     render() {
-        const {navigate} = this.props.navigation;
+        const { navigate } = this.props.navigation;
         return (
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
                 <FlatList
-                    data = {this.state.patients}
-                    renderItem = {({item, index}) => (
+                    data={this.state.patients}
+                    renderItem={({ item, index }) => (
                         <PatientListItem
-                            navigation = {this.props.navigation}
-                            firstName = {item.firstName}
-                            lastName = {item.lastName}
-                            firstRow = {index == 0}
-                            id = {item.id}
-                            deviceId = {item.deviceId}
+                            navigation={this.props.navigation}
+                            firstName={item.firstName}
+                            lastName={item.lastName}
+                            firstRow={index == 0}
+                            id={item.id}
+                            deviceId={item.deviceId}
                         />
                     )}
                 />
-                
+
                 {/* Rest of the app comes ABOVE the action button component !*/}
                 <ActionButton buttonColor="rgba(231,76,60,1)"
-                    onPress={() => navigate('PatientForm', {}) }
+                    onPress={() => {
+                        navigate('PatientForm', {
+                            update: false,
+                        })
+                    }}
                     degrees={0}>
                     <Icon name="md-create" style={styles.actionButtonIcon} />
                 </ActionButton>
-                
+
             </View>
         );
     }
@@ -76,8 +81,8 @@ export default class PatientList extends React.Component {
 
 const styles = StyleSheet.create({
     actionButtonIcon: {
-      fontSize: 20,
-      height: 22,
-      color: 'white',
+        fontSize: 20,
+        height: 22,
+        color: 'white',
     },
-  });
+});
