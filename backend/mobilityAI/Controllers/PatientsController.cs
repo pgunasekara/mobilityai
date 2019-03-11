@@ -270,7 +270,7 @@ namespace mobilityAI.Controllers
         /// <param name="patientData">
         /// Data that will be updated for the corresponding patient
         /// </param>
-        [HttpPost("{patientId}/Data")]
+        [HttpPut("{patientId}")]
         public IActionResult UpdatePatient(int patientId, string patientData) { 
             Patient_Impl data = (from a in _context.Patients_Impl
                                  where a.Id == patientId
@@ -293,7 +293,7 @@ namespace mobilityAI.Controllers
         /// <returns>
         /// If the patientId is found, returns the json results
         /// </returns>
-        [HttpGet("{patientId}/Data")]
+        [HttpGet("{patientId}")]
         public JsonResult PatientData(int patientId)
         {
             Patient_Impl data = (from a in _context.Patients_Impl
