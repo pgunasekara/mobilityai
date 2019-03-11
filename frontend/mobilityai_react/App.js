@@ -10,11 +10,12 @@ import PatientListItem from './App/Screens/PatientListItem';
 import PatientForm from './App/Screens/NewPatientForm';
 import SignUp from './App/Screens/SignUpForm';
 import SignIn from './App/Screens/SignInForm';
+import {MenuProvider} from 'react-native-popup-menu';
 
 const AppNavigator = createStackNavigator({
   Home: {screen: Homescreen},
   PatientListItem: {screen: PatientListItem},
-  PatientList: {screen: PatientList},
+  PatientList: { screen: PatientList },
   PatientData: {screen: PatientDataContainer},
   PatientAchievements: {screen: PatientAchievements},
   PatientForm: {screen: PatientForm},
@@ -27,7 +28,9 @@ const AppContainer = createAppContainer(AppNavigator);
 class App extends Component {
   render() {
     return (
-      <AppContainer/>
+      <MenuProvider>
+        <AppContainer/>
+      </MenuProvider>
     );
   }
 }

@@ -21,9 +21,9 @@ namespace mobilityAI.Controllers {
     {
         private readonly MobilityAIContext _context;
         private static readonly HttpClient client = new HttpClient();
-        const string ML_SERVER_URL = "http://127.0.0.1:6000/";
-        const string SERVER_URL = "http://127.0.0.1:5000/";
-        const string SERVER_SECURE_URL = "https://127.0.0.1:5001/";
+        const string ML_SERVER_URL = "http://ml:6000/";
+        const string SERVER_URL = "http://web:5000/";
+        const string SERVER_SECURE_URL = "https://web:5001/";
         private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
 
         public SensorDataController(MobilityAIContext context){
@@ -94,7 +94,7 @@ namespace mobilityAI.Controllers {
             MultipartFormDataContent form = new MultipartFormDataContent();
 
             form.Add(new StringContent("false"), "test");
-            form.Add(new StringContent(SERVER_URL + "api/MobilityAI/MlCallback?Id=" + callbackId), "callback_url");
+            form.Add(new StringContent(SERVER_URL + "api/SensorData/Callback?Id=" + callbackId), "callback_url");
             form.Add(new ByteArrayContent(accelMs.ToArray()), "file[]", accelerometerFile.FileName);
             form.Add(new ByteArrayContent(gyroMs.ToArray()), "file[]", gyroscopeFile.FileName);
 
