@@ -9,7 +9,11 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.error.VolleyError;
+import com.android.volley.request.JsonObjectRequest;
+import com.android.volley.request.JsonRequest;
 import com.android.volley.request.SimpleMultiPartRequest;
+
+import org.json.JSONObject;
 
 class WebRequest {
     private static final WebRequest ourInstance = new WebRequest();
@@ -22,29 +26,33 @@ class WebRequest {
     private WebRequest() { }
 
     public SimpleMultiPartRequest uploadSensorData(Context context, int patientId, String path, String aFile, String gFile) {
-        String url = SingletonRequestQueue.getUrl() + "SensorData/AddSensorData";
+        String url = SingletonRequestQueue.getUrl() + "SensorData/" + patientId + "/AddSensorData";
         String accelerometerFile = path + "/" + aFile;
         String gyroscopeFile = path + "/" + gFile;
 
         SimpleMultiPartRequest smr = getSMRObject(context, url);
 
-        smr.addStringParam("patientId", "25");
         smr.addFile("accelerometerFile", accelerometerFile);
         smr.addFile("gyroscopeFile", gyroscopeFile);
 
         return smr;
     }
 
-    public SimpleMultiPartRequest uploadStepCount(Context context, int patientId, int steps, String date) {
-        String url = SingletonRequestQueue.getUrl() + "SensorData/AddStepCount";
+    public SimpleMultiPartRequest uploadStepCount(Context context, int patientId, String path, String sFile) {
+        String url = SingletonRequestQueue.getUrl() + "SensorData/" + patientId + "/AddSteps";
+        String stepFile = path + "/" + sFile;
 
         SimpleMultiPartRequest smr = getSMRObject(context, url);
 
-        smr.addStringParam("patientId", "25");
-        smr.addStringParam("steps", Integer.toString(steps));
-        smr.addStringParam("date", date);
+        smr.addFile("accelerometerFile", stepFile);
 
         return smr;
+    }
+
+    public JsonObjectRequest getDeviceInfo(Context context, Response.Listener<JSONObject> listener, Response.ErrorListener eListener, String macAddr) {
+        String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr;
+        Log.i("MobilityAI", url);
+        return new JsonObjectRequest(Request.Method.GET, url, null, listener, eListener);
     }
 
     private SimpleMultiPartRequest getSMRObject(Context context, String url) {

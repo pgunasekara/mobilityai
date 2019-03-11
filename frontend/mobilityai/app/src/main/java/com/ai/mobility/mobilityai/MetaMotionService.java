@@ -93,9 +93,13 @@ public class MetaMotionService {
 
     private static Subscriber STEP_COUNTING_HANDLER = (Data data, Object... env) -> {
         try {
-            String value = data.value(Integer.class).toString() + "\n";
+            String value = data.timestamp().getTimeInMillis() + "\n";
+
             FileOutputStream fos = (FileOutputStream) env[0];
             fos.write(value.getBytes());
+            /*String value = data.value(Integer.class).toString() + "\n";
+            FileOutputStream fos = (FileOutputStream) env[0];
+            fos.write(value.getBytes());*/
         } catch(IOException ex) {
             Log.i("MobilityAI", "Step Subscriber: Error writing to file:" + ex.toString());
         }
@@ -168,7 +172,7 @@ public class MetaMotionService {
 
     public void configureStepCounter() {
         if(m_board.isConnected() && m_accelerometer != null) {
-            m_accelerometer.stepCounter()
+            m_accelerometer.stepDetector()
                     .configure()
                     .mode(AccelerometerBmi160.StepDetectorMode.NORMAL)
                     .commit();
@@ -212,7 +216,7 @@ public class MetaMotionService {
     }
 
     public Task<Route> configureStepCounterLogging(Context context) {
-        return m_accelerometer.stepCounter().addRouteAsync(source -> {
+        return m_accelerometer.stepDetector().addRouteAsync(source -> {
             source.log(STEP_COUNTING_HANDLER);
             Log.i(TAG, "Step Counter Subscriber set");
         }).continueWith((Task<Route> task) -> {
@@ -293,6 +297,7 @@ public class MetaMotionService {
     public void startSensors() {
         Log.i(TAG, "Start all sensors");
         m_accelerometer.acceleration().start();
+        m_accelerometer.stepDetector().start();
         m_accelerometer.start();
         m_gyroscope.angularVelocity();
         m_gyroscope.angularVelocity().start();
@@ -305,19 +310,10 @@ public class MetaMotionService {
     public void stopSensors() {
         Log.i(TAG, "Stop all sensors");
         m_accelerometer.acceleration().stop();
+        m_accelerometer.stepDetector().stop();
         m_accelerometer.stop();
         m_gyroscope.angularVelocity().stop();
         m_gyroscope.stop();
-    }
-
-    public void readStepCounter() {
-        Log.i(TAG, "Read Step Counter");
-        m_accelerometer.stepCounter().read();
-    }
-
-    public void resetStepCounter() {
-        Log.i(TAG, "Resetting step counter");
-        m_accelerometer.stepCounter().reset();
     }
 
     /**
@@ -362,67 +358,6 @@ public class MetaMotionService {
         }
     }
 
-    /**
-     * Uploads the data files onto the server using volley+ library
-     * @param filePath Location of the file to be uploaded
-     * @param context Calling context
-     * @return
-     */
-    public SimpleMultiPartRequest uploadSensorData(String filePath, Context context) {
-        String url = SingletonRequestQueue.getUrl();
-        String accelerometerFile = filePath + "/" + getAccelerometerFileName();
-        String accelerometerGyroscope = filePath + "/" + getGyroscopeFileName();
-
-
-
-        Log.i(TAG, "Starting data upload");
-
-        SimpleMultiPartRequest smr = new SimpleMultiPartRequest(
-            Request.Method.POST,
-            url,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Log.i(TAG, "Response: " + response);
-                    Toast.makeText(context, "Request Complete!", Toast.LENGTH_SHORT).show();
-                }
-            },
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.i(TAG, "Error.response " + error);
-                    Toast.makeText(context, ("Volley Error: " + error), Toast.LENGTH_SHORT).show();
-                }
-            }
-        ) {
-            @Override
-            protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                int mStatusCode = response.statusCode;
-                Log.i(TAG, "Response code: " + mStatusCode);
-                return super.parseNetworkResponse(response);
-            }
-        };
-
-        //TODO: Remove the hard coding of the patients once Patients table is working properly
-        smr.addStringParam("patientId", "25");
-        smr.addFile("DataFile", filePath);
-        smr.setRetryPolicy(new RetryPolicy() {
-            @Override
-            public int getCurrentTimeout() {
-                return 100000;
-            }
-
-            @Override
-            public int getCurrentRetryCount() {
-                return 100000;
-            }
-
-            @Override
-            public void retry(VolleyError error) throws VolleyError { }
-        });
-        return smr;
-    }
-
     public MetaWearBoard getBoard() {
         return m_board;
     }
@@ -435,28 +370,7 @@ public class MetaMotionService {
 
     public String getGyroscopeFileName() { return m_gyroscopeFileName; }
 
-    public int getStepCount(Context context) {
-        int steps = 0;
-
-        try {
-            File file = new File(context.getFilesDir(), m_stepCounterFileName);
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            if((line = br.readLine()) != null)
-                steps = Integer.parseInt(line);
-        } catch(IOException e) {
-            Log.i(TAG, "Error getting step count: " + e.toString());
-        }
-
-        return steps;
-    }
-
-    public String getStepCountDate() {
-        int firstIndex = m_stepCounterFileName.indexOf('_');
-        int secondIndex = m_stepCounterFileName.indexOf('_', firstIndex + 1);
-
-        return m_stepCounterFileName.substring(firstIndex+1, secondIndex);
-    }
+    public String getStepCountFileName() { return m_stepCounterFileName; }
 
     //TODO: Get correct patient IDs
     public int getPatientId() {
