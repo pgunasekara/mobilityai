@@ -17,20 +17,7 @@ export default class SignUp extends React.Component {
 
     }
 
-    // //TODO: Have the web request post the data that is submitted
-    // submitForm = () => {
-    //     console.log("TADA");
-
-    //     // const value = this._form.getValue();
-    //     // console.log('value: ', value);
-    // }
-
     submitForm() {
-        // let response = UserSignUp(this.state.email, this.state.firstName, this.state.lastName, this.state.password);
-        //let response = 
-        // UserSignUp('pg@email.com', 'Pasindu', 'Gunasekara', 'password');
-        // console.log(JSON.stringify(response));
-
         if (this.state.terms) {
             let response = UserSignUp(this.state.email, this.state.firstName, this.state.lastName, this.state.password);
             console.log(JSON.stringify(response));
@@ -117,7 +104,8 @@ export default class SignUp extends React.Component {
                                     checked={this.state.terms}
                                     onPress={() => { 
                                         let terms = !this.state.terms;
-                                        this.setState({ terms: terms}) }}
+                                        this.setState({ terms: terms});
+                                    }}
                                 />
                             </View>
                         </View>

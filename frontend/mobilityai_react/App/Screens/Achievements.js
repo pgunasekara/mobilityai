@@ -52,7 +52,6 @@ export default class PatientAchievements extends React.Component {
 
     render() {
         return (
-            // <ScrollView>
             <View style={styles.container}>
                 <View>
                     <Text style={styles.title}>Activity Goals</Text>
@@ -127,18 +126,7 @@ export default class PatientAchievements extends React.Component {
                             </View>
                         </View>
                     </View>
-
-                    <View>
-                        <Text style={styles.title}>Observations</Text>
-                        <TextInput
-                            editable={true}
-                            multilgit ine={true}
-                            maxLength={400}
-                            style={styles.observationBox}
-                        />
-                    </View>
                 </View>
-
 
                 <View style={styles.saveBtn}>
                     <Button
@@ -148,20 +136,10 @@ export default class PatientAchievements extends React.Component {
                         color="#5DACBD"
                     />
                 </View>
-
-
-
-
             </View>
-            // </ScrollView>
         );
     }
 }
-
-/* boxLayout will make the boxLayout2 space-evenly not work
-removing boxLayout will make it space evenly but in the center 
-doesn't evenly space horizontally
-*/
 
 const styles = StyleSheet.create({
     container: {
@@ -203,13 +181,4 @@ const styles = StyleSheet.create({
         padding: 10,
         color: "#5DACBD",
     },
-
-    observationBox: {
-        height: 150,
-        borderWidth: 2,
-        borderColor: 'black',
-        borderRadius: 10,
-        marginLeft: 10,
-        marginRight: 10,
-    }
 });

@@ -16,7 +16,7 @@ export default class Homescreen extends Component {
         </View>
 
         {/* TEMP */}
-        <View >
+        {/* <View >
           <TouchableHighlight onPress={() => navigate('PatientAchievements', {
             id: 0,
             firstName: 'Rebecca',
@@ -27,7 +27,7 @@ export default class Homescreen extends Component {
               <Text style={styles.regText}>Achievements</Text>
             </View>
           </TouchableHighlight>
-        </View>
+        </View> */}
 
         {/* Button redirecting users to Sign Up page */}
         <View style={styles.buttons}>
