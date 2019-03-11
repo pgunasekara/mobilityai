@@ -15,7 +15,7 @@ export function AddPatientData(patientData) {
 };
 
 export function GetPatients() {
-    const route = "api/Patients";
+    const route = "api/Patients/";
     let url = encodeURI(SERVER_URL + route);
     console.log(SERVER_URL);
     console.log("GetPatients: Make get request to: " + url);
