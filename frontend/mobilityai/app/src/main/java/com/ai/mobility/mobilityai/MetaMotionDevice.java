@@ -1,10 +1,8 @@
 package com.ai.mobility.mobilityai;
 
 public class MetaMotionDevice {
-    private String name;
     private String firstName;
     private String lastName;
-    private String assignedUser;
     private String macAddr;
     private Integer battery;
     private String lastSync;
@@ -12,30 +10,13 @@ public class MetaMotionDevice {
     private int colour;
     private MetaMotionService service;
 
-    public MetaMotionDevice(String name, String assignedUser, String macAddr, Integer battery, String lastSync, int rssi) {
-        this.setName(name);
-        this.setAssignedUser(assignedUser);
+    public MetaMotionDevice(String firstName, String lastName, String macAddr, Integer battery, String lastSync, int rssi) {
+        this.setFirstName(firstName);
+        this.setLastName(lastName);
         this.setMacAddr(macAddr);
         this.setBattery(battery);
         this.setLastSync(lastSync);
         this.setRssi(rssi);
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAssignedUser() {
-        return assignedUser;
-    }
-
-    public void setAssignedUser(String assignedUser) {
-        this.assignedUser = assignedUser;
     }
 
     public String getMacAddr() {
@@ -81,4 +62,12 @@ public class MetaMotionDevice {
     public void setService(MetaMotionService service) {
         this.service = service;
     }
+
+    public String getFirstName() { return firstName; }
+
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+
+    public void setLastName(String lastName) { this.lastName = lastName; }
 }
