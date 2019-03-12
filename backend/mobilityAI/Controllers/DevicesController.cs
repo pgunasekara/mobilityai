@@ -68,19 +68,46 @@ namespace mobilityAI.Controllers {
                                 [FromQuery]int patientId, 
                                 [FromQuery]string lastsync)
         {
+            //Check if valid patient ID entered
+            Patient p = (from a in _context.Patients_Impl
+                         where a.Id == patientId
+                         select a);
+
+            if(p.Count() == 0) {
+                return BadRequest("Patient does not exist");
+            }
+
             Device data = (from a in _context.Devices
                            where (a.Id == deviceId)
                            select a).SingleOrDefault();
 
-            var date = DateTime.Parse(lastsync);
+            if(data == null) {
+                //Add new device
+                Device nDev = new Device()
+                {
+                    Id = deviceId,
+                    FriendlyName = "MetaMotion",
+                    PatientID = patientId,
+                    LastSync = DateTime.Now
+                };
 
-            data.Id = deviceId;
-            data.FriendlyName = name;
-            data.PatientID = patientId;
-            data.LastSync = date;
+                _context.Devices.Add(nDev);
+
+                //Update patient
+                p.DeviceId = nDev.Id;
+            } else {
+                p.DeviceId = data.Id;
+
+                var date = DateTime.Parse(lastsync);
+
+                data.Id = deviceId;
+                data.FriendlyName = name;
+                data.PatientID = patientId;
+                data.LastSync = date;
+            }
 
             _context.SaveChanges();
-            return Ok();
+            return Ok(p.FirstName + "," + p.LastName);
         }
 
         /*

@@ -11,10 +11,12 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.renderscript.ScriptGroup;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -62,45 +64,25 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     private Button m_syncButton, m_reassignButton, m_startLoggingButton, m_stopLoggingButton;
     private ProgressBar m_batteryCircle, m_syncProgressBar, m_loadingBar;
 
+    private MetaMotionService m_service;
+
     private String m_macAddress;
     private BtleService.LocalBinder m_serviceBinder;
-    private MetaWearBoard m_board;
-    private Accelerometer m_accelerometer = null;
-    private GyroBmi160 m_gyroscope = null;
-    private Logging m_logging = null;
-    private Settings m_metawearSettings = null;
 
     private final static String ELAPSEDTIMEZERO = "0";
 
     AlertDialog.Builder builder;
-
-    private static Subscriber DATA_HANDLER = new Subscriber() {
-        @Override
-        public void apply(Data data, Object... env) {
-            try {
-                FileOutputStream fos = (FileOutputStream) env[0];
-                String value =
-                        data.timestamp().getTimeInMillis()+","
-                                +data.formattedTimestamp()+","+
-                                ELAPSEDTIMEZERO +","
-                                +data.value(Acceleration.class).x()+","
-                                +data.value(Acceleration.class).y()+","
-                                +data.value(Acceleration.class).z()+"\n";
-                fos.write(value.getBytes());
-            } catch (IOException ex) {
-                Log.i("MobilityAI", "Error writing to file:" + ex.toString());
-            }
-        }
-    };
-
-    //TODO: Refactor this class to use MetaMotionService
+    AlertDialog m_dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_info);
 
+        builder = new AlertDialog.Builder(this);
+
         initializeDialogBuilder();
+        m_dialog = builder.create();
         findViews();
         hideAllElements(); //Hide all elements until service is connected
 
@@ -115,19 +97,19 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         super.onSaveInstanceState(outState);
 
         //Serialize and save board state
-        if(m_board != null) {
+        /*if(m_board != null) {
             m_board.disconnectAsync();
-        }
+        }*/
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         //Reconnect board
         //deserializeBoard();
-        m_board.connectAsync().continueWith(task -> {
+        /*m_board.connectAsync().continueWith(task -> {
             Log.i(TAG, "Device restored");
             return null;
-        });
+        });*/
     }
 
     private void hideAllElements() {
@@ -164,7 +146,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     public void onDestroy() {
         super.onDestroy();
 
-        if(m_board.isConnected()) {
+        /*if(m_board.isConnected()) {
 
             m_board.disconnectAsync().continueWith(task -> {
                if(!task.isFaulted()) {
@@ -173,7 +155,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                //serializeBoard();
                return null;
             });
-        }
+        }*/
 
         getApplicationContext().unbindService(this);
     }
@@ -185,105 +167,32 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         final BluetoothManager btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         final BluetoothDevice remoteDevice = btManager.getAdapter().getRemoteDevice(m_macAddress);
 
-        m_board = m_serviceBinder.getMetaWearBoard(remoteDevice);
+        m_service = new MetaMotionService(m_serviceBinder.getMetaWearBoard(remoteDevice));
 
-        deserializeBoard();
-
-        m_board.connectAsync().continueWithTask(task -> {
-            if (task.isFaulted()) {
+        //Don't need to deserialize here because we're only taking a battery level reading
+        m_service.connectBoard().continueWithTask(task -> {
+            if(task.isFaulted()) {
                 Log.i("MobilityAI", "Failed to configure app", task.getError());
+                return null;
             } else {
-
                 Log.i("MobilityAI", "App Configured, connected: " + m_macAddress);
 
-                //Retrieve Modules
-                m_accelerometer = m_board.getModule(Accelerometer.class);
-                m_gyroscope = m_board.getModule(GyroBmi160.class);
-                m_logging = m_board.getModule(Logging.class);
-                m_metawearSettings = m_board.getModule(Settings.class);
+                return m_service.getBoard().readBatteryLevelAsync().continueWithTask(batteryLevelTask -> {
+                    int batteryVal = batteryLevelTask.getResult().intValue();
+                    m_batteryPercentage.setText(batteryVal + "%");
 
-                //Reduce max connection interval
-                m_metawearSettings.editBleConnParams()
-                        .maxConnectionInterval(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? 11.25f : 7.5f)
-                        .commit();
+                    ObjectAnimator animation = ObjectAnimator.ofInt(m_batteryCircle, "progress", batteryVal);
+                    animation.setDuration(3000); // in milliseconds
+                    animation.setInterpolator(new DecelerateInterpolator());
+                    animation.start();
 
-                m_board.readBatteryLevelAsync().continueWith(new Continuation<Byte, Object>() {
-                    @Override
-                    public Object then(Task<Byte> task1) throws Exception {
-                        if(task1.isFaulted()) {
-                            Log.i(TAG, "TASK FAULTED");
-                        } else {
-                            int batteryVal = task1.getResult().intValue();
-                            m_batteryPercentage.setText(batteryVal + "%");
+                    showAllElements();
 
-                            ObjectAnimator animation = ObjectAnimator.ofInt(m_batteryCircle, "progress", batteryVal);
-                            animation.setDuration(3000); // in milliseconds
-                            animation.setInterpolator(new DecelerateInterpolator());
-                            animation.start();
-                        }
-
-                        showAllElements();
-                        return null;
-                    }
+                    return null;
                 }, Task.UI_THREAD_EXECUTOR);
             }
-
-            m_startLoggingButton.setOnClickListener(l -> {
-                Log.i(TAG, "Start Logging");
-                //Reconfigure
-                configureAccelerometer();
-                configureGyroscope();
-                configureLogging().continueWith(task1 -> {
-                    m_accelerometer.acceleration().start();
-                    m_accelerometer.start();
-                    m_gyroscope.angularVelocity().start();
-                    m_gyroscope.start();
-
-                    serializeBoard();
-
-                    m_logging.start(true);
-
-                    Log.i(TAG, "Done");
-
-                    return null;
-                });
-            });
-
-            m_stopLoggingButton.setOnClickListener(l -> {
-                //Stop accelerometer and gyroscope
-                Log.i(TAG, "Stop Logging");
-
-                m_accelerometer.acceleration().stop();
-                m_accelerometer.stop();
-                m_gyroscope.angularVelocity().stop();
-                m_gyroscope.stop();
-
-                //Stop logging
-                m_logging.stop();
-
-                setEnv();
-
-                m_logging.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
-                    m_syncProgressBar.setProgress((int)totalEntries - (int)nEntriesLeft);
-                    m_syncProgressBar.setMax((int)totalEntries);
-                }).continueWithTask(t -> {
-                    if(t.isFaulted()) {
-                        Toast.makeText(this, "Failed to download log file.", Toast.LENGTH_LONG).show();
-                        Log.i(TAG, "Failed to download log file.");
-                    } else {
-                        Log.i(TAG, "Log downloaded successfully");
-                        //Clear Log
-                        m_logging.clearEntries();
-
-                        Log.i(TAG, "Location: " + this.getFilesDir().getAbsolutePath());
-                    }
-
-                    //Clear everything on the board
-                    m_board.tearDown();
-                    return null;
-                });
-
-            });
+        }, Task.UI_THREAD_EXECUTOR).continueWithTask(task -> {
+            m_service.disconnectBoard();
             return null;
         });
 
@@ -294,32 +203,6 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         populateFields();
     }
 
-    private Task<Route> addRoutes() {
-        return m_accelerometer.acceleration().addRouteAsync(source -> {
-            source.log(DATA_HANDLER);
-        });
-    }
-
-    private FileOutputStream fos;
-    private void setEnv() {
-        try {
-            InputStream inputStream = this.openFileInput("id-"+m_board.getMacAddress());
-            if(inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-                String res = bufferedReader.readLine();
-                int routeId = Integer.parseInt(res);
-                //Set env for route
-                Route accelRoute = m_board.lookupRoute(routeId);
-                String datetime = DateFormat.getDateTimeInstance().format(new Date());
-                fos = openFileOutput("accelerometer-"+datetime, MODE_PRIVATE);
-                fos.write("epoch (ms),time (-13:00),elapsed (s),x-axis (g),y-axis (g),z-axis (g)\n".getBytes());
-                accelRoute.setEnvironment(0, fos);
-            }
-        } catch (IOException e) { Log.i(TAG, "DeviceInfoActivity::setEnv(): " + e.toString()); }
-    }
-
     @Override
     public void onServiceDisconnected(ComponentName name) { }
 
@@ -328,7 +211,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
      * Populate fields with intent extras passed in from caller activity
      */
     private void populateFields() {
-        String name = getIntent().getStringExtra("EXTRA_FNAME") + getIntent().getStringExtra("EXTRA_LNAME");
+        String name = getIntent().getStringExtra("EXTRA_FNAME")
+                + " " + getIntent().getStringExtra("EXTRA_LNAME");
         String macAddr = "MAC Address: " + getIntent().getStringExtra("EXTRA_MAC_ADDR");
         int rssi = getIntent().getIntExtra("EXTRA_RSSI", -100);
         String lastSync = "Last Sync: " + getIntent().getStringExtra("EXTRA_LAST_SYNC");
@@ -356,8 +240,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         m_stopLoggingButton = findViewById(R.id.stopLoggingButton);
 
         m_reassignButton.setOnClickListener(l -> {
-            AlertDialog dialog = builder.create();
-            dialog.show();
+
+            m_dialog.show();
         });
     }
 
@@ -365,137 +249,11 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
      * Sync button handler to connect, sync data, and restart logging
      */
     private void setSyncButtonOnClickHandler() {
-        if(m_board.isConnected()) {
+        //if(m_board.isConnected()) {
             m_syncButton.setOnClickListener((View v) -> {
-                //Stop accelerometer and gyroscope
-                m_accelerometer.acceleration().stop();
-                m_accelerometer.stop();
-                m_gyroscope.angularVelocity().stop();
-                m_gyroscope.stop();
 
-                //Stop logging
-                m_logging.stop();
-
-                //Collect Log
-                m_logging.downloadAsync().continueWithTask(task -> {
-                   if(task.isFaulted()) {
-                       Toast.makeText(this, "Failed to download log file.", Toast.LENGTH_LONG).show();
-                       Log.i(TAG, "Failed to download log file.");
-                   } else {
-                        Log.i(TAG, "Log downloaded successfully");
-                   }
-
-                   //Clear everything on the board
-                   m_board.tearDown();
-                    return null;
-                });
-
-
-                //Clear Log
-                m_logging.clearEntries();
-
-                //Reconfigure
-                configureAccelerometer();
-                configureGyroscope();
-                configureLogging();
-
-                //Restart logging
-                m_logging.start(true);
-
-                //Reprogram accelerometer and gyroscope
-                m_accelerometer.acceleration().start();
-                m_accelerometer.start();
-                m_gyroscope.angularVelocity().start();
-                m_gyroscope.start();
             });
-        }
-    }
-
-    /**
-     * Set ODR for accelerometer
-     */
-    private void configureAccelerometer() {
-        if(m_board.isConnected() && m_accelerometer != null) {
-            m_accelerometer.configure()
-                           .odr(25f)       // Set sampling frequency to 25Hz, or closest valid ODR
-                           .commit();
-            Log.i(TAG, "Accelerometer Configured");
-        }
-    }
-
-    /**
-     * Set ODR and range for gyroscope
-     */
-    private void configureGyroscope() {
-        if(m_board.isConnected() && m_gyroscope != null) {
-            m_gyroscope.configure()
-                       .odr(GyroBmi160.OutputDataRate.ODR_25_HZ)
-                       .range(GyroBmi160.Range.FSR_2000)
-                       .commit();
-
-            Log.i(TAG, "Gyroscope Configured");
-        }
-    }
-
-    /**
-     * Add logging handler and environment variables
-     * @return Route for logging task
-     */
-    private Task<Route> configureLogging() {
-        //Configure Accelerometer
-        if(m_board.isConnected() && m_logging != null && m_accelerometer != null ) {
-            //Add new async route to log data
-            return m_accelerometer.acceleration().addRouteAsync((RouteComponent source) -> {
-                source.log(DATA_HANDLER);
-            }).continueWith((Task<Route> task) -> {
-                try {
-
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(this.openFileOutput("id-"+m_board.getMacAddress(), Context.MODE_PRIVATE));
-                    int res = task.getResult().id();
-                    outputStreamWriter.write(Integer.toString(res));
-                    outputStreamWriter.close();
-                }catch (IOException e) { }
-
-                return null;
-            });
-        }
-        return null;
-    }
-
-    /**
-     * Serializes the current board into a local file to be restored later
-     */
-    private void serializeBoard() {
-        try {
-            File serializeFile = new File(this.getFilesDir(), m_board.getMacAddress());
-            serializeFile.createNewFile();
-            OutputStream writer = new FileOutputStream(serializeFile, false);
-            m_board.serialize(writer);
-            writer.close();
-            Log.i(TAG, "Serialized: " + m_board.getMacAddress());
-        } catch (IOException e) {
-            Log.i(TAG, "Write failed for: " + m_board.getMacAddress() + " " + e.toString());
-            e.printStackTrace();
-            Log.i(TAG, "Trace");
-        }
-    }
-
-    /**
-     * Restores the current board if already serialized
-     */
-    private void deserializeBoard() {
-        try {
-            File serializeFile = new File(this.getFilesDir(), m_board.getMacAddress());
-            InputStream reader = new FileInputStream(serializeFile);
-            m_board.deserialize(reader);
-            reader.close();
-            serializeFile.delete();
-            Log.i(TAG, "Deserialized: " + m_board.getMacAddress());
-        } catch (IOException e) {
-            Log.i(TAG, "Failed to read - 1: " + m_board.getMacAddress() + " " + e.toString());
-        } catch (ClassNotFoundException e) {
-            Log.i(TAG, "Failed to read - 2: " + m_board.getMacAddress() + " " + e.toString());
-        }
+        //}
     }
 
     /**
@@ -503,17 +261,25 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
      * TODO: populate this with real data
      */
     private void initializeDialogBuilder() {
-        builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select a New User ID").setSingleChoiceItems(R.array.patientnames, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //User clicked on this
-            }
-        });
+        builder.setTitle("Enter a new Patient ID");
+
+        final EditText userInput = new EditText(this);
+        userInput.setHint("Patient ID");
+
+
+        userInput.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        builder.setView(userInput);
+
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //user clicked OK
+                String ui = userInput.getText().toString();
+                if(!ui.equals("")) {
+
+                }
+                Log.i(TAG, "UI: " + userInput.getText().toString());
             }
         });
 

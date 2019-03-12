@@ -9,8 +9,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.error.VolleyError;
-import com.android.volley.request.JsonObjectRequest;
-import com.android.volley.request.JsonRequest;
 import com.android.volley.request.SimpleMultiPartRequest;
 import com.android.volley.request.StringRequest;
 
@@ -55,6 +53,15 @@ class WebRequest {
         Log.i("MobilityAI", url);
 
         StringRequest retVal = new StringRequest(Request.Method.GET, url, listener, eListener);
+        retVal.setShouldCache(false);
+
+        return retVal;
+    }
+
+    public StringRequest assignNewPatient(Context context, Response.Listener<String> listener, Response.ErrorListener eListener, String macAddr, int patientId) {
+        String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr;
+
+        StringRequest retVal = new StringRequest(Request.Method.PUT, url, listener, eListener);
         retVal.setShouldCache(false);
 
         return retVal;

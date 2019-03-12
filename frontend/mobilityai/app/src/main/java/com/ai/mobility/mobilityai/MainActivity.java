@@ -279,8 +279,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                             @Override
                             public void run() {
                                 Log.i(TAG, "Found: " + result.getDevice().getAddress());
-                                if(result.getDevice().getAddress().equals("D1:87:11:D8:F3:C0")) {
-                                    Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
+                                //if(result.getDevice().getAddress().equals("D1:87:11:D8:F3:C0")) {
+                                    //Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
 
                                     //Only make web request if device does not already exist in list of devices
                                     if(!deviceExists(result.getDevice().getAddress())) {
@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                                         m_rqueue.addToRequestQueue(WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress()));
                                     }
-                                }
+                                //}
                             }
                         });
                     }
