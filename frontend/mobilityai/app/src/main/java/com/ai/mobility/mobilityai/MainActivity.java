@@ -281,25 +281,28 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 Log.i(TAG, "Found: " + result.getDevice().getAddress());
                                 if(result.getDevice().getAddress().equals("D1:87:11:D8:F3:C0")) {
                                     Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
-                                    //Make request to get device information
 
-                                    Response.Listener ls = new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            Log.i(TAG, response);
+                                    //Only make web request if device does not already exist in list of devices
+                                    if(!deviceExists(result.getDevice().getAddress())) {
+                                        //Make request to get device information
+                                        Response.Listener ls = new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                Log.i(TAG, response);
 
-                                            addNewDevice(response, result.getDevice().getAddress(), result.getRssi());
-                                        }
-                                    };
+                                                addNewDevice(response, result.getDevice().getAddress(), result.getRssi());
+                                            }
+                                        };
 
-                                    Response.ErrorListener el = new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            addNewDevice(null, result.getDevice().getAddress(), result.getRssi());
-                                        }
-                                    };
+                                        Response.ErrorListener el = new Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                                addNewDevice(null, result.getDevice().getAddress(), result.getRssi());
+                                            }
+                                        };
 
-                                    m_rqueue.addToRequestQueue(WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress()));
+                                        m_rqueue.addToRequestQueue(WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress()));
+                                    }
                                 }
                             }
                         });
@@ -601,6 +604,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
     }
 
+    /**
+     * Add a new device to the device list after getting the device details from the server
+     * @param response Response containing first name, last name, and last synced date
+     * @param macAddr Mac address of new device to be added
+     * @param rssi Signal strength of new device to be added
+     */
     private void addNewDevice(String response, String macAddr, int rssi) {
         String firstName = "Unregistered Device";
         String lastName = "";
@@ -622,5 +631,20 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
 
         m_adapter.update(new MetaMotionDevice(firstName, lastName, macAddr, 50, lastSync, rssi));
+    }
+
+    /**
+     * Check if device was already found
+     * @param address MAC address of newly found device
+     * @return If the device was already found, return true, else return false
+     */
+    private boolean deviceExists(String address) {
+        for(MetaMotionDevice d : m_deviceList) {
+            if(d.getMacAddr().equals(address)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

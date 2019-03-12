@@ -54,7 +54,10 @@ class WebRequest {
         String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr;
         Log.i("MobilityAI", url);
 
-        return new StringRequest(Request.Method.GET, url, listener, eListener);
+        StringRequest retVal = new StringRequest(Request.Method.GET, url, listener, eListener);
+        retVal.setShouldCache(false);
+
+        return retVal;
     }
 
     private SimpleMultiPartRequest getSMRObject(Context context, String url) {
