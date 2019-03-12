@@ -12,6 +12,7 @@ import com.android.volley.error.VolleyError;
 import com.android.volley.request.JsonObjectRequest;
 import com.android.volley.request.JsonRequest;
 import com.android.volley.request.SimpleMultiPartRequest;
+import com.android.volley.request.StringRequest;
 
 import org.json.JSONObject;
 
@@ -49,10 +50,11 @@ class WebRequest {
         return smr;
     }
 
-    public JsonObjectRequest getDeviceInfo(Context context, Response.Listener<JSONObject> listener, Response.ErrorListener eListener, String macAddr) {
+    public StringRequest getDeviceInfo(Context context, Response.Listener<String> listener, Response.ErrorListener eListener, String macAddr) {
         String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr;
         Log.i("MobilityAI", url);
-        return new JsonObjectRequest(Request.Method.GET, url, null, listener, eListener);
+
+        return new StringRequest(Request.Method.GET, url, listener, eListener);
     }
 
     private SimpleMultiPartRequest getSMRObject(Context context, String url) {

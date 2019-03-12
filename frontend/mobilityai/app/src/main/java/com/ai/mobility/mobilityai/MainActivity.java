@@ -283,9 +283,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                     Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
                                     //Make request to get device information
 
-                                    Response.Listener ls = new Response.Listener<JSONObject>() {
+                                    Response.Listener ls = new Response.Listener<String>() {
                                         @Override
-                                        public void onResponse(JSONObject response) {
+                                        public void onResponse(String response) {
+                                            Log.i(TAG, response);
+
                                             addNewDevice(response, result.getDevice().getAddress(), result.getRssi());
                                         }
                                     };
@@ -599,19 +601,20 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
     }
 
-    private void addNewDevice(JSONObject response, String macAddr, int rssi) {
+    private void addNewDevice(String response, String macAddr, int rssi) {
         String firstName = "Unregistered Device";
         String lastName = "";
         String lastSync = "Never";
 
         if(response != null) {
             try {
-                String id = response.getString("id");
+                JSONObject res = new JSONObject(response);
+                String id = res.getString("id");
 
                 if (!id.equals("-1")) {
-                    firstName = response.getString("FirstName");
-                    lastName = response.getString("LastName");
-                    lastSync = response.getString("LastSync");
+                    firstName = res.getString("firstName");
+                    lastName = res.getString("lastName");
+                    lastSync = res.getString("lastSync");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
