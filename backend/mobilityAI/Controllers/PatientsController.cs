@@ -71,6 +71,7 @@ namespace mobilityAI.Controllers
         [HttpPost]
         public IActionResult CreatePatient(string patientData)
         {
+            Patient p = new Patient();
             Patient_Impl data = new Patient_Impl();
 
             data.Data = patientData;

@@ -92,6 +92,7 @@ namespace mobilityAI.Controllers {
                 };
 
                 _context.Devices.Add(nDev);
+                _context.SaveChanges(); //save changes here to get the new ID
 
                 //Update patient
                 p.DeviceId = nDev.Id;
