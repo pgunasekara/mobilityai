@@ -190,8 +190,8 @@ namespace mobilityAI.Controllers
         public IActionResult PatientAchievements(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
         {
             ActivityGoal dataQuery = (from a in _context.ActivityGoals
-                                     where (a.Id == patientId)
-                                     select a).SingleOrDefault();
+                                      where (a.Id == patientId)
+                                      select a).SingleOrDefault();
 
             if (dataQuery != null)
             {
@@ -240,8 +240,8 @@ namespace mobilityAI.Controllers
         public IActionResult GetPatientAchievements(int patientId)
         {
             ActivityGoal data = (from a in _context.ActivityGoals
-                                where a.Id == patientId
-                                select a).SingleOrDefault();
+                                 where a.Id == patientId
+                                 select a).SingleOrDefault();
 
             if (data == null)
             {
@@ -271,13 +271,52 @@ namespace mobilityAI.Controllers
             return new JsonResult(new List<Step>()); //Empty list indicates that no data was found
         }
 
-        /*
+        /// <summary>
+        /// Updating existing patient information
+        /// </summary>
+        /// <param name="patientId">
+        /// The id value of the patient that the data will be updated for
+        /// </param>
+        /// <param name="patientData">
+        /// Data that will be updated for the corresponding patient
+        /// </param>
         [HttpPut("{patientId}")]
-        public IActionResult UpdatePatient(string patientId, string PatientData) { ... }
+        public IActionResult UpdatePatient(int patientId, string patientData) { 
+            Patient_Impl data = (from a in _context.Patients_Impl
+                                 where a.Id == patientId
+                                 select a).SingleOrDefault();
+            
+            data.Id = patientId;
+            data.Data = patientData;
 
+            _context.SaveChanges();
+            return Ok();         
+        }
+  
+
+        /// <summary>
+        /// Retrieve patient survey data
+        /// </summary>
+        /// <param name="patientId">
+        /// The id value of the patient
+        /// </param>
+        /// <returns>
+        /// If the patientId is found, returns the json results
+        /// </returns>
         [HttpGet("{patientId}")]
-        public IActionResult GetPatientData(string patientId) { ... }
-         */
+        public JsonResult PatientData(int patientId)
+        {
+            Patient_Impl data = (from a in _context.Patients_Impl
+                                 where a.Id == patientId
+                                 select a).SingleOrDefault();
+
+            if (data != null)
+            {
+                return new JsonResult(data);
+            }
+            Patient_Impl b = new Patient_Impl();
+            return new JsonResult(b);
+        }
 
         private static DateTime FromUnixTime(long time)
         {
@@ -285,7 +324,7 @@ namespace mobilityAI.Controllers
             return epoch.AddSeconds(time);
         }
 
-        private static long ToUnixTime(DateTime time) 
+        private static long ToUnixTime(DateTime time)
         {
             TimeSpan diff = time.ToUniversalTime() - epoch;
             return (long)Math.Floor(diff.TotalSeconds);
