@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { BarChart, Grid, XAxis, YAxis } from 'react-native-svg-charts'
+import { BarChart, Grid, XAxis, YAxis } from 'react-native-svg-charts';
+import { Text } from 'react-native-svg';
 
 // displaying the bar graph for the movement of the activity 
 export default class BarGraph extends Component {
@@ -8,7 +9,23 @@ export default class BarGraph extends Component {
         const fill = this.props.color;
         const time = ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM'];
 
-        const contentInset = { top: 30, bottom: 30 }
+        const contentInset = { top: 30, bottom: 30 };
+
+        const Labels = ({ x, y, bandwidth, data }) => (
+            data.map((value, index) => (
+                <Text
+                    key={ index }
+                    x={ x(index) + (bandwidth / 2) }
+                    y={ 165 - this.props.goalLine * 2.2 }
+                    fontSize={ 14 }
+                    fill={ 'blue' }
+                    alignmentBaseline={ 'bottom' }
+                    textAnchor={ 'middle' }
+                >
+                    _______
+                </Text>
+            ))
+        );
 
         return (
             <View style={styles.graphContainer}>
@@ -33,7 +50,9 @@ export default class BarGraph extends Component {
                             yMax={60}
                         >
                             <Grid />
-                            <View style={[styles.hr, {bottom: this.props.activityTime}]}/>
+                            {this.props.requiresGoalLine == true &&
+                                <Labels />
+                            }
                         </BarChart>
                         <XAxis
                             style={{ marginHorizontal: -10 }}
@@ -62,6 +81,6 @@ const styles = StyleSheet.create({
     hr: {
         borderBottomColor: 'black',
         borderBottomWidth: 1,
-        bottom: 30,
+        bottom: 100,
     }
 });

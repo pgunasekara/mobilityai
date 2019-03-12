@@ -15,7 +15,15 @@ import moment from 'moment';
 //TODO: Remove temporary data once we get proper data from the server
 //TODO: Add better error logging if data cannot be found
 
-var arrayColours = {
+const activityTypes = {
+    sitting: 'sitting',
+    standing: 'standing',
+    walking: 'walking',
+    lyingDown: 'lyingDown',
+    unknown: 'unknown'
+}
+
+const arrayColours = {
     standing: '#3498DB',
     sitting: '#1ABC9C',
     lyingDown: '#9B59B6',
@@ -39,17 +47,25 @@ export default class PatientData extends Component {
             firstName: props.firstName,
             lastName: props.lastName,
             barColour: arrayColours['unknown'],
-            activityTime: 30,
-            stepGoal: 0,
+            activityGoals: {
+                'id': props.id,
+                'steps': 0,
+                'activeMinutes': 0,
+                'walkingMinutes': 0,
+                'standingMinutes': 0
+            },
             data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             date: props.date,
             movementPercentages: { 'sitting': { total: 0, bar: new Array(13) }, 'standing': { total: 0, bar: new Array(13) }, 'lyingDown': { total: 0, bar: new Array(13) }, 'walking': { total: 0, bar: new Array(13) }, 'unknown': { total: 0, bar: new Array(13) } },
             steps: this.getRandomInt(300, 1500),
+            activityType: activityTypes.sitting,
         }
     };
 
-    _onPressButton(activityColour, newData) {
-        this.setState({ barColour: arrayColours[activityColour] });
+    _onPressButton(newActivityType, newData) {
+        console.log(`Setting new activity type ${newActivityType}`);
+        this.setState({ activityType: newActivityType });
+        this.setState({ barColour: arrayColours[newActivityType] });
         this.setState({ data: newData });
     };
 
@@ -59,9 +75,8 @@ export default class PatientData extends Component {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    getPatientData() {
-        var startDate = this.state.date;
-        var endDate = new Date(this.state.date);
+    getPatientData(startDate) {
+        var endDate = new Date(startDate);
 
         switch (this.props.tabView) {
             case Tabs.daily:
@@ -97,28 +112,19 @@ export default class PatientData extends Component {
         });
 
         GetPatientAchievements(this.props.id).then((achievementsJson) => {
-            this.setState({ achievementPercentages: achievementsJson });
-
-            let actTime;
-            if (achievementsJson.Id != -1) {
-                actTime = achievementsJson.activityTime;
-                actTime = ((actTime / 60) * 138) + 30;
-
-                this.setState({ activityTime: actTime });
-                this.setState({ stepGoal: achievementsJson.steps });
-            }
+            this.setState({ activityGoals: achievementsJson });
         });
 
     }
 
     componentDidMount() {
-        this.getPatientData();
+        this.getPatientData(this.state.date);
     };
 
     setDate(rDate) {
         this.setState({ date: rDate });
         console.log(this.state.date);
-        this.getPatientData();
+        this.getPatientData(rDate);
     }
 
     render() {
@@ -131,8 +137,8 @@ export default class PatientData extends Component {
                         <Text style={styles.errorText}>{this.state.error}</Text>
                         <View style={[styles.center, styles.widthSize]}>
                             <GetDate
-                                date={this.setDate.bind(this)}
-                                newDate={this.state.date}
+                                dateCallback={this.setDate.bind(this)}
+                                date={this.state.date}
                             />
                         </View>
                     </View>
@@ -146,23 +152,23 @@ export default class PatientData extends Component {
 
         const userActivities = [
             {
-                itemName: 'sitting',
+                itemName: activityTypes.sitting,
                 movement: this.state.movementPercentages.sitting.total,
             },
             {
-                itemName: 'lyingDown',
+                itemName: activityTypes.lyingDown,
                 movement: this.state.movementPercentages.lyingDown.total,
             },
             {
-                itemName: 'walking',
+                itemName: activityTypes.walking,
                 movement: this.state.movementPercentages.walking.total,
             },
             {
-                itemName: 'standing',
+                itemName: activityTypes.standing,
                 movement: this.state.movementPercentages.standing.total,
             },
             {
-                itemName: 'unknown',
+                itemName: activityTypes.unknown,
                 movement: this.state.movementPercentages.unknown.total,
             },
 
@@ -176,6 +182,23 @@ export default class PatientData extends Component {
             .padAngle(.05) //defines the amount of whitespace between sections
             .innerRadius(60); //the size of the inner 'donut' whitespace
 
+
+        var requiresGoalLine = false;
+        var goalLine = 0;
+        if (this.state.activityType == activityTypes.standing || this.state.activityType == activityTypes.walking) {
+            requiresGoalLine = true;
+            switch (this.state.activityType) {
+                case activityTypes.standing:
+                    goalLine += this.state.activityGoals.standingMinutes;
+                    break;
+                default:
+                    goalLine += this.state.activityGoals.walkingMinutes;
+                    break;
+            }
+        }
+
+        console.log(`Requires goal line: ${requiresGoalLine} goal line: ${goalLine}`);
+
         return (
             <ScrollView>
                 <View>
@@ -184,8 +207,8 @@ export default class PatientData extends Component {
                             {this.props.tabTitle}
                         </Text>
                         <GetDate
-                            date={this.setDate.bind(this)}
-                            newDate={this.state.date}
+                            dateCallback={this.setDate.bind(this)}
+                            date={this.state.date}
                         />
                     </View>
 
@@ -214,34 +237,34 @@ export default class PatientData extends Component {
 
                     {/* Displaying the circle buttons for each activity */}
                     <View style={styles.flexDir}>
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'standing', this.state.movementPercentages.standing.bar)} underlayColor="white">
+                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.standing, this.state.movementPercentages.standing.bar)} underlayColor="white">
                             <Circle activity='Standing' activityIcon='male' iconLib='font-awesome' color={arrayColours.standing} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'sitting', this.state.movementPercentages.sitting.bar)} underlayColor="white">
+                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.sitting, this.state.movementPercentages.sitting.bar)} underlayColor="white">
                             <Circle activity='Sitting' activityIcon='airline-seat-recline-normal' iconLib='MaterialIcons' color={arrayColours.sitting} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'lyingDown', this.state.movementPercentages.lyingDown.bar)} underlayColor="white">
+                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.lyingDown, this.state.movementPercentages.lyingDown.bar)} underlayColor="white">
                             <Circle activity='Lying Down' activityIcon='bed' iconLib='font-awesome' color={arrayColours.lyingDown} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'walking', this.state.movementPercentages.walking.bar)} underlayColor="white">
+                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.walking, this.state.movementPercentages.walking.bar)} underlayColor="white">
                             <Circle activity='Walking' activityIcon='directions-walk' iconLib='MaterialIcons' color={arrayColours.walking} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this, 'unknown', this.state.movementPercentages.unknown.bar)} underlayColor="white">
+                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.unknown, this.state.movementPercentages.unknown.bar)} underlayColor="white">
                             <Circle activity='Miscellaneous' activityIcon='question' iconLib='font-awesome' color={arrayColours.unknown} />
                         </TouchableHighlight>
                     </View>
-
-                    <View>
-                        <BarGraph
-                            color={this.state.barColour}
-                            data={this.state.data}
-                            activityTime={this.state.activityTime}
-                        />
-                    </View>
+                        <View>
+                            <BarGraph
+                                color={this.state.barColour}
+                                data={this.state.data}
+                                goalLine={goalLine}
+                                requiresGoalLine={requiresGoalLine}
+                            />
+                        </View>
                 </View>
             </ScrollView>
         );
