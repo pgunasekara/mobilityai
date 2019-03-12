@@ -10,6 +10,7 @@ import PatientListItem from './PatientListItem';
 import { GetPatients } from '../Lib/Api';
 
 export default class PatientList extends React.Component {
+
     static navigationOptions = ({ navigation }) => {
         redirectOptions = [
             {
