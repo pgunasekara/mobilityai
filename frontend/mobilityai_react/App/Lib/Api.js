@@ -48,7 +48,7 @@ export function GetPatientActivities(start, end, patientId) {
 
 export function GetPatientAchievements(patientId) {
     const route = "api/Patients/" + patientId + "/Achievements";
-    let url = encodeURI(SERVER_URL + route + patientId);
+    let url = encodeURI(SERVER_URL + route);
     console.log("GetPatientAchievements: Make get request to: " + url);
 
     return RNFetchBlob.config({

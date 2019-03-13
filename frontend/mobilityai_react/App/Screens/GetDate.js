@@ -7,16 +7,13 @@ import moment from 'moment';
 
 // Getting the current date
 export default class GetDate extends Component {
-    state = {
-        isDateTimePickerVisible: false,
-    };
 
     _showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true });
     _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
     _handleDatePicked = (date) => {
         console.log('A date has been picked: ', date);
         this._hideDateTimePicker();
-        this.props.date(date);
+        this.props.dateCallback(date);
         this.setState({date: date});
         var fDate = moment(this.state.date).format('MMMM Do YYYY');
         this.setState({formattedDate: fDate});
@@ -24,11 +21,9 @@ export default class GetDate extends Component {
 
     constructor(props) {
         super(props);
-        const date = new Date(props.newDate);
-        var fDate = moment(date).format('MMMM Do YYYY');
         this.state = {
-            date: date,
-            formattedDate: fDate,
+            date: props.date,
+            formattedDate: moment(props.date).format('MMMM Do YYYY'),
         };
     }
 

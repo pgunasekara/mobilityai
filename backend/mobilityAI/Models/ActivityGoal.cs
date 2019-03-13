@@ -5,17 +5,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace mobilityAI.Models {
     public class ActivityGoal {
-        [Key, ForeignKey("Patients")]
-        public int Id {
-            get; set;
-        }
+        [Key, ForeignKey("Patients")] 
+        public int Id { get; set; }
+
         [Required]
-        public int Steps {
-            get; set;
-        }
+        public int Steps { get; set; }
+
         [Required]
-        public int ActivityTime {
-            get; set;
-        }
+        public int ActiveMinutes { get; set; }
+
+        [Required]
+        public int WalkingMinutes { get; set; }
+        [Required]
+        public int StandingMinutes { get; set; }
     }
 }

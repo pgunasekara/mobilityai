@@ -186,31 +186,43 @@ namespace mobilityAI.Controllers
         /// <returns>
         /// 200 if successful
         /// </returns>
-        [HttpPost("{patientId}/Achievements")]
-        public IActionResult PatientAchievements(int patientId, int steps, int activityTime)
+        [HttpPut("{patientId}/Achievements")]
+        public IActionResult PatientAchievements(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
         {
             ActivityGoal dataQuery = (from a in _context.ActivityGoals
                                       where (a.Id == patientId)
                                       select a).SingleOrDefault();
 
-            if (dataQuery == null)
-            {
-                ActivityGoal data = new ActivityGoal();
-
-                data.Id = patientId;
-                data.Steps = steps;
-                data.ActivityTime = activityTime;
-
-                _context.ActivityGoals.Add(data);
-            }
-            else
+            if (dataQuery != null)
             {
                 dataQuery.Id = patientId;
                 dataQuery.Steps = steps;
-                dataQuery.ActivityTime = activityTime;
+                dataQuery.ActiveMinutes = activeMinutes;
+                dataQuery.WalkingMinutes = walkingMiutes;
+                dataQuery.StandingMinutes = standingMinutes;
+
+                _context.SaveChanges();
+                return Ok();
             }
+            else
+            {
+                return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
+            }
+        }
+
+        [HttpPost("{patientId}/Achievements")]
+        public IActionResult NewPatientAchievement(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
+        {
+            _context.ActivityGoals.Add(new ActivityGoal {
+                Id = patientId,
+                Steps = steps,
+                ActiveMinutes = activeMinutes,
+                WalkingMinutes = walkingMiutes,
+                StandingMinutes = standingMinutes
+            });
 
             _context.SaveChanges();
+
             return Ok();
         }
 
@@ -225,7 +237,7 @@ namespace mobilityAI.Controllers
         /// If the patient has achievement stats, returns the stats
         /// </returns>
         [HttpGet("{patientId}/Achievements")]
-        public JsonResult GetPatientAchievements(int patientId)
+        public IActionResult GetPatientAchievements(int patientId)
         {
             ActivityGoal data = (from a in _context.ActivityGoals
                                  where a.Id == patientId
@@ -233,9 +245,7 @@ namespace mobilityAI.Controllers
 
             if (data == null)
             {
-                ActivityGoal a = new ActivityGoal();
-                a.Id = -1;
-                return new JsonResult(a);
+                return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
             }
 
             return new JsonResult(data);
