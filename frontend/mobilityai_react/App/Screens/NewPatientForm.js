@@ -99,7 +99,7 @@ export default class PatientForm extends React.Component {
     }
 
     toTwentyFourHourTime(txt){
-        const intRep = parseInt(txt, 10) || 0
+        const intRep = parseInt(txt, 10) || -1
         if (intRep > 23 || intRep < 0) {
             return "";
         }
