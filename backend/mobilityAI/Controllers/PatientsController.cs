@@ -188,18 +188,13 @@ namespace mobilityAI.Controllers
         }
 
         /// <summary>
-        /// Adding patient achievements. If current achievement stats exist, update the information. 
-        /// If it doesn't exist, add a new row to the database for that patient
+        /// Update patients achievement information
         /// </summary>
-        /// <param name="patientId">
-        /// The id value of the patient
-        /// </param>
-        /// <param name="steps">
-        /// The number of steps goal that the patient wishes to achieve 
-        /// </param>
-        /// <param name="activityTime">
-        /// The goal for total activity time to move  the patient wishes to achieve
-        /// </param>
+        /// <param name="patientId">Patient Id you want to update</param>
+        /// <param name="steps">The goal for the number of steps per day</param>
+        /// <param name="activeMinutes">The goal for the number of active minutes per hour</param>
+        /// <param name="walkingMiutes">The goal for the number of walking minutes per hour</param>
+        /// <param name="standingMinutes">The goal for the number of standing minutes per hour</param>
         /// <returns>
         /// 200 if successful
         /// </returns>
@@ -227,6 +222,15 @@ namespace mobilityAI.Controllers
             }
         }
 
+        /// <summary>
+        /// Create new patient activity
+        /// </summary>
+        /// <param name="patientId">Patient Id you want to update</param>
+        /// <param name="steps">The goal for the number of steps per day</param>
+        /// <param name="activeMinutes">The goal for the number of active minutes per hour</param>
+        /// <param name="walkingMiutes">The goal for the number of walking minutes per hour</param>
+        /// <param name="standingMinutes">The goal for the number of standing minutes per hour</param>
+        /// <returns></returns>
         [HttpPost("{patientId}/Achievements")]
         public IActionResult NewPatientAchievement(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
         {
