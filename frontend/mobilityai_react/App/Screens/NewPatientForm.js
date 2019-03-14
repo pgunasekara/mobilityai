@@ -97,6 +97,15 @@ export default class PatientForm extends React.Component {
         this.setState({ onsetOfCondition: newText });
     }
 
+    toTwentyFourHourTime(txt){
+        const intRep = parseInt(txt, 10) || 0
+        if (intRep > 23 || intRep < 0) {
+            return "";
+        }
+
+        return intRep;
+    }
+
     render() {
         const maxHours = 24;
         const baselineStepSize = 0.25;
@@ -167,7 +176,11 @@ export default class PatientForm extends React.Component {
                         <Field 
                             placeholder="Daily time spent standing..."
                             keyboardType='numeric'
-                            onChangeText={(baselineStand) => this.setState({ baselineStand })}
+                            onChangeText={(val) => {
+                                    const baselineStand = this.toTwentyFourHourTime(val);
+                                    this.setState({ baselineStand });
+                                }
+                            }
                             value={this.state.baselineStand}
                             maxLength={2}  //setting limit of input
                         />
@@ -175,7 +188,11 @@ export default class PatientForm extends React.Component {
                         <Field 
                             placeholder="Daily time spent walking..."
                             keyboardType='numeric'
-                            onChangeText={(baselineWalk) => this.setState({ baselineWalk })}
+                            onChangeText={(val) => {
+                                    const baselineWalk = this.toTwentyFourHourTime(val);
+                                    this.setState({ baselineWalk });
+                                }
+                            }
                             value={this.state.baselineWalk}
                             maxLength={2}  //setting limit of input
                         />
@@ -183,7 +200,11 @@ export default class PatientForm extends React.Component {
                         <Field 
                             placeholder="Daily time spent sitting..."
                             keyboardType='numeric'
-                            onChangeText={(baselineSit) => this.setState({ baselineSit })}
+                            onChangeText={(val) => {
+                                    const baselineSit = this.toTwentyFourHourTime(val);
+                                    this.setState({ baselineSit });
+                                }
+                            }
                             value={this.state.baselineSit}
                             maxLength={2}  //setting limit of input
                         />
@@ -191,7 +212,11 @@ export default class PatientForm extends React.Component {
                         <Field 
                             placeholder="Daily time spent lying down..."
                             keyboardType='numeric'
-                            onChangeText={(baselineLay) => this.setState({ baselineLay })}
+                            onChangeText={(val) => {
+                                    const baselineLay = this.toTwentyFourHourTime(val);
+                                    this.setState({ baselineLay });
+                                }
+                            }
                             value={this.state.baselineLay}
                             maxLength={2}  //setting limit of input
                         />
