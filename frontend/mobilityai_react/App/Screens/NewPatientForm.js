@@ -14,6 +14,7 @@ export default class PatientForm extends React.Component {
             id: props.id,
             firstName: "",
             lastName: "",
+            formAssistantName : "",
             baselineWalk: 4,
             baselineSit: 12,
             baselineLay: 8,
@@ -321,6 +322,12 @@ export default class PatientForm extends React.Component {
                                 value={this.state.steps}
                             />
                         </View>
+
+                        <Text style={styles.sliderText}>Who is filling out this form?</Text>
+                        <Field onChangeText={(formAssistantName) => this.setState({ formAssistantName })}
+                            placeholder="Enter First and Last Name..."
+                            value={this.state.formAssistantName}
+                        />
                         {
                             this.state.update == false ?
                             <CheckBox
