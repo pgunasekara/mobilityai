@@ -24,6 +24,8 @@ namespace mobilityAI.Controllers
         private static bool isFirstRun = true;
         private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
+        private readonly int NumberOfActivities = Enum.GetNames(typeof(ActivityType)).Length;
+
         public PatientsController(MobilityAIContext context)
         {
             _context = context;
@@ -82,7 +84,8 @@ namespace mobilityAI.Controllers
         }
 
         /// <summary>
-        /// Gets processed activity data for a specific device in a specific time range to be displayed on the UI
+        /// Gets processed activity data for a specific device in a specific time range to be displayed on the UI.
+        /// It is assumed that start is at the beginning of the hour respective to the timezone of the device making the request.
         /// </summary>
         /// <param name="Start">Epoch for beginning of time range</param>
         /// <param name="End"Epoch for end of time rante></param>
@@ -97,14 +100,22 @@ namespace mobilityAI.Controllers
                         select new { activities.Start, activities.End, activities.Type })
                         .ToList();
 
+            var startDate = FromUnixTime(start);
+            var endDate = FromUnixTime(end);
+
             if (data.Count != 0)
             {
+                var totalHourBuckets = (int)Math.Ceiling((startDate - endDate).TotalHours);
 
-                float[] count = new float[5];
-                float[] total = new float[5];
+                float[] count = new float[NumberOfActivities];
+                float[] total = new float[NumberOfActivities];
                 float[][] activityTotals = new float[5][];
-                for (int i = 0; i < 5; i++) activityTotals[i] = new float[13];
+                for (int i = 0; i < NumberOfActivities; i++) activityTotals[i] = new float[totalHourBuckets];
                 float totalRows = data.Count;
+
+                int currentHourBucket = 0;
+                long startOfHourBucket = 0;
+                const int lengthOfHourBucket = 3600000; // milliseconds in one hour
 
                 for (int i = 0; i < data.Count - 1; i++)
                 {
@@ -113,16 +124,19 @@ namespace mobilityAI.Controllers
 
                     count[element.Type]++;
 
-                    int startHour = (FromUnixTime(element.Start / 1000).Hour) - 12;
-                    activityTotals[element.Type][startHour] += (nextElement.Start - element.Start) / 1000f;
+                    activityTotals[element.Type][currentHourBucket] += (nextElement.Start - element.Start) / 1000f;
+
+                    if (nextElement.Start - startOfHourBucket >= lengthOfHourBucket) {
+                        currentHourBucket++;
+                        startOfHourBucket = nextElement.Start;
+                    }
                 }
 
-                int startHour2 = (FromUnixTime(data[data.Count - 1].Start).Hour) - 12;
-                activityTotals[data[data.Count - 1].Type][startHour2] += (data[data.Count - 1].End - data[data.Count - 1].Start) / 1000f;
+                activityTotals[data[data.Count - 1].Type][currentHourBucket] += (data[data.Count - 1].End - data[data.Count - 1].Start) / 1000f;
 
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < NumberOfActivities; i++)
                 {
-                    for (int j = 0; j < 13; j++)
+                    for (int j = 0; j < totalHourBuckets; j++)
                     {
                         activityTotals[i][j] = activityTotals[i][j] / 60;
                     }
@@ -167,7 +181,10 @@ namespace mobilityAI.Controllers
                 return Ok(JsonConvert.SerializeObject(retObj));
             }
 
-            return Ok();
+            return BadRequest(String.Format("Could not find any activity data for patient with id: {0} between the dates {1} and {2} UTC", 
+                                patientId,
+                                startDate,
+                                endDate));
         }
 
         /// <summary>
