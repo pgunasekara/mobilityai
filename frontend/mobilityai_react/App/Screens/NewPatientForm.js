@@ -153,41 +153,47 @@ export default class PatientForm extends React.Component {
             <View style={styles.container}>
                 <ScrollView contentContainerStyle={styles.scrollable}>
                     <View style={{ paddingBottom: 100 }}>
+                        <Text style={styles.sliderText}>First Name:</Text>
                         <Field onChangeText={(firstName) => this.setState({ firstName })}
                             value={this.state.firstName}
                             placeholder="Enter First Name..."
                         />
+                        <Text style={styles.sliderText}>Last Name:</Text>
                         <Field onChangeText={(lastName) => this.setState({ lastName })}
                             placeholder="Enter Last Name..."
                             value={this.state.lastName}
                         />
-                        <Text style={styles.sliderText}>Daily time spent standing: {this.state.baselineStand} hours</Text>
-                        <SliderField onChange={(baselineStand) => this.setState({ baselineStand })}
-                            onSlidingComplete={(baselineStand) => this.setState({ baselineStand })}
-                            maximumValue={maxHours}
-                            step={baselineStepSize}
+                        <Text style={styles.sliderText}>Daily Hours spent standing:</Text>
+                        <Field 
+                            placeholder="Daily time spent standing..."
+                            keyboardType='numeric'
+                            onChangeText={(baselineStand) => this.setState({ baselineStand })}
                             value={this.state.baselineStand}
+                            maxLength={2}  //setting limit of input
                         />
-                        <Text style={styles.sliderText}>Daily time spent walking: {this.state.baselineWalk} hours</Text>
-                        <SliderField onChange={(baselineWalk) => this.setState({ baselineWalk })}
-                            onSlidingComplete={(baselineWalk) => this.setState({ baselineWalk })}
-                            maximumValue={maxHours}
-                            step={baselineStepSize}
+                        <Text style={styles.sliderText}>Daily Hours spent walking:</Text>
+                        <Field 
+                            placeholder="Daily time spent walking..."
+                            keyboardType='numeric'
+                            onChangeText={(baselineWalk) => this.setState({ baselineWalk })}
                             value={this.state.baselineWalk}
+                            maxLength={2}  //setting limit of input
                         />
-                        <Text style={styles.sliderText}>Daily time spent sitting: {this.state.baselineSit} hours</Text>
-                        <SliderField onChange={(baselineSit) => this.setState({ baselineSit })}
-                            onSlidingComplete={(baselineSit) => this.setState({ baselineSit })}
-                            maximumValue={maxHours}
-                            step={baselineStepSize}
+                        <Text style={styles.sliderText}>Daily Hours spent sitting:</Text>
+                        <Field 
+                            placeholder="Daily time spent sitting..."
+                            keyboardType='numeric'
+                            onChangeText={(baselineSit) => this.setState({ baselineSit })}
                             value={this.state.baselineSit}
+                            maxLength={2}  //setting limit of input
                         />
-                        <Text style={styles.sliderText}>Daily time spent lying down: {this.state.baselineLay} hours</Text>
-                        <SliderField onChange={(baselineLay) => this.setState({ baselineLay })}
-                            onSlidingComplete={(baselineLay) => this.setState({ baselineLay })}
-                            maximumValue={maxHours}
-                            step={baselineStepSize}
+                        <Text style={styles.sliderText}>Daily Hours spent lying down:</Text>
+                        <Field 
+                            placeholder="Daily time spent lying down..."
+                            keyboardType='numeric'
+                            onChangeText={(baselineLay) => this.setState({ baselineLay })}
                             value={this.state.baselineLay}
+                            maxLength={2}  //setting limit of input
                         />
                         <View style={styles.inputGroup}>
                             <Text style={styles.sliderText}>Type of condition that brought them to therapy</Text>
