@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        m_rqueue = Volley.newRequestQueue(this);
         m_rqueue = SingletonRequestQueue.getInstance(this);
 
         //Temporary buttons to start and stop logging manually

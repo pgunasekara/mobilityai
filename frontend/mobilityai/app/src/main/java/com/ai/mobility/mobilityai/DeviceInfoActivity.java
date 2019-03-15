@@ -27,6 +27,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.Route;
@@ -74,10 +76,16 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     AlertDialog.Builder builder;
     AlertDialog m_dialog;
 
+    private SingletonRequestQueue m_rqueue;
+    private CStringRequest m_updateReq;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_info);
+
+        m_rqueue = SingletonRequestQueue.getInstance(this);
+        m_updateReq = null;
 
         builder = new AlertDialog.Builder(this);
 
@@ -258,7 +266,6 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
 
     /**
      * Create the dialog builder
-     * TODO: populate this with real data
      */
     private void initializeDialogBuilder() {
         builder.setTitle("Enter a new Patient ID");
@@ -277,7 +284,25 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 //user clicked OK
                 String ui = userInput.getText().toString();
                 if(!ui.equals("")) {
+                    //Make web request to update patient
+                    int patientId = Integer.parseInt(ui);
 
+                    //If successful, then update the title on the activity
+                    Response.Listener<String> listener = new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            updateWithNewPatient(response);
+                        }
+                    };
+
+                    Response.ErrorListener el = new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG);
+                        }
+                    };
+
+                    m_rqueue.addToRequestQueue(WebRequest.getInstance().assignNewPatient(getApplicationContext(), listener, el, m_macAddress, patientId));
                 }
                 Log.i(TAG, "UI: " + userInput.getText().toString());
             }
@@ -289,5 +314,16 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 //User clicked Cancel
             }
         });
+    }
+
+    private void updateWithNewPatient(String response) {
+        if(m_updateReq != null)  {
+            if(m_updateReq.getStatusCode() == 200) {
+                //Update name
+                this.setTitle(response);
+            } else {
+                Toast.makeText(this, "Invalid User ID entered", Toast.LENGTH_SHORT);
+            }
+        }
     }
 }

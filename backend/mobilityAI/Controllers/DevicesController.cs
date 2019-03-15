@@ -99,16 +99,21 @@ namespace mobilityAI.Controllers {
             } else {
                 p.DeviceId = data.Id;
 
-                var date = DateTime.Parse(lastsync);
+                var date = new DateTime();
+
+                if(DateTime.TryParse(lastsync, out date)) {
+                    data.LastSync = date;
+                } else {
+                    data.LastSync = DateTime.Now;
+                }
 
                 data.Id = deviceId;
                 data.FriendlyName = name;
                 data.PatientID = patientId;
-                data.LastSync = date;
             }
 
             _context.SaveChanges();
-            return Ok(p.FirstName + "," + p.LastName);
+            return Ok(p.FirstName + " " + p.LastName);
         }
 
         /*

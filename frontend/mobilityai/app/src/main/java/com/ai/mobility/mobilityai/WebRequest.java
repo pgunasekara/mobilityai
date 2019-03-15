@@ -58,10 +58,10 @@ class WebRequest {
         return retVal;
     }
 
-    public StringRequest assignNewPatient(Context context, Response.Listener<String> listener, Response.ErrorListener eListener, String macAddr, int patientId) {
-        String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr;
+    public CStringRequest assignNewPatient(Context context, Response.Listener<String> listener, Response.ErrorListener eListener, String macAddr, int patientId) {
+        String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr + "?name=MetaWear&patientId=" + patientId + "&lastSync=null";
 
-        StringRequest retVal = new StringRequest(Request.Method.PUT, url, listener, eListener);
+        CStringRequest retVal = new CStringRequest(Request.Method.PUT, url, listener, eListener);
         retVal.setShouldCache(false);
 
         return retVal;
