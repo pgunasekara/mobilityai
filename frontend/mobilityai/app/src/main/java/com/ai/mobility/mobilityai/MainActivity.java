@@ -50,6 +50,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.UUID;
@@ -90,7 +91,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private Random r = new Random();
     private Button tmpBtn, tmpBtn2, tmpBtn3;
 
-    SingletonRequestQueue m_rqueue;
+    private SingletonRequestQueue m_rqueue;
+    private HashMap<String, CStringRequest> m_deviceRequests;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         setSupportActionBar(toolbar);
 
         m_rqueue = SingletonRequestQueue.getInstance(this);
+        m_deviceRequests = new HashMap<>();
 
         //Temporary buttons to start and stop logging manually
         tmpBtn = findViewById(R.id.tmpBtn);
@@ -300,7 +303,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                             }
                                         };
 
-                                        m_rqueue.addToRequestQueue(WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress()));
+                                        CStringRequest req = WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress());
+                                        m_deviceRequests.put(result.getDevice().getAddress(), req);
+
+                                        m_rqueue.addToRequestQueue(req);
                                     }
                                 //}
                             }
@@ -614,16 +620,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         String lastName = "";
         String lastSync = "Never";
 
-        if(response != null) {
+        CStringRequest req = m_deviceRequests.get(macAddr);
+
+        if(req != null && req.getStatusCode() == 200 && response != null) {
             try {
                 JSONObject res = new JSONObject(response);
-                String id = res.getString("id");
-
-                if (!id.equals("-1")) {
-                    firstName = res.getString("firstName");
-                    lastName = res.getString("lastName");
-                    lastSync = res.getString("lastSync");
-                }
+                firstName = res.getString("firstName");
+                lastName = res.getString("lastName");
+                lastSync = res.getString("lastSync");
             } catch (Exception e) {
                 e.printStackTrace();
             }

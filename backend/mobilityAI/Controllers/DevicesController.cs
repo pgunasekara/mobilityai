@@ -40,9 +40,8 @@ namespace mobilityAI.Controllers {
                         where (a.Id == deviceId)
                         select new { a.Id, a.FriendlyName, b.FirstName, b.LastName, a.LastSync }).SingleOrDefault();
 
-            //Return -1 to indicate that a device was not found
             if(data == null)
-                return new JsonResult(new Device() { Id = "-1", FriendlyName="", PatientID=-1, LastSync=DateTime.Today });
+                return BadRequest(String.Format("Device ID: {0} not found.", deviceId));
 
             return new JsonResult(data);
         }
@@ -74,7 +73,7 @@ namespace mobilityAI.Controllers {
                          select a).SingleOrDefault();
 
             if(p == null) {
-                return BadRequest("Patient does not exist");
+                return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
             }
 
             Device data = (from a in _context.Devices
