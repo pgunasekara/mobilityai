@@ -33,16 +33,15 @@ namespace mobilityAI.Controllers {
         /// The device id of the device to retrieve the information
         /// </param>
         [HttpGet("{deviceId}")]
-        public JsonResult GetDevice(string deviceId)
+        public IActionResult GetDevice(string deviceId)
         {
             var data = (from a in _context.Devices
                         join b in _context.Users on a.PatientID equals b.Id
                         where (a.Id == deviceId)
                         select new { a.Id, a.FriendlyName, b.FirstName, b.LastName, a.LastSync }).SingleOrDefault();
 
-            //Return -1 to indicate that a device was not found
             if(data == null)
-                return new JsonResult(new Device() { Id = "-1", FriendlyName="", PatientID=-1, LastSync=DateTime.Today });
+                return BadRequest(String.Format("Device ID: {0} not found.", deviceId));
 
             return new JsonResult(data);
         }
@@ -74,7 +73,7 @@ namespace mobilityAI.Controllers {
                          select a).SingleOrDefault();
 
             if(p == null) {
-                return BadRequest("Patient does not exist");
+                return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
             }
 
             Device data = (from a in _context.Devices
@@ -113,7 +112,7 @@ namespace mobilityAI.Controllers {
             }
 
             _context.SaveChanges();
-            return Ok(p.FirstName + " " + p.LastName);
+            return new JsonResult(p);
         }
 
         /*

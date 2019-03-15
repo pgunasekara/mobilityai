@@ -136,14 +136,13 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 return m_service.getBoard().readBatteryLevelAsync().continueWithTask(batteryLevelTask -> {
                     int batteryVal = batteryLevelTask.getResult().intValue();
                     m_batteryPercentage.setText(batteryVal + "%");
-
+                  
                     ObjectAnimator animation = ObjectAnimator.ofInt(m_batteryCircle, "progress", batteryVal);
                     animation.setDuration(3000); // in milliseconds
                     animation.setInterpolator(new DecelerateInterpolator());
                     animation.start();
 
                     showAllElements();
-
                     return null;
                 }, Task.UI_THREAD_EXECUTOR);
             }
@@ -265,7 +264,13 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         if(m_updateReq != null)  {
             if(m_updateReq.getStatusCode() == 200) {
                 //Update name
-                this.setTitle(response);
+                try {
+                    JSONObject patient = new JSONObject(m_updateReq.getResponse());
+                    this.setTitle(patient.getString("FirstName") + " " + patient.getString("LastName"));
+                } catch (Exception e) {
+                    Log.i(TAG, e.toString());
+                    Toast.makeText(this, "An error occured with updating the patient", Toast.LENGTH_SHORT);
+                }
             } else {
                 Toast.makeText(this, "Invalid User ID entered", Toast.LENGTH_SHORT);
             }

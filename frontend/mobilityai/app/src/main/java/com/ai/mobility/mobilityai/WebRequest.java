@@ -48,11 +48,11 @@ class WebRequest {
         return smr;
     }
 
-    public StringRequest getDeviceInfo(Context context, Response.Listener<String> listener, Response.ErrorListener eListener, String macAddr) {
+    public CStringRequest getDeviceInfo(Context context, Response.Listener<String> listener, Response.ErrorListener eListener, String macAddr) {
         String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr;
         Log.i("MobilityAI", url);
 
-        StringRequest retVal = new StringRequest(Request.Method.GET, url, listener, eListener);
+        CStringRequest retVal = new CStringRequest(Request.Method.GET, url, listener, eListener);
         retVal.setShouldCache(false);
 
         return retVal;
