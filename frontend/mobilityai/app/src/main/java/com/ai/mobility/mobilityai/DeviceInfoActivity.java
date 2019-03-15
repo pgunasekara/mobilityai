@@ -103,22 +103,10 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        //Serialize and save board state
-        /*if(m_board != null) {
-            m_board.disconnectAsync();
-        }*/
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        //Reconnect board
-        //deserializeBoard();
-        /*m_board.connectAsync().continueWith(task -> {
-            Log.i(TAG, "Device restored");
-            return null;
-        });*/
-    }
+    protected void onRestoreInstanceState(Bundle savedInstanceState) { }
 
     private void hideAllElements() {
         m_batteryPercentage.setVisibility(View.INVISIBLE);
@@ -153,17 +141,6 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        /*if(m_board.isConnected()) {
-
-            m_board.disconnectAsync().continueWith(task -> {
-               if(!task.isFaulted()) {
-                   Log.i(TAG, "Disconnected " + m_macAddress);
-               }
-               //serializeBoard();
-               return null;
-            });
-        }*/
 
         getApplicationContext().unbindService(this);
     }
@@ -257,11 +234,9 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
      * Sync button handler to connect, sync data, and restart logging
      */
     private void setSyncButtonOnClickHandler() {
-        //if(m_board.isConnected()) {
-            m_syncButton.setOnClickListener((View v) -> {
-
-            });
-        //}
+        m_syncButton.setOnClickListener((View v) -> {
+            //TODO: Implement in next commit
+        });
     }
 
     /**
