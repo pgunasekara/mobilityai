@@ -33,7 +33,7 @@ namespace mobilityAI.Controllers {
         /// The device id of the device to retrieve the information
         /// </param>
         [HttpGet("{deviceId}")]
-        public JsonResult GetDevice(string deviceId)
+        public IActionResult GetDevice(string deviceId)
         {
             var data = (from a in _context.Devices
                         join b in _context.Users on a.PatientID equals b.Id
@@ -112,7 +112,7 @@ namespace mobilityAI.Controllers {
             }
 
             _context.SaveChanges();
-            return JsonResult(p);
+            return new JsonResult(p);
         }
 
         /*
