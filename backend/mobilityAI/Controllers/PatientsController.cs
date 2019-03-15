@@ -13,6 +13,7 @@ using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using System.Text;
 using System.Security.Cryptography;
+using Newtonsoft.Json.Linq;
 
 namespace mobilityAI.Controllers
 {
@@ -71,10 +72,24 @@ namespace mobilityAI.Controllers
         [HttpPost]
         public IActionResult CreatePatient(string patientData)
         {
-            Patient p = new Patient();
-            Patient_Impl data = new Patient_Impl();
+            JObject parsedPatientData = new JObject(patientData);
 
-            data.Data = patientData;
+            Patient p = new Patient()
+            {
+                DeviceId = "",
+                FirstName = (string)parsedPatientData["firstName"],
+                LastName = (string)parsedPatientData["lastName"]
+            };
+
+            _context.Patients.Add(p);
+            _context.SaveChanges(); //Save changes here to retrieve the db generate Id for patient
+
+
+            Patient_Impl data = new Patient_Impl()
+            {
+                Id = p.Id,
+                Data = patientData
+            };
 
             _context.Patients_Impl.Add(data);
             _context.SaveChanges();
