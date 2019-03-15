@@ -213,7 +213,8 @@ namespace mobilityAI.Controllers
         [HttpPost("{patientId}/Achievements")]
         public IActionResult NewPatientAchievement(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
         {
-            _context.ActivityGoals.Add(new ActivityGoal {
+            _context.ActivityGoals.Add(new ActivityGoal
+            {
                 Id = patientId,
                 Steps = steps,
                 ActiveMinutes = activeMinutes,
@@ -281,18 +282,19 @@ namespace mobilityAI.Controllers
         /// Data that will be updated for the corresponding patient
         /// </param>
         [HttpPut("{patientId}")]
-        public IActionResult UpdatePatient(int patientId, string patientData) { 
+        public IActionResult UpdatePatient(int patientId, string patientData)
+        {
             Patient_Impl data = (from a in _context.Patients_Impl
                                  where a.Id == patientId
                                  select a).SingleOrDefault();
-            
+
             data.Id = patientId;
             data.Data = patientData;
 
             _context.SaveChanges();
-            return Ok();         
+            return Ok();
         }
-  
+
 
         /// <summary>
         /// Retrieve patient survey data
@@ -316,6 +318,57 @@ namespace mobilityAI.Controllers
             }
             Patient_Impl b = new Patient_Impl();
             return new JsonResult(b);
+        }
+
+        /// <summary>
+        /// Allowing nurses to add comments and observations for a given patient
+        /// </summary>
+        /// <param name="userId">
+        /// The userId of the nurse placing the comment
+        /// </param>
+        /// <param name="patientId">
+        /// The patientId of the user the comment belongs to
+        /// </param>
+        /// <param name="comment">
+        /// The comment being added for the patient
+        /// </param>
+        [HttpPut("{patientId}/Observations")]
+        public IActionResult AddPatientObservations(int userId, int patientId, string comment)
+        {
+            Observation data = new Observation();
+
+            data.UserId = userId;
+            data.PatientId = patientId;
+            data.Comment = comment;
+            data.Timestamp = DateTime.Now;
+
+            _context.Observations.Add(data);
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Retreiving the comments to be displayed on the front end 
+        /// </summary>
+        /// <param name="patientId">
+        /// The patientId of the comments that are being retreived
+        /// </param>
+        /// <returns></returns>
+        [HttpGet("{patientId}/Observations")]
+        public IActionResult GetPatientObserations(int patientId)
+        {
+            var data = (from obs in _context.Observations
+                        join users in _context.Users on obs.UserId equals users.Id
+                        where obs.PatientId == patientId
+                        select new {users.FirstName, users.LastName, obs.Comment, obs.Timestamp}).ToList();
+
+            if (data != null)
+            {
+                return new JsonResult(data);
+            }
+
+            return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
         }
 
         private static DateTime FromUnixTime(long time)
