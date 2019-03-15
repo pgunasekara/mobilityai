@@ -368,7 +368,7 @@ namespace mobilityAI.Controllers
                 return new JsonResult(data);
             }
 
-            return new JsonResult(new List<Observation>());
+            return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
         }
 
         private static DateTime FromUnixTime(long time)
