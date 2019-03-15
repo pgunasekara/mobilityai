@@ -69,7 +69,7 @@ def main():
 	msg3= "Path to output file:"
 	fname1 = get_file_name(1,msg1)
 	fname2 = get_file_name(2,msg2)
-	fname3 = get_file_name(3,msg2)
+	fname3 = get_file_name(3,msg3)
 
 	contents = pd.read_csv(fname1)
 	tagging_data = pd.read_csv(fname2)
