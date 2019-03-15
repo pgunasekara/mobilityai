@@ -213,7 +213,8 @@ namespace mobilityAI.Controllers
         [HttpPost("{patientId}/Achievements")]
         public IActionResult NewPatientAchievement(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
         {
-            _context.ActivityGoals.Add(new ActivityGoal {
+            _context.ActivityGoals.Add(new ActivityGoal
+            {
                 Id = patientId,
                 Steps = steps,
                 ActiveMinutes = activeMinutes,
@@ -281,18 +282,19 @@ namespace mobilityAI.Controllers
         /// Data that will be updated for the corresponding patient
         /// </param>
         [HttpPut("{patientId}")]
-        public IActionResult UpdatePatient(int patientId, string patientData) { 
+        public IActionResult UpdatePatient(int patientId, string patientData)
+        {
             Patient_Impl data = (from a in _context.Patients_Impl
                                  where a.Id == patientId
                                  select a).SingleOrDefault();
-            
+
             data.Id = patientId;
             data.Data = patientData;
 
             _context.SaveChanges();
-            return Ok();         
+            return Ok();
         }
-  
+
 
         /// <summary>
         /// Retrieve patient survey data
@@ -316,6 +318,37 @@ namespace mobilityAI.Controllers
             }
             Patient_Impl b = new Patient_Impl();
             return new JsonResult(b);
+        }
+
+        [HttpPut("{patientId}/Observations")]
+        public IActionResult AddPatientObservations(int userId, int patientId, string comment)
+        {
+            Observation data = new Observation();
+
+            data.UserId = userId;
+            data.PatientId = patientId;
+            data.Comment = comment;
+            data.Timestamp = DateTime.Now;
+
+            _context.Observations.Add(data);
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        [HttpGet("{patientId}/Observations")]
+        public IActionResult GetPatientObserations(int patientId)
+        {
+            var data = (from a in _context.Observations
+                        where a.PatientId == patientId
+                        select a).ToList();
+
+            if (data != null)
+            {
+                return new JsonResult(data);
+            }
+
+            return new JsonResult(new List<Observation>());
         }
 
         private static DateTime FromUnixTime(long time)
