@@ -5,6 +5,7 @@ import Homescreen from './App/Screens/Homescreen';
 import PatientDataContainer from './App/Screens/PatientDataContainer';
 import PatientAchievements from './App/Screens/Achievements';
 import PatientData from './App/Screens/PatientData';
+import PatientObservations from './App/Screens/PatientObservations';
 import PatientList from './App/Screens/PatientList';
 import PatientListItem from './App/Screens/PatientListItem';
 import PatientForm from './App/Screens/NewPatientForm';
@@ -18,6 +19,7 @@ const AppNavigator = createStackNavigator({
   PatientList: { screen: PatientList },
   PatientData: {screen: PatientDataContainer},
   PatientAchievements: {screen: PatientAchievements},
+  PatientObservations: {screen: PatientObservations},
   PatientForm: {screen: PatientForm},
   SignUp: {screen: SignUp},
   SignIn: {screen: SignIn},

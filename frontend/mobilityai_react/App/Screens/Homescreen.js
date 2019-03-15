@@ -16,8 +16,8 @@ export default class Homescreen extends Component {
         </View>
 
         {/* TEMP */}
-        {/* <View >
-          <TouchableHighlight onPress={() => navigate('PatientAchievements', {
+        {/* <View>
+          <TouchableHighlight onPress={() => navigate('PatientObservations', {
             id: 0,
             firstName: 'Rebecca',
             lastName: 'Tran',
@@ -29,12 +29,13 @@ export default class Homescreen extends Component {
           </TouchableHighlight>
         </View> */}
 
+        {/* TODO: REDIRECT BACK TO SIGN UP, NOT PATIENT OBS */}
         {/* Button redirecting users to Sign Up page */}
         <View style={styles.buttons}>
           <Button
             style={styles.mainButton}
             title='Sign Up'
-            onPress={() => navigate('SignUp', {})}
+            onPress={() => navigate('PatientObservations', {})}
             color="#5DACBD"
           />
 
@@ -81,5 +82,8 @@ const styles = StyleSheet.create({
   },
   mainButton: {
     borderColor : "#5DACBD",
+  },
+  temp: {
+    marginBottom: 50
   }
 });

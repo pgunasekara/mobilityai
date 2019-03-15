@@ -1,5 +1,6 @@
 import RNFetchBlob from 'rn-fetch-blob';
-import { SERVER_URL} from 'react-native-dotenv'
+// import { SERVER_URL} from 'react-native-dotenv'
+const SERVER_URL = "https://mobilityai.teovoinea.com/"
 
 export function AddPatientData(patientData) {
     const route = "api/Patients?patientData=" + patientData;
@@ -76,7 +77,7 @@ export function AddPatientAchievements(patientId, steps, activityTime) {
 };
 
 export function PatientData(patientId) {
-    const route = "api/Patients/" + patientId + "/PatientData";
+    const route = "api/Patients/" + patientId;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("GetPatientData: Make get request to: " + url);
@@ -105,4 +106,18 @@ export function UserSignUp(email, firstName, lastName, password) {
         .catch((error) => console.log(JSON.stringify(error)));
 }
 
-export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp }
+export function AddObservations(userId, patientId, comment) {
+    const route = "api/Patients/" + patientId + "/Observations?userId=" + userId + "&comment=" + comment;
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("AddObservations: Make put request to: " + url);
+
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('PUT', url)
+        .then((response) => console.log(JSON.stringify(response)))
+        .catch((error) => console.log(JSON.stringify(error)));
+}
+
+export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp, AddObservations }
