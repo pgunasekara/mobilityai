@@ -112,7 +112,7 @@ namespace mobilityAI.Controllers {
             }
 
             _context.SaveChanges();
-            return Ok(p.FirstName + " " + p.LastName);
+            return JsonResult(p);
         }
 
         /*

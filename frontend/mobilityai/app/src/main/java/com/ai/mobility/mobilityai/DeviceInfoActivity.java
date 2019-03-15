@@ -43,6 +43,8 @@ import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.Logging;
 import com.mbientlab.metawear.module.Settings;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -295,7 +297,13 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         if(m_updateReq != null)  {
             if(m_updateReq.getStatusCode() == 200) {
                 //Update name
-                this.setTitle(response);
+                try {
+                    JSONObject patient = new JSONObject(m_updateReq.getResponse());
+                    this.setTitle(patient.getString("FirstName") + " " + patient.getString("LastName"));
+                } catch (Exception e) {
+                    Log.i(TAG, e.toString());
+                    Toast.makeText(this, "An error occured with updating the patient", Toast.LENGTH_SHORT);
+                }
             } else {
                 Toast.makeText(this, "Invalid User ID entered", Toast.LENGTH_SHORT);
             }
