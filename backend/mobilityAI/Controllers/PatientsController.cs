@@ -320,6 +320,15 @@ namespace mobilityAI.Controllers
             return new JsonResult(b);
         }
 
+        /// <summary>
+        /// Allowing nurses to add comments and observations for a given patient
+        /// </summary>
+        /// <param name="userId">
+        /// The userID 
+        /// </param>
+        /// <param name="patientId"></param>
+        /// <param name="comment"></param>
+        /// <returns></returns>
         [HttpPut("{patientId}/Observations")]
         public IActionResult AddPatientObservations(int userId, int patientId, string comment)
         {
@@ -339,9 +348,10 @@ namespace mobilityAI.Controllers
         [HttpGet("{patientId}/Observations")]
         public IActionResult GetPatientObserations(int patientId)
         {
-            var data = (from a in _context.Observations
-                        where a.PatientId == patientId
-                        select a).ToList();
+            var data = (from obs in _context.Observations
+                        join users in _context.Users on obs.UserId equals users.Id
+                        where obs.PatientId == patientId
+                        select new {users.FirstName, users.LastName, obs.Comment, obs.Timestamp}).ToList();
 
             if (data != null)
             {
