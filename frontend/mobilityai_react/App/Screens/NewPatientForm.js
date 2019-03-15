@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, StyleSheet, Text, View, ScrollView, TextInput, Slider, Button, Picker } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, View, ScrollView, TextInput, Slider, Button, Picker } from 'react-native';
 const Field = (props) => <TextInput style={styles.field} {...props} />;
 
 import { CheckBox } from 'react-native-elements'
@@ -14,10 +14,11 @@ export default class PatientForm extends React.Component {
             id: props.id,
             firstName: "",
             lastName: "",
-            baselineWalk: 4,
-            baselineSit: 12,
-            baselineLay: 8,
-            baselineStand: 4,
+            formAssistantName : "",
+            baselineWalk: 0,
+            baselineSit: 0,
+            baselineLay: 0,
+            baselineStand: 0,
             conditionThatBroughtThem: "Orthopedic",
             bodyPartsInvolved: {
                 neck: false,
@@ -77,6 +78,16 @@ export default class PatientForm extends React.Component {
     };
 
     submitForm() {
+        const totalTimeSpent = this.state.baselineLay + this.state.baselineStand 
+            + this.state.baselineWalk + this.state.baselineSit;
+
+        if (totalTimeSpent > 60){
+            Alert.alert("Hourly Baseline mobility measurements values add up to over 60!",
+                'Please make sure add valid baseline mobility measurements.');
+            return false;
+        }
+
+
         let response = CreatePatient(JSON.stringify(this.state));
         console.log(JSON.stringify(response));
     }
@@ -95,6 +106,15 @@ export default class PatientForm extends React.Component {
             }
         }
         this.setState({ onsetOfCondition: newText });
+    }
+
+    validateSixtyMinuteTime(val){
+        const intRep = parseInt(val, 10) || -1
+
+        if (intRep > 60 || intRep < 0) {
+            return -1;
+        }
+        return intRep;
     }
 
     render() {
@@ -153,42 +173,76 @@ export default class PatientForm extends React.Component {
             <View style={styles.container}>
                 <ScrollView contentContainerStyle={styles.scrollable}>
                     <View style={{ paddingBottom: 100 }}>
+                        <Text style={styles.sliderText}>First Name:</Text>
                         <Field onChangeText={(firstName) => this.setState({ firstName })}
                             value={this.state.firstName}
                             placeholder="Enter First Name..."
                         />
+                        <Text style={styles.sliderText}>Last Name:</Text>
                         <Field onChangeText={(lastName) => this.setState({ lastName })}
                             placeholder="Enter Last Name..."
                             value={this.state.lastName}
                         />
-                        <Text style={styles.sliderText}>Daily time spent standing: {this.state.baselineStand} hours</Text>
-                        <SliderField onChange={(baselineStand) => this.setState({ baselineStand })}
-                            onSlidingComplete={(baselineStand) => this.setState({ baselineStand })}
-                            maximumValue={maxHours}
-                            step={baselineStepSize}
-                            value={this.state.baselineStand}
+                        <Text style={styles.sliderText}>Average minutes spent standing per hour:</Text>
+                        <Field 
+                            placeholder="Hourly minutes spent standing..."
+                            keyboardType='numeric'
+                            onChangeText={(baselineStand) => this.setState({ baselineStand }) }
+                            onSubmitEditing={(evt) => {
+                                const baselineStand = this.validateSixtyMinuteTime(this.state.baselineStand);
+                                this.setState({baselineStand})
+                            }}
+                            value={this.state.baselineStand && this.state.baselineStand != -1 ? this.state.baselineStand.toString() : null}
                         />
-                        <Text style={styles.sliderText}>Daily time spent walking: {this.state.baselineWalk} hours</Text>
-                        <SliderField onChange={(baselineWalk) => this.setState({ baselineWalk })}
-                            onSlidingComplete={(baselineWalk) => this.setState({ baselineWalk })}
-                            maximumValue={maxHours}
-                            step={baselineStepSize}
-                            value={this.state.baselineWalk}
+                        { this.state.baselineStand == -1
+                            ? <Text style={styles.errorMessage}>Please enter valid value for baseline standing</Text>
+                            : null
+                        }
+                        <Text style={styles.sliderText}>Average minutes spent walking per hour:</Text>
+                        <Field 
+                            placeholder="Hourly minutes spent walking..."
+                            keyboardType='numeric'
+                            onChangeText={(baselineWalk) => this.setState({ baselineWalk }) }
+                            onSubmitEditing={(evt) => {
+                                const baselineWalk = this.validateSixtyMinuteTime(this.state.baselineWalk);
+                                this.setState({baselineWalk})
+                            }}
+                            value={this.state.baselineWalk && this.state.baselineWalk != -1 ? this.state.baselineWalk.toString() : null}
                         />
-                        <Text style={styles.sliderText}>Daily time spent sitting: {this.state.baselineSit} hours</Text>
-                        <SliderField onChange={(baselineSit) => this.setState({ baselineSit })}
-                            onSlidingComplete={(baselineSit) => this.setState({ baselineSit })}
-                            maximumValue={maxHours}
-                            step={baselineStepSize}
-                            value={this.state.baselineSit}
+                        { this.state.baselineWalk == -1
+                            ? <Text style={styles.errorMessage}>Please enter valid value for baseline walking</Text>
+                            : null
+                        }
+                        <Text style={styles.sliderText}>Average minutes spent sitting per hour:</Text>
+                        <Field 
+                            placeholder="Hourly minutes spent sitting..."
+                            keyboardType='numeric'
+                            onChangeText={(baselineSit) => this.setState({ baselineSit }) }
+                            onSubmitEditing={(evt) => {
+                                const baselineSit = this.validateSixtyMinuteTime(this.state.baselineSit);
+                                this.setState({baselineSit})
+                            }}
+                            value={this.state.baselineSit && this.state.baselineSit != -1 ? this.state.baselineSit.toString() : null}
                         />
-                        <Text style={styles.sliderText}>Daily time spent lying down: {this.state.baselineLay} hours</Text>
-                        <SliderField onChange={(baselineLay) => this.setState({ baselineLay })}
-                            onSlidingComplete={(baselineLay) => this.setState({ baselineLay })}
-                            maximumValue={maxHours}
-                            step={baselineStepSize}
-                            value={this.state.baselineLay}
+                        { this.state.baselineSit == -1
+                            ? <Text style={styles.errorMessage}>Please enter valid value for baseline sitting</Text>
+                            : null
+                        }
+                        <Text style={styles.sliderText}>Average minutes spent lying down per hour:</Text>
+                        <Field 
+                            placeholder="Hourly minutes spent lying down..."
+                            keyboardType='numeric'
+                            onChangeText={(baselineLay) => this.setState({ baselineLay }) }
+                            onSubmitEditing={(evt) => {
+                                const baselineLay = this.validateSixtyMinuteTime(this.state.baselineLay);
+                                this.setState({baselineLay})
+                            }}
+                            value={this.state.baselineLay && this.state.baselineLay != -1 ? this.state.baselineLay.toString() : null}
                         />
+                        { this.state.baselineLay == -1
+                            ? <Text style={styles.errorMessage}>Please enter valid value for baseline lying down</Text>
+                            : null
+                        }
                         <View style={styles.inputGroup}>
                             <Text style={styles.sliderText}>Type of condition that brought them to therapy</Text>
                             <Picker
@@ -290,6 +344,12 @@ export default class PatientForm extends React.Component {
                                 value={this.state.steps}
                             />
                         </View>
+
+                        <Text style={styles.sliderText}>Who is filling out this form?</Text>
+                        <Field onChangeText={(formAssistantName) => this.setState({ formAssistantName })}
+                            placeholder="Enter First and Last Name..."
+                            value={this.state.formAssistantName}
+                        />
                         {
                             this.state.update == false ?
                             <CheckBox
@@ -341,12 +401,15 @@ const styles = StyleSheet.create({
         overflow: "hidden",
         marginTop: 100
     },
-    slider: {
-        alignSelf: "center",
-        width: 350
+    errorMessage: {
+        color: "red",
+        fontSize: 18,
+        marginTop: -10,
+        marginLeft: 15,
+        marginBottom: 20
     },
     sliderText: {
-        fontSize: 15,
+        fontSize: 20,
         color: '#555333',
         fontWeight: '500',
         paddingLeft: 20

@@ -8,7 +8,6 @@ namespace mobilityAI.Models
     public class Patient_Impl
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id
         {
             get; set;
