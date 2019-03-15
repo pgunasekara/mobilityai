@@ -33,16 +33,15 @@ namespace mobilityAI.Controllers {
         /// The device id of the device to retrieve the information
         /// </param>
         [HttpGet("{deviceId}")]
-        public JsonResult GetDevice(string deviceId)
+        public IActionResult GetDevice(string deviceId)
         {
             var data = (from a in _context.Devices
                         join b in _context.Users on a.PatientID equals b.Id
                         where (a.Id == deviceId)
                         select new { a.Id, a.FriendlyName, b.FirstName, b.LastName, a.LastSync }).SingleOrDefault();
 
-            //Return -1 to indicate that a device was not found
             if(data == null)
-                return new JsonResult(new Device() { Id = "-1", FriendlyName="", PatientID=-1, LastSync=DateTime.Today });
+                return BadRequest(String.Format("Device ID: {0} not found.", deviceId));
 
             return new JsonResult(data);
         }
@@ -68,19 +67,52 @@ namespace mobilityAI.Controllers {
                                 [FromQuery]int patientId, 
                                 [FromQuery]string lastsync)
         {
+            //Check if valid patient ID entered
+            Patient p = (from a in _context.Patients
+                         where a.Id == patientId
+                         select a).SingleOrDefault();
+
+            if(p == null) {
+                return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
+            }
+
             Device data = (from a in _context.Devices
                            where (a.Id == deviceId)
                            select a).SingleOrDefault();
 
-            var date = DateTime.Parse(lastsync);
+            if(data == null) {
+                //Add new device
+                Device nDev = new Device()
+                {
+                    Id = deviceId,
+                    FriendlyName = "MetaMotion",
+                    PatientID = patientId,
+                    LastSync = DateTime.Now
+                };
 
-            data.Id = deviceId;
-            data.FriendlyName = name;
-            data.PatientID = patientId;
-            data.LastSync = date;
+                _context.Devices.Add(nDev);
+                _context.SaveChanges(); //save changes here to get the new ID
+
+                //Update patient
+                p.DeviceId = nDev.Id;
+            } else {
+                p.DeviceId = data.Id;
+
+                var date = new DateTime();
+
+                if(DateTime.TryParse(lastsync, out date)) {
+                    data.LastSync = date;
+                } else {
+                    data.LastSync = DateTime.Now;
+                }
+
+                data.Id = deviceId;
+                data.FriendlyName = name;
+                data.PatientID = patientId;
+            }
 
             _context.SaveChanges();
-            return Ok();
+            return new JsonResult(p);
         }
 
         /*

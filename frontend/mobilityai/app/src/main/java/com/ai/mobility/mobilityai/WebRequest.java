@@ -9,9 +9,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.error.VolleyError;
-import com.android.volley.request.JsonObjectRequest;
-import com.android.volley.request.JsonRequest;
 import com.android.volley.request.SimpleMultiPartRequest;
+import com.android.volley.request.StringRequest;
 
 import org.json.JSONObject;
 
@@ -49,10 +48,23 @@ class WebRequest {
         return smr;
     }
 
-    public JsonObjectRequest getDeviceInfo(Context context, Response.Listener<JSONObject> listener, Response.ErrorListener eListener, String macAddr) {
+    public CStringRequest getDeviceInfo(Context context, Response.Listener<String> listener, Response.ErrorListener eListener, String macAddr) {
         String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr;
         Log.i("MobilityAI", url);
-        return new JsonObjectRequest(Request.Method.GET, url, null, listener, eListener);
+
+        CStringRequest retVal = new CStringRequest(Request.Method.GET, url, listener, eListener);
+        retVal.setShouldCache(false);
+
+        return retVal;
+    }
+
+    public CStringRequest assignNewPatient(Context context, Response.Listener<String> listener, Response.ErrorListener eListener, String macAddr, int patientId) {
+        String url = SingletonRequestQueue.getUrl() + "Devices/" + macAddr + "?name=MetaWear&patientId=" + patientId + "&lastSync=null";
+
+        CStringRequest retVal = new CStringRequest(Request.Method.PUT, url, listener, eListener);
+        retVal.setShouldCache(false);
+
+        return retVal;
     }
 
     private SimpleMultiPartRequest getSMRObject(Context context, String url) {
