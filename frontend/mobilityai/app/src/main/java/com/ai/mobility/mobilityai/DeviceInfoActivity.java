@@ -24,7 +24,13 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
+import com.mbientlab.metawear.Route;
 import com.mbientlab.metawear.android.BtleService;
+import com.mbientlab.metawear.module.Logging;
+
+import org.json.JSONObject;
+
+import java.util.Calendar;
 
 import bolts.Task;
 
@@ -61,6 +67,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         initializeDialogBuilder();
         m_dialog = builder.create();
         findViews();
+        setOnClickListeners();
         hideAllElements(); //Hide all elements until service is connected
 
         m_macAddress = getIntent().getStringExtra("EXTRA_MAC_ADDR");
@@ -129,6 +136,7 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         m_service.connectBoard().continueWithTask(task -> {
             if(task.isFaulted()) {
                 Log.i("MobilityAI", "Failed to configure app", task.getError());
+                m_service.disconnectBoard();
                 return null;
             } else {
                 Log.i("MobilityAI", "App Configured, connected: " + m_macAddress);
@@ -193,9 +201,75 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
         m_batteryText = findViewById(R.id.batteryIdentifier);
         m_loadingBar = findViewById(R.id.loadingCircle);
 
-        m_reassignButton.setOnClickListener(l -> {
 
+    }
+
+    private void setOnClickListeners() {
+        m_reassignButton.setOnClickListener(l -> {
             m_dialog.show();
+        });
+
+        m_startButton.setOnClickListener(l -> {
+            //Start logging
+            m_service.connectBoard().continueWithTask(task -> {
+                if(task.isFaulted()) {
+                    Log.i("MobilityAI", "Failed to configure app", task.getError());
+                    m_service.disconnectBoard();
+                    return null;
+                } else {
+                    Log.i("MobilityAI", "App Configured, connected: " + m_macAddress);
+
+                    m_service.getLogging().stop();
+                    m_service.getBoard().tearDown();
+
+                    //Reconfigure sensors
+                    m_service.configureAccelerometer();
+                    m_service.configureGyroscope();
+                    m_service.configureStepCounter();
+
+                    Task<Route> result = m_service.configureStepCounterLogging(this);
+                    result = result.continueWithTask(t -> { return m_service.configureGyroscopeLogging(this);     });
+                    result = result.continueWithTask(t -> { return m_service.configureAccelerometerLogging(this); });
+                    result.continueWith(t -> {
+                        m_service.startSensors();
+                        //Serialize board state before logging starts
+                        m_service.serializeBoard(this.getFilesDir());
+
+                        //Overwrite previous log entries if they exist
+                        m_service.getLogging().start(true);
+
+                        Log.i(TAG, "Data collection started for " + m_service.getBoard().getMacAddress());
+                        Toast.makeText(getApplicationContext(), "Started Data Collection", Toast.LENGTH_SHORT).show();
+                        return null;
+                    });
+                }
+
+                m_service.disconnectBoard();
+                return null;
+            });
+
+        });
+
+        m_stopButton.setOnClickListener(l -> {
+            //Stop logging
+            m_service.connectBoard().continueWithTask(task -> {
+                if(task.isFaulted()) {
+                    Log.i("MobilityAI", "Failed to configure app", task.getError());
+
+                    Log.i(TAG, "Starting data collection");
+                    m_service.disconnectBoard();
+                    return null;
+                } else {
+                    Log.i("MobilityAI", "App Configured, connected: " + m_macAddress);
+
+                    m_service.stopSensors();
+                    m_service.stopLogging();
+                    m_service.getLogging().clearEntries();
+                    m_service.getBoard().tearDown();
+                }
+                m_service.disconnectBoard();
+                return null;
+            });
         });
     }
 
