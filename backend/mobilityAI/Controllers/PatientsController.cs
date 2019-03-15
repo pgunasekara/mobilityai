@@ -110,7 +110,6 @@ namespace mobilityAI.Controllers
                 float[] count = new float[NumberOfActivities];
                 float[] total = new float[NumberOfActivities];
                 float[][] activityTotals = new float[NumberOfActivities][];
-                // return Ok(String.Format("Number of activities is {0} and totalHourBcukets is {1}", NumberOfActivities, totalHourBuckets));
                 for (int i = 0; i < NumberOfActivities; i++) activityTotals[i] = new float[totalHourBuckets];
                 float totalRows = data.Count;
 
