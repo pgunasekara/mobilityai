@@ -69,11 +69,11 @@ namespace mobilityAI.Controllers {
                                 [FromQuery]string lastsync)
         {
             //Check if valid patient ID entered
-            Patient p = (from a in _context.Patients_Impl
+            Patient p = (from a in _context.Patients
                          where a.Id == patientId
-                         select a);
+                         select a).SingleOrDefault();
 
-            if(p.Count() == 0) {
+            if(p == null) {
                 return BadRequest("Patient does not exist");
             }
 
