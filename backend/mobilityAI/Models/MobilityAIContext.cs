@@ -48,7 +48,12 @@ namespace mobilityAI.Models
         {
             get; set;
         }
-        
+
+        public DbSet<Observation> Observations
+        {
+            get; set;
+        }
+
         public DbSet<Step> Steps
         {
             get; set;
