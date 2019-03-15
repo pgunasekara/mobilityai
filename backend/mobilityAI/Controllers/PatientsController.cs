@@ -324,11 +324,14 @@ namespace mobilityAI.Controllers
         /// Allowing nurses to add comments and observations for a given patient
         /// </summary>
         /// <param name="userId">
-        /// The userID 
+        /// The userId of the nurse placing the comment
         /// </param>
-        /// <param name="patientId"></param>
-        /// <param name="comment"></param>
-        /// <returns></returns>
+        /// <param name="patientId">
+        /// The patientId of the user the comment belongs to
+        /// </param>
+        /// <param name="comment">
+        /// The comment being added for the patient
+        /// </param>
         [HttpPut("{patientId}/Observations")]
         public IActionResult AddPatientObservations(int userId, int patientId, string comment)
         {
@@ -345,6 +348,13 @@ namespace mobilityAI.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Retreiving the comments to be displayed on the front end 
+        /// </summary>
+        /// <param name="patientId">
+        /// The patientId of the comments that are being retreived
+        /// </param>
+        /// <returns></returns>
         [HttpGet("{patientId}/Observations")]
         public IActionResult GetPatientObserations(int patientId)
         {
