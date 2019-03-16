@@ -19,7 +19,27 @@ export default class PatientDataContainer extends Component {
             title: firstName + ' ' + lastName,
             headerRight: (
                 <View style={styles.center}>
-                    <View style={styles.menu}>
+                    <View style={styles.shift}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                navigation.navigate('PatientObservations', {
+                                    id: id,
+                                    firstName: firstName,
+                                    lastName: lastName,
+                                    navigation: navigation,
+                                    userId: 1, //HARDCODED FOR NOW
+                                })
+                            }}
+                        >
+                            <Icon
+                                name='comments'
+                                size={30}
+                                type='font-awesome'
+                                color='black'
+                            />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.shift}>
                         <TouchableOpacity
                             onPress={() => {
                                 navigation.navigate('PatientForm', {
@@ -118,9 +138,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    menu: {
-        paddingRight: 50,
     },
     shift: {
         marginRight: 20,
