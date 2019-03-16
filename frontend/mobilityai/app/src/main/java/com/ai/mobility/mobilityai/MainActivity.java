@@ -50,6 +50,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.UUID;
@@ -90,7 +91,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private Random r = new Random();
     private Button tmpBtn, tmpBtn2, tmpBtn3;
 
-    SingletonRequestQueue m_rqueue;
+    private SingletonRequestQueue m_rqueue;
+    private HashMap<String, CStringRequest> m_deviceRequests;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +101,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        m_rqueue = Volley.newRequestQueue(this);
         m_rqueue = SingletonRequestQueue.getInstance(this);
+        m_deviceRequests = new HashMap<>();
 
         //Temporary buttons to start and stop logging manually
         tmpBtn = findViewById(R.id.tmpBtn);
@@ -279,26 +281,34 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                             @Override
                             public void run() {
                                 Log.i(TAG, "Found: " + result.getDevice().getAddress());
-                                if(result.getDevice().getAddress().equals("D1:87:11:D8:F3:C0")) {
-                                    Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
-                                    //Make request to get device information
+                                //if(result.getDevice().getAddress().equals("D1:87:11:D8:F3:C0")) {
+                                    //Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
 
-                                    Response.Listener ls = new Response.Listener<JSONObject>() {
-                                        @Override
-                                        public void onResponse(JSONObject response) {
-                                            addNewDevice(response, result.getDevice().getAddress(), result.getRssi());
-                                        }
-                                    };
+                                    //Only make web request if device does not already exist in list of devices
+                                    if(!deviceExists(result.getDevice().getAddress())) {
+                                        //Make request to get device information
+                                        Response.Listener ls = new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                Log.i(TAG, response);
 
-                                    Response.ErrorListener el = new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            addNewDevice(null, result.getDevice().getAddress(), result.getRssi());
-                                        }
-                                    };
+                                                addNewDevice(response, result.getDevice().getAddress(), result.getRssi());
+                                            }
+                                        };
 
-                                    m_rqueue.addToRequestQueue(WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress()));
-                                }
+                                        Response.ErrorListener el = new Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                                addNewDevice(null, result.getDevice().getAddress(), result.getRssi());
+                                            }
+                                        };
+
+                                        CStringRequest req = WebRequest.getInstance().getDeviceInfo(getApplicationContext(), ls, el, result.getDevice().getAddress());
+                                        m_deviceRequests.put(result.getDevice().getAddress(), req);
+
+                                        m_rqueue.addToRequestQueue(req);
+                                    }
+                                //}
                             }
                         });
                     }
@@ -599,25 +609,45 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
     }
 
-    private void addNewDevice(JSONObject response, String macAddr, int rssi) {
+    /**
+     * Add a new device to the device list after getting the device details from the server
+     * @param response Response containing first name, last name, and last synced date
+     * @param macAddr Mac address of new device to be added
+     * @param rssi Signal strength of new device to be added
+     */
+    private void addNewDevice(String response, String macAddr, int rssi) {
         String firstName = "Unregistered Device";
         String lastName = "";
         String lastSync = "Never";
 
-        if(response != null) {
-            try {
-                String id = response.getString("id");
+        CStringRequest req = m_deviceRequests.get(macAddr);
 
-                if (!id.equals("-1")) {
-                    firstName = response.getString("FirstName");
-                    lastName = response.getString("LastName");
-                    lastSync = response.getString("LastSync");
-                }
+        if(req != null && req.getStatusCode() == 200 && response != null) {
+            try {
+                JSONObject res = new JSONObject(response);
+                firstName = res.getString("firstName");
+                lastName = res.getString("lastName");
+                lastSync = res.getString("lastSync");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
         m_adapter.update(new MetaMotionDevice(firstName, lastName, macAddr, 50, lastSync, rssi));
+    }
+
+    /**
+     * Check if device was already found
+     * @param address MAC address of newly found device
+     * @return If the device was already found, return true, else return false
+     */
+    private boolean deviceExists(String address) {
+        for(MetaMotionDevice d : m_deviceList) {
+            if(d.getMacAddr().equals(address)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
