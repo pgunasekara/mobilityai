@@ -46,43 +46,47 @@
         app:layout_constraintTop_toTopOf="@+id/progressBar" />
 
     <Button
-        android:id="@+id/syncButton"
+        android:id="@+id/startButton"
         style="@style/Widget.AppCompat.Button"
         android:layout_width="168dp"
         android:layout_height="48dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
         android:backgroundTint="@android:color/holo_green_dark"
-        android:text="Sync Now"
+        android:text="Start Device"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/reassignButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/syncProgress"
         app:layout_constraintVertical_bias="0.021" />
 
     <Button
+        android:id="@+id/stopButton"
+        android:layout_width="168dp"
+        android:layout_height="48dp"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:text="Stop Device"
+        tools:layout_editor_absoluteX="196dp"
+        tools:layout_editor_absoluteY="277dp" />
+
+    <Button
         android:id="@+id/reassignButton"
         android:layout_width="168dp"
         android:layout_height="48dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:backgroundTint="@android:color/holo_red_dark"
         android:text="Reassign Device"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/syncButton"
-        app:layout_constraintTop_toBottomOf="@+id/syncProgress"
-        app:layout_constraintVertical_bias="0.021" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loadingCircle" />
 
     <android.support.constraint.Barrier
         android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="reassignButton,syncButton"/>
+        app:constraint_referenced_ids="reassignButton,startButton"/>
 
     <TextView
         android:id="@+id/devName"
