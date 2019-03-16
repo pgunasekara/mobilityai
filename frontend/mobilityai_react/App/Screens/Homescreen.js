@@ -16,8 +16,8 @@ export default class Homescreen extends Component {
         </View>
 
         {/* TEMP */}
-        {/* <View >
-          <TouchableHighlight onPress={() => navigate('PatientAchievements', {
+        {/* <View>
+          <TouchableHighlight onPress={() => navigate('PatientObservations', {
             id: 0,
             firstName: 'Rebecca',
             lastName: 'Tran',
@@ -81,5 +81,5 @@ const styles = StyleSheet.create({
   },
   mainButton: {
     borderColor : "#5DACBD",
-  }
+  },
 });

@@ -76,7 +76,7 @@ export function AddPatientAchievements(patientId, steps, activityTime) {
 };
 
 export function PatientData(patientId) {
-    const route = "api/Patients/" + patientId + "/PatientData";
+    const route = "api/Patients/" + patientId;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("GetPatientData: Make get request to: " + url);
@@ -105,4 +105,35 @@ export function UserSignUp(email, firstName, lastName, password) {
         .catch((error) => console.log(JSON.stringify(error)));
 }
 
-export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp }
+export function AddObservations(userId, patientId, comment) {
+    const route = "api/Patients/" + patientId + "/Observations?userId=" + userId + "&comment=" + comment;
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("AddObservations: Make put request to: " + url);
+
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('PUT', url)
+        .then((response) => console.log(JSON.stringify(response)))
+        .catch((error) => console.log(JSON.stringify(error)));
+}
+
+export function GetObservations(patientId) {
+    const route = "api/Patients/" + patientId + "/Observations";
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("GetObservations: Make get request to: " + url);
+
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('GET', url)
+        .then((response) => {
+            console.log(JSON.stringify(response));
+            return response.json();
+        })
+        .catch((error) => console.log(JSON.stringify(error)));
+}
+
+export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp, AddObservations, GetObservations }
