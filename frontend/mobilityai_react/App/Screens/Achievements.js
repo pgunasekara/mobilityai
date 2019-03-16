@@ -22,35 +22,41 @@ export default class PatientAchievements extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: props.id,
-            firstName: props.firstName,
-            lastName: props.lastName,
-            steps: 0,
-            sitting: 0,
-            standing: 0,
-            lyingDown: 0,
-            walking: 0,
-            activeTime: 0,
+            id: props.navigation.getParam('id')
         }
     }
 
     componentDidMount() {
-        GetPatientAchievements(this.props.id).then((achievementsJson) => {
+        GetPatientAchievements(this.state.id).then((achievementsJson) => {
+            console.log("WE GOT PATIENT ACHIEVEMENTS");
+            console.log(achievementsJson);
             this.setState({ steps: achievementsJson.steps });
-            this.setState({ sitting: achievementsJson.sitting });
-            this.setState({ standing: achievementsJson.standing });
-            this.setState({ lyingDown: achievementsJson.lyingDown });
-            this.setState({ walking: achievementsJson.walking });
-            this.setState({ activityGoal: achievementsJson.activityTime });
+            // this.setState({ sitting: achievementsJson.sitting });
+            this.setState({ standing: achievementsJson.standingMinutes });
+            // this.setState({ lyingDown: achievementsJson.lyingDown });
+            this.setState({ walking: achievementsJson.walkingMinutes });
+            this.setState({ activeTime: achievementsJson.activeMinutes });
         });
     };
 
     saveAchievements() {
-        // AddPatientAchievements(this.props.id, this.state.steps, this.state.activityGoal);
+        // AddPatientAchievements(this.state.id, this.state.steps, this.state.activityGoal);
         alert("Saved");
     }
 
     render() {
+        if (this.state.steps === undefined
+            || this.state.standing === undefined
+            || this.state.walking === undefined
+            || this.state.activeTime === undefined) {
+            // TODO: replace this with a loading screen
+            return (
+                <View>
+                    <Text> Fetching patient's achievements </Text>
+                </View>
+            );
+        }
+        console.log(this.state);
         return (
             <View style={styles.container}>
                 <View>
@@ -83,16 +89,6 @@ export default class PatientAchievements extends React.Component {
                         </View>
                         <View style={styles.boxLayout2}>
                             <View>
-                                <Text>Sitting</Text>
-                                <TextInput
-                                    style={styles.inputBox}
-                                    keyboardType='numeric'
-                                    onChangeText={(sitting) => this.setState({ sitting: sitting })}
-                                    defaultValue={this.state.sitting.toString()}
-                                    placeholder='Sitting'
-                                />
-                            </View>
-                            <View>
                                 <Text>Standing</Text>
                                 <TextInput
                                     style={styles.inputBox}
@@ -104,16 +100,6 @@ export default class PatientAchievements extends React.Component {
                             </View>
                         </View>
                         <View style={styles.boxLayout2}>
-                            <View>
-                                <Text>Lying Down</Text>
-                                <TextInput
-                                    style={styles.inputBox}
-                                    keyboardType='numeric'
-                                    onChangeText={(lyingDown) => this.setState({ lyingDown: lyingDown })}
-                                    defaultValue={this.state.lyingDown.toString()}
-                                    placeholder='Lying Down'
-                                />
-                            </View>
                             <View>
                                 <Text>Walking</Text>
                                 <TextInput
