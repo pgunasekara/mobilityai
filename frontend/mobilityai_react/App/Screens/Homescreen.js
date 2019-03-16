@@ -82,7 +82,4 @@ const styles = StyleSheet.create({
   mainButton: {
     borderColor : "#5DACBD",
   },
-  temp: {
-    marginBottom: 50
-  }
 });
