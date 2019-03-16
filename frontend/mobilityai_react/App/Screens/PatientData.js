@@ -11,6 +11,7 @@ import BarGraph from './PatientBarGraphs';
 
 import { GetPatientActivities, GetPatientAchievements, GetPatientData } from '../Lib/Api';
 import moment from 'moment';
+import { _ } from 'lodash';
 
 //TODO: Remove temporary data once we get proper data from the server
 //TODO: Add better error logging if data cannot be found
@@ -38,6 +39,9 @@ const Tabs = {
     overall: 3,
 };
 
+const hourlyYLabels = [0, 10, 20, 30, 40, 50, 60];
+const dailyYLabels = [0, 4, 8, 12, 16, 20, 24];
+
 export default class PatientData extends Component {
     constructor(props) {
         super(props);
@@ -46,19 +50,20 @@ export default class PatientData extends Component {
             id: props.id,
             firstName: props.firstName,
             lastName: props.lastName,
-            barColour: arrayColours['unknown'],
-            activityGoals: {
-                'id': props.id,
-                'steps': 0,
-                'activeMinutes': 0,
-                'walkingMinutes': 0,
-                'standingMinutes': 0
-            },
-            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             date: props.date,
-            movementPercentages: { 'sitting': { total: 0, bar: new Array(13) }, 'standing': { total: 0, bar: new Array(13) }, 'lyingDown': { total: 0, bar: new Array(13) }, 'walking': { total: 0, bar: new Array(13) }, 'unknown': { total: 0, bar: new Array(13) } },
-            steps: this.getRandomInt(300, 1500),
-            activityType: activityTypes.sitting,
+            // barColour: arrayColours['unknown'],
+            // activityGoals: {
+            //     'id': props.id,
+            //     'steps': 0,
+            //     'activeMinutes': 0,
+            //     'walkingMinutes': 0,
+            //     'standingMinutes': 0
+            // },
+            // data: [],
+            // movementPercentages: { 'sitting': { total: 0, bar: new Array(13) }, 'standing': { total: 0, bar: new Array(13) }, 'lyingDown': { total: 0, bar: new Array(13) }, 'walking': { total: 0, bar: new Array(13) }, 'unknown': { total: 0, bar: new Array(13) } },
+            // steps: this.getRandomInt(300, 1500),
+            activityType: activityTypes.standing,
+            barColour: arrayColours[activityTypes.standing],
         }
     };
 
@@ -76,37 +81,64 @@ export default class PatientData extends Component {
     }
 
     getPatientData(startDate) {
-        var endDate = new Date(startDate);
-
+        var endDate = moment(startDate);
+        var xLabels = [];
+        var yLabels = [];
         switch (this.props.tabView) {
             case Tabs.daily:
-                endDate = moment(endDate).add(1, 'days').toDate();
+                endDate = moment(endDate).add(1, 'days');
+                var numHours = endDate.diff(startDate, 'hours');
+                for (var i = 0; i < numHours; i++) {
+                    xLabels.push(moment(startDate).add(i, 'hours').format('hA'));
+                }
+                yLabels = hourlyYLabels;
                 break;
             case Tabs.weekly:
-                endDate = moment(endDate).add(1, 'weeks').toDate();
+                endDate = moment(endDate).add(1, 'weeks');
+                var numDays = endDate.diff(startDate, 'days');
+                for (var i = 0; i < numDays; i++) {
+                    xLabels.push(moment(startDate).add(i, 'days').format('Do'));
+                }
+                yLabels = dailyYLabels;
                 break;
             case Tabs.monthly:
-                endDate = moment(endDate).add(1, 'months').toDate();
+                endDate = moment(endDate).add(1, 'months');
+                var numDays = endDate.diff(startDate, 'days');
+                for (var i = 0; i < numDays; i++) {
+                    xLabels.push(moment(startDate).add(i, 'days').format('Do'));
+                }
+                yLabels = dailyYLabels;
                 break;
 
             //TODO: FIX TO GET OVERALL TIME OF THE PATIENT
             case Tabs.overall:
-                endDate = moment(endDate).add(1, 'months').toDate();
+                endDate = moment(endDate).add(1, 'months');
                 break;
             default:
-                endDate = moment(endDate).add(1, 'days').toDate();
+                endDate = moment(endDate).add(1, 'days');
                 break;
 
         }
 
+        this.setState({ xLabels: xLabels });
+        this.setState({ yLabels: yLabels });
+
         console.log("props: " + this.props.tabView + ", " + this.props.date);
         console.log('endDate: ' + endDate);
 
-        GetPatientActivities(startDate.getTime(), endDate.getTime(), this.props.id).then((activitiesJson) => {
+        GetPatientActivities(startDate.utc().valueOf(), endDate.utc().valueOf(), this.props.id).then((activitiesJson) => {
             if (activitiesJson === undefined) {
                 this.setState({ error: 'Error retrieving patient activity data, please select a date' });
             } else {
+                if (this.props.tabView != Tabs.daily) {
+                    activitiesJson.sitting.bar = this.hourlyIntoDays(activitiesJson.sitting.bar)
+                    activitiesJson.lyingDown.bar = this.hourlyIntoDays(activitiesJson.lyingDown.bar)
+                    activitiesJson.walking.bar = this.hourlyIntoDays(activitiesJson.walking.bar)
+                    activitiesJson.standing.bar = this.hourlyIntoDays(activitiesJson.standing.bar);
+                    activitiesJson.unknown.bar = this.hourlyIntoDays(activitiesJson.unknown.bar);
+                }
                 this.setState({ movementPercentages: activitiesJson });
+                this.setState({ data: activitiesJson.sitting.bar });
                 this.setState({ error: null });
             }
         });
@@ -117,14 +149,18 @@ export default class PatientData extends Component {
 
     }
 
+    hourlyIntoDays(data) {
+        return _.chunk(data, 24).map((c) => { return _.sum(c); });
+    }
+
     componentDidMount() {
         this.getPatientData(this.state.date);
     };
 
     setDate(rDate) {
-        this.setState({ date: rDate });
+        this.setState({ date: moment(rDate) });
         console.log(this.state.date);
-        this.getPatientData(rDate);
+        this.getPatientData(moment(rDate));
     }
 
     render() {
@@ -138,12 +174,21 @@ export default class PatientData extends Component {
                         <View style={[styles.center, styles.widthSize]}>
                             <GetDate
                                 dateCallback={this.setDate.bind(this)}
-                                date={this.state.date}
+                                date={this.state.date.toDate()}
                             />
                         </View>
                     </View>
                 </ScrollView>
                 // </ScrollView>
+            );
+        }
+
+        if (!this.state.data) {
+            return (
+                <View>
+                    {/* TODO: replace this with a loading screen */}
+                    <Text>Still downloading patient data...</Text>
+                </View>
             );
         }
 
@@ -185,7 +230,9 @@ export default class PatientData extends Component {
 
         var requiresGoalLine = false;
         var goalLine = 0;
-        if (this.state.activityType == activityTypes.standing || this.state.activityType == activityTypes.walking) {
+        if ((this.state.activityType == activityTypes.standing
+            || this.state.activityType == activityTypes.walking)
+            && this.state.activityGoals !== undefined) {
             requiresGoalLine = true;
             switch (this.state.activityType) {
                 case activityTypes.standing:
@@ -208,7 +255,7 @@ export default class PatientData extends Component {
                         </Text>
                         <GetDate
                             dateCallback={this.setDate.bind(this)}
-                            date={this.state.date}
+                            date={this.state.date.toDate()}
                         />
                     </View>
 
@@ -263,6 +310,8 @@ export default class PatientData extends Component {
                                 data={this.state.data}
                                 goalLine={goalLine}
                                 requiresGoalLine={requiresGoalLine}
+                                xLabels={this.state.xLabels}
+                                yLabels={this.state.yLabels}
                             />
                         </View>
                 </View>
