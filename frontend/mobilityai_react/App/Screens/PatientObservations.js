@@ -26,6 +26,14 @@ export default class PatientObservations extends React.Component {
     }
 
     componentDidMount() {
+        this.updateObs();
+    }
+
+    showDialog(show) {
+        this.setState({ isDialogVisible: show });
+    }
+
+    updateObs() {
         GetObservations(this.props.navigation.getParam('id')).then((observationJson) => {
             var i;
             var obsList2 = [];
@@ -47,15 +55,13 @@ export default class PatientObservations extends React.Component {
         })
     }
 
-    showDialog(show) {
-        this.setState({ isDialogVisible: show });
-    }
-
     addObs(comment) {
         var pID = this.props.navigation.getParam('id');
         var uID = this.props.navigation.getParam('userId');
 
-        let response = AddObservations(uID, pID, comment)
+        let response = AddObservations(uID, pID, comment).then(() => {
+            this.updateObs()
+        })
         console.log(JSON.stringify(response));
         this.setState({ comment: "" });
 
