@@ -64,7 +64,7 @@ export default class PatientObservations extends React.Component {
 
     render() {
         return (
-            <View>
+            <View style={{flex: 1}}>
                 <ScrollView>
                     <View style={styles.container}>
                         {this.state.obsList}
