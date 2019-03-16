@@ -1,14 +1,18 @@
 import React from 'react';
-import { TouchableOpacity, Button, ScrollView, StyleSheet, Text, View, TextInput, Dimensions } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Icon } from 'react-native-elements'
+import DialogInput from 'react-native-dialog-input';
+import ActionButton from 'react-native-action-button';
 
-import { AddObservations } from '../Lib/Api';
+import { AddObservations, GetObservations } from '../Lib/Api';
 
-const height = Dimensions.get('window').height;
 export default class PatientObservations extends React.Component {
     static navigationOptions = ({ navigation }) => {
+        var id = navigation.getParam('id');
+
         return {
             title: "Nurse's Observations"
-        }
+        };
     }
     constructor(props) {
         super(props);
@@ -16,53 +20,74 @@ export default class PatientObservations extends React.Component {
             id: props.id,
             userId: props.userId,
             comment: "",
+            obsList: [],
+            isDialogVisible: false,
         };
     }
 
-    addObs() {
+    componentDidMount() {
+        GetObservations(this.props.navigation.getParam('id')).then((observationJson) => {
+            var i;
+            var obsList2 = [];
+            for (i = 0; i < observationJson.length; i++) {
+                console.log(observationJson[i]);
+
+                obsList2.push(
+                    <View style={[styles.obsBoxesDir, styles.box]}>
+                        <Text style={[styles.obsBox, styles.nameText]}>
+                            {observationJson[i]['firstName'] + ' ' + observationJson[i]['lastName']}
+                        </Text>
+                        <Text style={[styles.obsBox, styles.commentText]}>
+                            {observationJson[i]['comment']}
+                        </Text>
+                    </View>
+                );
+            }
+            this.setState({ obsList: obsList2 });
+        })
+    }
+
+    showDialog(show) {
+        this.setState({ isDialogVisible: show });
+    }
+
+    addObs(comment) {
         var pID = this.props.navigation.getParam('id');
         var uID = this.props.navigation.getParam('userId');
 
-        let response = AddObservations(uID, pID, this.state.comment)
+        let response = AddObservations(uID, pID, comment)
         console.log(JSON.stringify(response));
         this.setState({ comment: "" });
+
+        this.setState({ isDialogVisible: false });
     }
 
     render() {
         return (
-            <ScrollView>
-                <View style={styles.container}>
-                    <View style={styles.obsBoxesDir}>
-                        <TextInput
-                            editable={false}
-                            style={[styles.obsBox, { height: 20 }]}
-                        />
-                        <TextInput
-                            editable={false}
-                            style={styles.obsBox}
-                        />
+            <View>
+                <ScrollView>
+                    <View style={styles.container}>
+                        {this.state.obsList}
+                    </View>
+                    </ScrollView>
 
-                    </View>
-                    <View>
-                        <Text style={styles.title}>Add Observation</Text>
-                        <TextInput
-                            editable={true}
-                            maxLength={200}
-                            multiline={true}
-                            style={styles.addBox}
-                            onChangeText={(comment) => this.setState({ comment })}
-                            value={this.state.comment}
-                        />
-                    </View>
-                    <View style={styles.addBtn}>
-                            <Button
-                                title="Add"
-                                onPress={() => this.addObs()}
-                                color="#5DACBD"
-                            />
-                        </View>
-                </View>
-            </ScrollView>
+
+                    <DialogInput isDialogVisible={this.state.isDialogVisible}
+                        title={"Observations"}
+                        message={"Enter any additional observations below: "}
+                        submitInput={(inputText) => { this.addObs(inputText) }}
+                        closeDialog={() => { this.showDialog(false) }}>
+                    </DialogInput>
+
+                    <ActionButton buttonColor="rgba(231,76,60,1)"
+                        onPress={() => {
+                            this.showDialog(true);
+                            console.log("SHOWING BOX")
+                        }}
+                        degrees={0}>
+                        <Icon name="md-create" style={styles.actionButtonIcon} />
+                    </ActionButton>
+            </View>
         )
     }
 }
@@ -71,33 +96,27 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'stretch',
-        height: height * 0.9,
     },
 
-    title: {
+    nameText: {
         textAlign: 'left',
-        fontSize: 20,
-        padding: 10,
-        color: "#5DACBD",
+        fontSize: 15,
+        fontWeight: 'bold',
+        paddingLeft: 5,
     },
 
-    addBox: {
-        height: height * 0.2,
-        borderColor: 'black',
-        borderWidth: 2,
-        borderRadius: 10,
-        textAlign: 'center',
-        marginRight: 5,
+    box: {
+        borderWidth: 0.5,
+        borderColor: 'grey',
+        borderRadius: 8,
         marginLeft: 5,
-        textAlignVertical: 'top',
-        textAlign: 'left',
+        marginRight: 5,
+        padding: 2,
     },
 
-    addBtn: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        borderRadius: 100,
+    commentText: {
+        paddingLeft: 5,
+        paddingRight: 5,
     },
 
     obsBoxesDir: {
@@ -105,9 +124,13 @@ const styles = StyleSheet.create({
     },
 
     obsBox: {
-        borderWidth: 2,
-        borderColor: 'grey',
         marginLeft: 5,
         marginRight: 5,
+    },
+
+    actionButtonIcon: {
+        fontSize: 20,
+        height: 22,
+        color: 'white',
     },
 })

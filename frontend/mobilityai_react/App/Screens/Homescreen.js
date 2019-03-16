@@ -29,13 +29,12 @@ export default class Homescreen extends Component {
           </TouchableHighlight>
         </View> */}
 
-        {/* TODO: REDIRECT BACK TO SIGN UP, NOT PATIENT OBS */}
         {/* Button redirecting users to Sign Up page */}
         <View style={styles.buttons}>
           <Button
             style={styles.mainButton}
             title='Sign Up'
-            onPress={() => navigate('PatientObservations', {})}
+            onPress={() => navigate('SignUp', {})}
             color="#5DACBD"
           />
 

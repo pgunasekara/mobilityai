@@ -15,6 +15,7 @@
     "react": "16.6.3",
     "react-native": "0.57.8",
     "react-native-action-button": "^2.8.5",
+    "react-native-dialog-input": "^1.0.7",
     "react-native-elements": "^1.0.0-beta7",
     "react-native-gesture-handler": "^1.0.12",
     "react-native-modal-datetime-picker": "^6.0.0",
