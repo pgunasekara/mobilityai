@@ -82,7 +82,7 @@ export default class PatientObservations extends React.Component {
                     <ActionButton buttonColor="rgba(231,76,60,1)"
                         onPress={() => {
                             this.showDialog(true);
-                            console.log("SHOWING BOX")
+                            console.log("SHOWING BOX");
                         }}
                         degrees={0}>
                         <Icon name="md-create" style={styles.actionButtonIcon} />
