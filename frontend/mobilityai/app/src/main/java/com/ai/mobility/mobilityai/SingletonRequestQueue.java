@@ -12,7 +12,7 @@ class SingletonRequestQueue {
     private RequestQueue m_requestQueue;
     private static Context m_ctx;
 
-    private final static String URL = "http://mobilityai.teovoinea.com/api/";
+    private final static String URL = "https://mobilityai.teovoinea.com/api/";
 
     private SingletonRequestQueue(Context ctx) {
         m_ctx = ctx;

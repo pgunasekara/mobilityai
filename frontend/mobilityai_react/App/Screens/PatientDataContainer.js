@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import Swiper from 'react-native-swiper';
-import { Icon } from 'react-native-elements'
+import { Icon } from 'react-native-elements';
+import moment from 'moment';
 
 import PatientData from './PatientData';
 
@@ -91,7 +92,7 @@ export default class PatientDataContainer extends Component {
                         id={navigation.getParam('id')}
                         firstName={this.props.firstName}
                         lastName={this.props.lastName}
-                        date={new Date()}
+                        date={moment(new Date()).startOf('day')}
                         tabView={0}
                         tabTitle='Daily Patient Activity'
                     />
@@ -101,7 +102,7 @@ export default class PatientDataContainer extends Component {
                         id={navigation.getParam('id')}
                         firstName={this.props.firstName}
                         lastName={this.props.lastName}
-                        date={new Date()}
+                        date={moment(new Date()).startOf('week')}
                         tabView={1}
                         tabTitle='Weekly Patient Activity'
                     />
@@ -111,7 +112,7 @@ export default class PatientDataContainer extends Component {
                         id={navigation.getParam('id')}
                         firstName={this.props.firstName}
                         lastName={this.props.lastName}
-                        date={new Date()}
+                        date={moment(new Date()).startOf('month')}
                         tabView={2}
                         tabTitle='Monthly Patient Activity'
                     />
@@ -121,7 +122,7 @@ export default class PatientDataContainer extends Component {
                         id={navigation.getParam('id')}
                         firstName={this.props.firstName}
                         lastName={this.props.lastName}
-                        date={new Date()}
+                        date={moment(new Date())}
                         tabView={3}
                         tabTitle='Overall Patient Activity'
                     />

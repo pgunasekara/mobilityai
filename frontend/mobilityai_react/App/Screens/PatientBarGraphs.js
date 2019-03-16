@@ -1,13 +1,20 @@
 import React, { Component } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { BarChart, Grid, XAxis, YAxis } from 'react-native-svg-charts';
 import { Text } from 'react-native-svg';
 
 // displaying the bar graph for the movement of the activity 
 export default class BarGraph extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            graphWidth: Math.max(this.props.data.length * 28.3, Dimensions.get('window').width)
+        }
+    }
+
     render() {
         const fill = this.props.color;
-        const time = ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM'];
 
         const contentInset = { top: 30, bottom: 30 };
 
@@ -30,24 +37,24 @@ export default class BarGraph extends Component {
         return (
             <View style={styles.graphContainer}>
                 <YAxis
-                    data={[0, 10, 20, 30, 40, 50, 60]}
+                    data={this.props.yLabels}
                     contentInset={contentInset}
                     svg={{
                         fill: 'grey',
                         fontSize: 10,
                     }}
-                    numberOfTicks={6}
+                    // numberOfTicks={this.props.yLabels.length}
                     style={{ height: 200 }}
                 />
                 <ScrollView horizontal={true} style={styles.bargraph}>
-                    <View style={{ width: 500 }}>
+                    <View style={{ width: this.state.graphWidth}}>
                         <BarChart
                             style={{ height: 200 }}
                             data={this.props.data}
                             svg={{ fill }}
                             contentInset={{ top: 30, bottom: 30 }}
                             yMin={0}
-                            yMax={60}
+                            yMax={this.props.yLabels.length}
                         >
                             <Grid />
                             {this.props.requiresGoalLine == true &&
@@ -57,9 +64,12 @@ export default class BarGraph extends Component {
                         <XAxis
                             style={{ marginHorizontal: -10 }}
                             data={this.props.data}
-                            formatLabel={(value, index) => time[index]}
+                            formatLabel={(value, index) => this.props.xLabels[index]}
                             contentInset={{ left: 30, right: 30 }}
                             svg={{ fontSize: 10, fill: 'black' }}
+                            alignmentBaseline={ 'middle' }
+                            textAnchor={'middle'}
+                            numberOfTicks={this.props.xLabels.length}
                         />
                     </View>
                 </ScrollView>
