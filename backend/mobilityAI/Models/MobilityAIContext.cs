@@ -83,6 +83,11 @@ namespace mobilityAI.Models
             get; set;
         }
 
+        public DbSet<Survey> Surveys
+        {
+            get; set;
+        }
+
         // Pre-populating the patient data tables 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
