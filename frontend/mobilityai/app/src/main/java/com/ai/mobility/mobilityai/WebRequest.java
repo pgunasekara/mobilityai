@@ -10,9 +10,6 @@ import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.SimpleMultiPartRequest;
-import com.android.volley.request.StringRequest;
-
-import org.json.JSONObject;
 
 class WebRequest {
     private static final WebRequest ourInstance = new WebRequest();
@@ -25,9 +22,13 @@ class WebRequest {
     private WebRequest() { }
 
     public SimpleMultiPartRequest uploadSensorData(Context context, int patientId, String path, String aFile, String gFile) {
-        String url = SingletonRequestQueue.getUrl() + "SensorData/" + patientId + "/AddSensorData";
+        String url = SingletonRequestQueue.getUrl() + "SensorData/" + patientId;
         String accelerometerFile = path + "/" + aFile;
         String gyroscopeFile = path + "/" + gFile;
+
+        Log.i(TAG, url);
+        Log.i(TAG, accelerometerFile);
+        Log.i(TAG, gyroscopeFile);
 
         SimpleMultiPartRequest smr = getSMRObject(context, url);
 

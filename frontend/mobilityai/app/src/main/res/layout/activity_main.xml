@@ -55,9 +55,7 @@
         android:id="@+id/tmpBtn3"
         android:layout_width="99dp"
         android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_anchor="@+id/include"
-        app:layout_anchorGravity="right|center"
-        android:background="@android:color/transparent"
-        android:textColor="@android:color/transparent"/>
+        android:text="Start"
+        app:layout_anchor="@+id/tmpBtn2"
+        app:layout_anchorGravity="top|center" />
 </android.support.design.widget.CoordinatorLayout>

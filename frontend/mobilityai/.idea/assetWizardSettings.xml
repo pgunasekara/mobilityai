@@ -18,6 +18,17 @@
                                 <PersistentState>
                                   <option name="children">
                                     <map>
+                                      <entry key="clipartAsset">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/device/ic_battery_std_black_24dp.xml" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
                                       <entry key="image">
                                         <value>
                                           <PersistentState>
@@ -33,9 +44,8 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="assetType" value="IMAGE" />
                                       <entry key="imageAsset" value="C:\Users\Pasindu\Desktop\HatchfulExport-All\logo_transparent.png" />
-                                      <entry key="outputName" value="splash_screen" />
+                                      <entry key="outputName" value="battary_icon" />
                                     </map>
                                   </option>
                                 </PersistentState>

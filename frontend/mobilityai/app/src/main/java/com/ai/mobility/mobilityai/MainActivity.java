@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                             @Override
                             public void run() {
                                 Log.i(TAG, "Found: " + result.getDevice().getAddress());
-                                //if(result.getDevice().getAddress().equals("D1:87:11:D8:F3:C0")) {
+                                if(result.getDevice().getAddress().equals("D0:D1:72:CD:1C:FC")) {
                                     //Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
 
                                     //Only make web request if device does not already exist in list of devices
@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                                         m_rqueue.addToRequestQueue(req);
                                     }
-                                //}
+                                }
                             }
                         });
                     }
@@ -329,36 +329,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         m_isScanning = false;
         m_refreshButton.setImageResource(R.drawable.ic_refresh_black_24dp); //Change back to the refresh icon so that the user knows they can scan again
-
-        //Leaving this here until it is moved to MetaMotionService
-        /*for(MetaMotionDevice d : m_deviceList) {
-            //Connect to board
-            Task<Route> currTask = connectToBoard(d);
-
-            //Deserialize, set environment, stop sensors, get logging data
-            currTask = currTask.onSuccessTask(task -> {
-                return collectData(d);
-            });
-                    *//*.continueWithTask(task -> {
-                collectData(d);
-                return null;
-            });*//*
-
-            //Reconfigure board, serialize board, and restart logging
-            currTask = currTask.onSuccessTask(task -> {
-                return startDataCollection(d);
-            });
-
-            currTask.onSuccessTask(task -> {
-                MetaMotionService m = m_boards.getBoard(d.getMacAddr());
-                m.disconnectBoard();
-                Log.i(TAG, "Disconnected from: " + m.getBoard().getMacAddress());
-                return null;
-            });
-
-            m_boards.getBoard(d.getMacAddr()).disconnectBoard();
-            break;
-        }*/
     }
 
     private void setUpBluetoothScanner() {
@@ -452,13 +422,16 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Logging log = m.getLogging();
         View v = m_bleList.getLayoutManager().findViewByPosition(0);
         ProgressBar syncProgress = v.findViewById(R.id.devSyncProgress);
+        TextView syncProgressText = v.findViewById(R.id.syncProgressText);
         TextView lastSync = v.findViewById(R.id.devLastSync);
 
         Log.i(TAG, "Starting log download");
 
         return log.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
+//            int prog = (int)totalEntries - (int)nEntriesLeft;
             syncProgress.setProgress((int)totalEntries - (int)nEntriesLeft);
             syncProgress.setMax((int)totalEntries);
+            //syncProgressText.setText("Syncing Data: " + ((int)totalEntries - (int)nEntriesLeft) + "%");
             Log.i(TAG, "Download: "  + ((int)totalEntries - (int)nEntriesLeft));
         }).continueWithTask(task -> {
             if (task.isFaulted()) {
@@ -604,8 +577,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             currTask.continueWith(task -> {
                 String msg = "Data Syncing completed on " + d.getMacAddr();
                 Toast.makeText(this, (String)msg, Toast.LENGTH_LONG).show();
+                m_boards.getBoard(d.getMacAddr()).disconnectBoard();
                 return null;
             });
+
+            break;
         }
     }
 
@@ -619,6 +595,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         String firstName = "Unregistered Device";
         String lastName = "";
         String lastSync = "Never";
+        int patientId = -1;
 
         CStringRequest req = m_deviceRequests.get(macAddr);
 
@@ -628,12 +605,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 firstName = res.getString("firstName");
                 lastName = res.getString("lastName");
                 lastSync = res.getString("lastSync");
+                patientId = res.getInt("patientId");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        m_adapter.update(new MetaMotionDevice(firstName, lastName, macAddr, 50, lastSync, rssi));
+        m_adapter.update(new MetaMotionDevice(firstName, lastName, patientId, macAddr, 50, lastSync, rssi));
     }
 
     /**

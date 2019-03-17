@@ -3,6 +3,7 @@ package com.ai.mobility.mobilityai;
 public class MetaMotionDevice {
     private String firstName;
     private String lastName;
+    private int patientId;
     private String macAddr;
     private Integer battery;
     private String lastSync;
@@ -10,13 +11,14 @@ public class MetaMotionDevice {
     private int colour;
     private MetaMotionService service;
 
-    public MetaMotionDevice(String firstName, String lastName, String macAddr, Integer battery, String lastSync, int rssi) {
+    public MetaMotionDevice(String firstName, String lastName, int patientId, String macAddr, Integer battery, String lastSync, int rssi) {
         this.setFirstName(firstName);
         this.setLastName(lastName);
         this.setMacAddr(macAddr);
         this.setBattery(battery);
         this.setLastSync(lastSync);
         this.setRssi(rssi);
+        this.setPatientId(patientId);
     }
 
     public String getMacAddr() {
@@ -70,4 +72,8 @@ public class MetaMotionDevice {
     public String getLastName() { return lastName; }
 
     public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public int getPatientId() { return patientId; }
+
+    public void setPatientId(int patientId) { this.patientId = patientId; }
 }
