@@ -38,7 +38,7 @@ namespace mobilityAI.Controllers {
             var data = (from a in _context.Devices
                         join b in _context.Users on a.PatientID equals b.Id
                         where (a.Id == deviceId)
-                        select new { a.Id, a.FriendlyName, b.FirstName, b.LastName, a.LastSync }).SingleOrDefault();
+                        select new { a.Id, a.PatientID, a.FriendlyName, b.FirstName, b.LastName, a.LastSync }).SingleOrDefault();
 
             if(data == null)
                 return BadRequest(String.Format("Device ID: {0} not found.", deviceId));
