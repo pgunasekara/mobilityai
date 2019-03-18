@@ -149,13 +149,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 this, Context.BIND_AUTO_CREATE);
     }
 
-    //TODO: Delete this function once the server side endpoints return the correct data
-    private String getRandomName() {
-        String[] names = {"Rebecca Tran", "Roberto Temelkovski", "Teo Voinea"};
-        int rnd = r.nextInt(names.length);
-        return names[rnd];
-    }
-
     @Override
     public void onDestroy() {
         stopBleScan();
@@ -217,17 +210,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     @Override
-    public void onServiceDisconnected(ComponentName name) {
-        //Leaving this here until it's moved to MetaMotionService class
-        /*if(board != null) {
-            board.disconnectAsync().continueWith(new Continuation<Void, Void>() {
-                @Override
-                public Void then(Task<Void> task) throws Exception {
-                    return null;
-                }
-            });
-        }*/
-    }
+    public void onServiceDisconnected(ComponentName name) { }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -250,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
      */
     private void startBleScan() {
         m_adapter.clear();
+        m_deviceList.clear();
         m_isScanning = true;
 
         Log.i(TAG, "Started Scan");
@@ -281,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                             @Override
                             public void run() {
                                 Log.i(TAG, "Found: " + result.getDevice().getAddress());
-                                if(result.getDevice().getAddress().equals("D0:D1:72:CD:1C:FC")) {
+                                if(result.getDevice().getAddress().equals("C1:D9:A9:77:09:72")) {
                                     //Log.i(TAG, "Updating with: " + result.getDevice().getAddress());
 
                                     //Only make web request if device does not already exist in list of devices
@@ -425,13 +409,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         TextView syncProgressText = v.findViewById(R.id.syncProgressText);
         TextView lastSync = v.findViewById(R.id.devLastSync);
 
+        syncProgressText.setVisibility(View.VISIBLE);
+
         Log.i(TAG, "Starting log download");
 
+
+
         return log.downloadAsync(100, (long nEntriesLeft, long totalEntries) -> {
-//            int prog = (int)totalEntries - (int)nEntriesLeft;
             syncProgress.setProgress((int)totalEntries - (int)nEntriesLeft);
             syncProgress.setMax((int)totalEntries);
-            //syncProgressText.setText("Syncing Data: " + ((int)totalEntries - (int)nEntriesLeft) + "%");
             Log.i(TAG, "Download: "  + ((int)totalEntries - (int)nEntriesLeft));
         }).continueWithTask(task -> {
             if (task.isFaulted()) {
@@ -448,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 String filePath = this.getFilesDir().toString();
                 m_rqueue.addToRequestQueue(WebRequest.getInstance().uploadSensorData(
                         this,
-                        8,
+                        m.getPatientId(),
                         filePath,
                         m.getAccelerometerFileName(),
                         m.getGyroscopeFileName()
@@ -467,6 +453,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 //Update Last Sync
                 lastSync.setText("Last Sync: " + Calendar.getInstance().getTime().toString());
+
+                syncProgressText.setText("Sync Complete");
+                syncProgress.setProgress(0);
             }
 
             //Clear board
@@ -505,6 +494,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             m.getLogging().start(true);
 
             Log.i(TAG, "Data collection started for " + d.getMacAddr());
+
+            m.disconnectBoard();
 
             return null;
         });
@@ -605,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 firstName = res.getString("firstName");
                 lastName = res.getString("lastName");
                 lastSync = res.getString("lastSync");
-                patientId = res.getInt("patientId");
+                patientId = res.getInt("patientID");
             } catch (Exception e) {
                 e.printStackTrace();
             }

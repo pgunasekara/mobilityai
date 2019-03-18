@@ -57,5 +57,6 @@
         android:layout_height="wrap_content"
         android:text="Start"
         app:layout_anchor="@+id/tmpBtn2"
-        app:layout_anchorGravity="top|center" />
+        app:layout_anchorGravity="top|center"
+        android:visibility="invisible"/>
 </android.support.design.widget.CoordinatorLayout>
