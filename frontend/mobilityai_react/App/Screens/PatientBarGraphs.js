@@ -56,13 +56,13 @@ export default class BarGraph extends Component {
                         fill: 'grey',
                         fontSize: 10,
                     }}
-                    style={{ height: 200 }}
+                    style={styles.graphHeight}
                 />
                 <ScrollView horizontal={true} style={styles.bargraph}>
                     <View style={{ width: 500 }}>
                         {this.props.singleBarView 
                             ? <BarChart
-                                style={{ height: 200 }}
+                                style={styles.graphHeight}
                                 data={this.props.data}
                                 svg={{ fill }}
                                 contentInset={{ top: 30, bottom: 30 }}
@@ -75,7 +75,7 @@ export default class BarGraph extends Component {
                                 }
                             </BarChart>
                             : <StackedBarChart
-                                style={{ height: 200 }}
+                                style={styles.graphHeight}
                                 contentInset={ { top: 30, bottom: 30 } }
                                 data={data}
                                 keys={ this.props.keys }
@@ -116,5 +116,8 @@ const styles = StyleSheet.create({
         borderBottomColor: 'black',
         borderBottomWidth: 1,
         bottom: 100,
+    },
+    graphHeight: {
+        height: 200
     }
 });
