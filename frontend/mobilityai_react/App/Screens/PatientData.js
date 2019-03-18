@@ -21,7 +21,10 @@ const activityTypes = {
     standing: 'standing',
     walking: 'walking',
     lyingDown: 'lyingDown',
-    unknown: 'unknown'
+    unknown: 'unknown',
+    active : 'active',
+    sedentary : 'sedentary',
+    stacked : 'stacked'
 }
 
 const arrayColours = {
@@ -30,6 +33,10 @@ const arrayColours = {
     lyingDown: '#9B59B6',
     walking: '#F1C40F',
     unknown: '#E74C3C',
+    stacked : '#8B4513',
+    active : '#93AE75',
+    sedentary : '#5B8BA9',
+    toggle: '#000000',
 };
 
 const Tabs = {
@@ -64,15 +71,62 @@ export default class PatientData extends Component {
             // steps: this.getRandomInt(300, 1500),
             activityType: activityTypes.standing,
             barColour: arrayColours[activityTypes.standing],
+            singleBarView : true,
+            stackedViewKeys : null
         }
     };
 
     _onPressButton(newActivityType, newData) {
         console.log(`Setting new activity type ${newActivityType}`);
-        this.setState({ activityType: newActivityType });
-        this.setState({ barColour: arrayColours[newActivityType] });
-        this.setState({ data: newData });
+        this.setState({ 
+            activityType: newActivityType, 
+            singleBarView: true,
+            barColour: arrayColours[newActivityType],
+            data: newData
+        });
     };
+
+    extractDataForStackView(keys){
+        let bars = [];
+
+        for (let i = 0; i < this.state.xLabels.length; i++){
+            bars.push({});
+            keys.forEach((key) => {
+                bars[i][key] = this.state.movementPercentages[key].bar[i];
+            });
+        }
+
+        return bars;
+    }
+
+    _onPressStackedButton(newActivityType){
+        this.setState({ activityType: newActivityType });
+        const activeKeys = ['standing', 'walking'];
+        const sedentaryKeys = ['sitting','lyingDown'];
+        const stackedKeys = [...activeKeys, ...sedentaryKeys];
+
+        const colorExtractor = (k) => arrayColours[k];
+        let stateKeys = null;
+
+        switch (newActivityType){
+            case activityTypes.active:
+                stateKeys = activeKeys;
+                break;
+            case activityTypes.sedentary:
+                stateKeys = sedentaryKeys;
+                break;
+            case activityTypes.stacked:
+                stateKeys = stackedKeys;
+                break;
+        }
+
+        this.setState({
+            data: this.extractDataForStackView(stateKeys),
+            barColour: stateKeys.map(colorExtractor),
+            stackedViewKeys : stateKeys,
+            singleBarView: false
+        });
+    }
 
     getRandomInt(min, max) {
         min = Math.ceil(min);
@@ -140,6 +194,7 @@ export default class PatientData extends Component {
                 this.setState({ movementPercentages: activitiesJson });
                 this.setState({ data: activitiesJson.sitting.bar });
                 this.setState({ error: null });
+                console.log(this.state.movementPercentages)
             }
         });
 
@@ -150,7 +205,7 @@ export default class PatientData extends Component {
     }
 
     hourlyIntoDays(data) {
-        return _.chunk(data, 24).map((c) => { return _.sum(c); });
+        return _.chunk(data, 24).map((c) => { return _.sum(c) / 60; });
     }
 
     componentDidMount() {
@@ -194,6 +249,10 @@ export default class PatientData extends Component {
 
         const width = 250;
         const height = 250;
+        const sedentaryTotal = this.state.movementPercentages.lyingDown.total + this.state.movementPercentages.sitting.total;
+        const activeTotal = this.state.movementPercentages.walking.total + this.state.movementPercentages.standing.total;
+        
+        
 
         const userActivities = [
             {
@@ -216,7 +275,6 @@ export default class PatientData extends Component {
                 itemName: activityTypes.unknown,
                 movement: this.state.movementPercentages.unknown.total,
             },
-
         ];
 
         const sectionAngles = d3.pie().value(d => d.movement)(userActivities.sort(function (a, b) { return (b.movement - a.movement); }));
@@ -284,24 +342,76 @@ export default class PatientData extends Component {
 
                     {/* Displaying the circle buttons for each activity */}
                     <View style={styles.flexDir}>
-                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.standing, this.state.movementPercentages.standing.bar)} underlayColor="white">
-                            <Circle activity='Standing' activityIcon='male' iconLib='font-awesome' color={arrayColours.standing} />
-                        </TouchableHighlight>
+                        {this.state.singleBarView 
+                            ? <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.standing, this.state.movementPercentages.standing.bar)} underlayColor="white">
+                                <Circle activity='Standing' activityIcon='male' iconLib='font-awesome' color={arrayColours.standing} />
+                                </TouchableHighlight>
+                            : null
+                        }
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.sitting, this.state.movementPercentages.sitting.bar)} underlayColor="white">
-                            <Circle activity='Sitting' activityIcon='airline-seat-recline-normal' iconLib='MaterialIcons' color={arrayColours.sitting} />
-                        </TouchableHighlight>
+                        {this.state.singleBarView 
+                            ? <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.sitting, this.state.movementPercentages.sitting.bar)} underlayColor="white">
+                                <Circle activity='Sitting' activityIcon='airline-seat-recline-normal' iconLib='MaterialIcons' color={arrayColours.sitting} />
+                            </TouchableHighlight>
+                            : null
+                        }
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.lyingDown, this.state.movementPercentages.lyingDown.bar)} underlayColor="white">
-                            <Circle activity='Lying Down' activityIcon='bed' iconLib='font-awesome' color={arrayColours.lyingDown} />
-                        </TouchableHighlight>
+                        {this.state.singleBarView 
+                            ? <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.lyingDown, this.state.movementPercentages.lyingDown.bar)} underlayColor="white">
+                                <Circle activity='Lying Down' activityIcon='bed' iconLib='font-awesome' color={arrayColours.lyingDown} />
+                            </TouchableHighlight>
+                            : null
+                        }
 
-                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.walking, this.state.movementPercentages.walking.bar)} underlayColor="white">
-                            <Circle activity='Walking' activityIcon='directions-walk' iconLib='MaterialIcons' color={arrayColours.walking} />
-                        </TouchableHighlight>
-
-                        <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.unknown, this.state.movementPercentages.unknown.bar)} underlayColor="white">
+                        {this.state.singleBarView 
+                            ? <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.unknown, this.state.movementPercentages.unknown.bar)} underlayColor="white">
                             <Circle activity='Miscellaneous' activityIcon='question' iconLib='font-awesome' color={arrayColours.unknown} />
+                        </TouchableHighlight>
+                            : null
+                        }
+
+
+                        {this.state.singleBarView 
+                            ? <TouchableHighlight onPress={this._onPressButton.bind(this,activityTypes.walking, this.state.movementPercentages.walking.bar)} underlayColor="white">
+                                <Circle activity='Walking' activityIcon='directions-walk' iconLib='MaterialIcons' color={arrayColours.walking} />
+                            </TouchableHighlight>
+                            : null
+                        }
+
+                        {!this.state.singleBarView 
+                            ? <TouchableHighlight onPress={this._onPressStackedButton.bind(this,activityTypes.stacked)} underlayColor="white">
+                                <Circle activity='Stacked View' activityIcon='chart-bar-stacked' iconLib='material-community' color={arrayColours.stacked} />
+                            </TouchableHighlight>
+                            : null
+                        }
+
+                        {!this.state.singleBarView 
+                            ? <TouchableHighlight onPress={this._onPressStackedButton.bind(this,activityTypes.active)} underlayColor="white">
+                                <Circle activity='Active' activityIcon='fitness-center' iconLib='MaterialIcons' color={arrayColours.active} />
+                            </TouchableHighlight>
+                            : null
+                        }
+
+                        {!this.state.singleBarView 
+                            ? <TouchableHighlight onPress={this._onPressStackedButton.bind(this,activityTypes.sedentary)} underlayColor="white">
+                                <Circle activity='Sedentary' activityIcon='sofa' iconLib='material-community' color={arrayColours.sedentary} />
+                            </TouchableHighlight>
+                            : null
+                        }
+
+                        <TouchableHighlight onPress={() => {
+                            if (this.state.singleBarView){
+                                this._onPressStackedButton(activityTypes.stacked)
+                            }else{
+                                this._onPressButton(activityTypes.walking, this.state.movementPercentages.walking.bar);
+                            }
+                        }} underlayColor="white">
+                            <Circle 
+                                activity={this.state.singleBarView ? "Stacked Views" : "Single View"} 
+                                activityIcon='swap' 
+                                iconLib='entypo' 
+                                color={arrayColours.toggle} 
+                            />
                         </TouchableHighlight>
                     </View>
                         <View>
@@ -312,9 +422,13 @@ export default class PatientData extends Component {
                                 requiresGoalLine={requiresGoalLine}
                                 xLabels={this.state.xLabels}
                                 yLabels={this.state.yLabels}
+                                singleBarView={this.state.singleBarView}
+                                keys={this.state.stackedViewKeys}
                             />
                         </View>
                 </View>
+
+
             </ScrollView>
         );
     }
@@ -346,7 +460,7 @@ const styles = StyleSheet.create({
     flexDir: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-evenly',
+        justifyContent: 'space-around',
     },
 
     center: {
