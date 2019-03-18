@@ -1,5 +1,5 @@
 import RNFetchBlob from 'rn-fetch-blob';
-import { SERVER_URL} from 'react-native-dotenv';
+import { SERVER_URL} from 'react-native-dotenv'
 
 export function AddPatientData(patientData) {
     const route = "api/Patients?patientData=" + patientData;
