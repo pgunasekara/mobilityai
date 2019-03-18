@@ -28,10 +28,7 @@ export default class BarGraph extends Component {
             this._mergeDataWithXLabels(data,this.props.xLabels);
         }
 
-        for (let i = 0; i < 5; i ++){
-            //alert(JSON.stringify(data[i]));
-        }
-        //alert(this.props.color)
+        console.log(data);
         //alert(this.props.keys)
 
         const Labels = ({ x, y, bandwidth, data }) => (
@@ -59,7 +56,6 @@ export default class BarGraph extends Component {
                         fill: 'grey',
                         fontSize: 10,
                     }}
-                    // numberOfTicks={this.props.yLabels.length}
                     style={{ height: 200 }}
                 />
                 <ScrollView horizontal={true} style={styles.bargraph}>
@@ -70,8 +66,8 @@ export default class BarGraph extends Component {
                                 data={this.props.data}
                                 svg={{ fill }}
                                 contentInset={{ top: 30, bottom: 30 }}
-                                yMin={0}
-                                yMax={this.props.yLabels.length}
+                                yMin={Math.min(...this.props.yLabels)}
+                                yMax={Math.max(...this.props.yLabels)}
                             >
                                 <Grid />
                                 {this.props.requiresGoalLine == true &&
@@ -80,13 +76,12 @@ export default class BarGraph extends Component {
                             </BarChart>
                             : <StackedBarChart
                                 style={{ height: 200 }}
-                                showGrid={ true }
                                 contentInset={ { top: 30, bottom: 30 } }
                                 data={data}
                                 keys={ this.props.keys ? this.props.keys : []}
                                 colors={ this.props.color }
-                                yMin={0}
-                                yMax={this.props.yLabels.length}
+                                gridMin={Math.min(...this.props.yLabels)}
+                                gridMax={Math.max(...this.props.yLabels)}
                             >
                             <Grid />
                             </StackedBarChart>}

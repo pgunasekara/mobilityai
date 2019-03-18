@@ -78,9 +78,12 @@ export default class PatientData extends Component {
 
     _onPressButton(newActivityType, newData) {
         console.log(`Setting new activity type ${newActivityType}`);
-        this.setState({ activityType: newActivityType });
-        this.setState({ barColour: arrayColours[newActivityType] });
-        this.setState({ data: newData });
+        this.setState({ 
+            activityType: newActivityType, 
+            singleBarView: true,
+            barColour: arrayColours[newActivityType],
+            data: newData
+        });
     };
 
     extractDataForStackView(keys){
@@ -120,7 +123,8 @@ export default class PatientData extends Component {
         this.setState({
             data: this.extractDataForStackView(stateKeys),
             barColour: stateKeys.map(colorExtractor),
-            stackedViewKeys : stateKeys
+            stackedViewKeys : stateKeys,
+            singleBarView: false
         });
     }
 
@@ -190,6 +194,7 @@ export default class PatientData extends Component {
                 this.setState({ movementPercentages: activitiesJson });
                 this.setState({ data: activitiesJson.sitting.bar });
                 this.setState({ error: null });
+                console.log(this.state.movementPercentages)
             }
         });
 
@@ -200,7 +205,7 @@ export default class PatientData extends Component {
     }
 
     hourlyIntoDays(data) {
-        return _.chunk(data, 24).map((c) => { return _.sum(c); });
+        return _.chunk(data, 24).map((c) => { return _.sum(c) / 60; });
     }
 
     componentDidMount() {
@@ -395,10 +400,11 @@ export default class PatientData extends Component {
                         }
 
                         <TouchableHighlight onPress={() => {
-                            this.setState({
-                                singleBarView: !this.state.singleBarView,
-                                stackedViewKeys : null,
-                            });
+                            if (this.state.singleBarView){
+                                this._onPressStackedButton(activityTypes.stacked)
+                            }else{
+                                this._onPressButton(activityTypes.walking, this.state.movementPercentages.walking.bar);
+                            }
                         }} underlayColor="white">
                             <Circle 
                                 activity={this.state.singleBarView ? "Stacked Views" : "Single View"} 
