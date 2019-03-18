@@ -78,7 +78,7 @@ export default class BarGraph extends Component {
                                 style={{ height: 200 }}
                                 contentInset={ { top: 30, bottom: 30 } }
                                 data={data}
-                                keys={ this.props.keys ? this.props.keys : []}
+                                keys={ this.props.keys }
                                 colors={ this.props.color }
                                 gridMin={Math.min(...this.props.yLabels)}
                                 gridMax={Math.max(...this.props.yLabels)}
