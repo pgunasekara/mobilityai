@@ -256,7 +256,6 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                 if(task.isFaulted()) {
                     Log.i("MobilityAI", "Failed to configure app", task.getError());
 
-                    Log.i(TAG, "Starting data collection");
                     m_service.disconnectBoard();
                     return null;
                 } else {
@@ -266,8 +265,8 @@ public class DeviceInfoActivity extends AppCompatActivity implements ServiceConn
                     m_service.stopLogging();
                     m_service.getLogging().clearEntries();
                     m_service.getBoard().tearDown();
+                    m_service.disconnectBoard();
                 }
-                m_service.disconnectBoard();
                 return null;
             });
         });
