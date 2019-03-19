@@ -9,7 +9,7 @@ import GetDate from './GetDate.js';
 import Circle from './PatientCircles';
 import BarGraph from './PatientBarGraphs';
 
-import { GetPatientActivities, GetPatientAchievements, GetPatientData } from '../Lib/Api';
+import { GetPatientActivities, GetPatientAchievements, GetPatientData, GetSteps } from '../Lib/Api';
 import moment from 'moment';
 import { _ } from 'lodash';
 
@@ -58,17 +58,6 @@ export default class PatientData extends Component {
             firstName: props.firstName,
             lastName: props.lastName,
             date: props.date,
-            // barColour: arrayColours['unknown'],
-            // activityGoals: {
-            //     'id': props.id,
-            //     'steps': 0,
-            //     'activeMinutes': 0,
-            //     'walkingMinutes': 0,
-            //     'standingMinutes': 0
-            // },
-            // data: [],
-            // movementPercentages: { 'sitting': { total: 0, bar: new Array(13) }, 'standing': { total: 0, bar: new Array(13) }, 'lyingDown': { total: 0, bar: new Array(13) }, 'walking': { total: 0, bar: new Array(13) }, 'unknown': { total: 0, bar: new Array(13) } },
-            // steps: this.getRandomInt(300, 1500),
             activityType: activityTypes.standing,
             barColour: arrayColours[activityTypes.standing],
             singleBarView : true,
@@ -202,6 +191,10 @@ export default class PatientData extends Component {
             this.setState({ activityGoals: achievementsJson });
         });
 
+        GetSteps(this.props.id).then((stepsArray) => {
+            this.setState({ steps: stepsArray });
+        });
+
     }
 
     hourlyIntoDays(data) {
@@ -320,7 +313,7 @@ export default class PatientData extends Component {
                     {/* Displaying the pie chart of all the activities */}
                     <View style={styles.center}>
                         <View style={styles.stepsContainer}>
-                            <Text style={styles.stepsText}>{this.state.steps}</Text>
+                            <Text style={styles.stepsText}>{this.state.steps.length}</Text>
                             <Text style={{textAlign: 'center'}}>Steps</Text>
                         </View>
                         <Surface width={width} height={height}>
@@ -448,6 +441,7 @@ const styles = StyleSheet.create({
     stepsText: {  
         fontSize: 30,
         fontWeight: 'bold',
+        textAlign: 'center',
     },
     circle: {
         width: 60,
