@@ -155,6 +155,22 @@ export function GetSurveys(patientId) {
 
     let url = encodeURI(SERVER_URL + route);
     console.log("Make get request to: " + url);
+    return RNFetchBlob.config({
+          trusty: true
+      })
+          .fetch('GET', url)
+          .then((response) => {
+              console.log(JSON.stringify(response));
+              return response.json();
+          })
+          .catch((error) => console.log(JSON.stringify(error)));
+}
+
+export function GetSteps(patientId) {
+    const route = "api/Patients/" + patientId + "/Steps";
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("GetObservations: Make get request to: " + url);
 
     return RNFetchBlob.config({
         trusty: true
@@ -167,4 +183,4 @@ export function GetSurveys(patientId) {
         .catch((error) => console.log(JSON.stringify(error)));
 }
 
-export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp, AddObservations, GetObservations, GetSurveys, AddSurvey }
+export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp, AddObservations, GetObservations, GetSteps, GetSurveys, AddSurvey }
