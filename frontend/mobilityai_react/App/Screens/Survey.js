@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { ScrollView, StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
-import { AddSurvey, GetObservations } from '../Lib/Api';
+import { AddSurvey } from '../Lib/Api';
 
 const Field = (props) => <TextInput style={styles.field} {...props} />;
 

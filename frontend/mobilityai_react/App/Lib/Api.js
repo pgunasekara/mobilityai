@@ -167,4 +167,4 @@ export function GetSurveys(patientId) {
         .catch((error) => console.log(JSON.stringify(error)));
 }
 
-export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp, AddObservations, GetObservations }
+export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp, AddObservations, GetObservations, GetSurveys, AddSurvey }
