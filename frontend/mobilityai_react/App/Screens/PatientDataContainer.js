@@ -5,6 +5,7 @@ import { Icon } from 'react-native-elements';
 import moment from 'moment';
 
 import PatientData from './PatientData';
+import NavigatorMenu from './Navigator';
 
 export default class PatientDataContainer extends Component {
     constructor(props) {
@@ -15,71 +16,55 @@ export default class PatientDataContainer extends Component {
         var id = navigation.getParam('id');
         var firstName = navigation.getParam('firstName');
         var lastName = navigation.getParam('lastName');
+        const redirectOptions = [
+            {
+                title: "Observations",
+                handler: () => {
+                    navigation.navigate('PatientObservations', {
+                        id: id,
+                        firstName: firstName,
+                        lastName: lastName,
+                        navigation: navigation,
+                        userId: 1, //HARDCODED FOR NOW
+                    })
+                }
+            },
+            {
+                title: "Information",
+                handler: () => {
+                    navigation.navigate('PatientForm', {
+                        id: id,
+                        firstName: firstName,
+                        lastName: lastName,
+                        navigation: navigation,
+                        update: true,
+                    })
+                }
+            },
+            {
+                title: "Achievements",
+                handler: () => {
+                    navigation.navigate('PatientAchievements', {
+                        id: id,
+                        firstName: firstName,
+                        lastName: lastName,
+                        navigation: navigation
+                    })
+                }
+            },
+            {
+                title: "Surveys",
+                handler: () => {
+                    navigation.navigate('SurveyList', {
+                        id: id,
+                        navigation: navigation,
+                    })
+                }
+            }
+        ]
         return {
             title: firstName + ' ' + lastName,
-            headerRight: (
-                <View style={styles.center}>
-                    <View style={styles.shift}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                navigation.navigate('PatientObservations', {
-                                    id: id,
-                                    firstName: firstName,
-                                    lastName: lastName,
-                                    navigation: navigation,
-                                    userId: 1, //HARDCODED FOR NOW
-                                })
-                            }}
-                        >
-                            <Icon
-                                name='comments'
-                                size={30}
-                                type='font-awesome'
-                                color='black'
-                            />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.shift}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                navigation.navigate('PatientForm', {
-                                    id: id,
-                                    firstName: firstName,
-                                    lastName: lastName,
-                                    navigation: navigation,
-                                    update: true,
-                                })
-                            }}
-                        >
-                            <Icon
-                                name='info-circle'
-                                size={30}
-                                type='font-awesome'
-                                color='black'
-                            />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{ paddingRight: 10 }}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                navigation.navigate('PatientAchievements', {
-                                    id: id,
-                                    firstName: firstName,
-                                    lastName: lastName,
-                                    navigation: navigation
-                                })
-                            }}
-                        >
-                            <Icon
-                                name='trophy'
-                                size={30}
-                                type='font-awesome'
-                                color='black'
-                            />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            )
+            headerRight: <NavigatorMenu options={redirectOptions}/>
         };
     };
 

@@ -11,6 +11,8 @@ import PatientListItem from './App/Screens/PatientListItem';
 import PatientForm from './App/Screens/NewPatientForm';
 import SignUp from './App/Screens/SignUpForm';
 import SignIn from './App/Screens/SignInForm';
+import Survey from './App/Screens/Survey';
+import SurveyList from './App/Screens/SurveyList';
 import {MenuProvider} from 'react-native-popup-menu';
 
 const AppNavigator = createStackNavigator({
@@ -23,6 +25,8 @@ const AppNavigator = createStackNavigator({
   PatientForm: {screen: PatientForm},
   SignUp: {screen: SignUp},
   SignIn: {screen: SignIn},
+  Survey: {screen: Survey},
+  SurveyList: {screen: SurveyList},
 });
 
 const AppContainer = createAppContainer(AppNavigator);

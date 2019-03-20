@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Icon } from 'react-native-elements'
+import { Icon } from 'react-native-elements';
 import DialogInput from 'react-native-dialog-input';
 import ActionButton from 'react-native-action-button';
 

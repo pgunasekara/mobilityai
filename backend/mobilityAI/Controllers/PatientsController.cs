@@ -408,6 +408,52 @@ namespace mobilityAI.Controllers
             return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="patientId"></param>
+        /// <returns></returns>
+        [HttpGet("{patientId}/Surveys")]
+        public IActionResult GetPatientSurveys(int patientId)
+        {
+            var data = (from survey in _context.Surveys
+                        where survey.PatientId == patientId
+                        select new {survey.Data}).ToList();
+
+            if (data != null)
+            {
+                return new JsonResult(data);
+            }
+
+            return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="patientId"></param>
+        /// <param name="surveyData"></param>
+        /// <returns></returns>
+        [HttpPut("{patientId}/Surveys")]
+        public IActionResult NewPatientSurvey(int patientId, string surveyData)
+        {
+            if (patientExists(patientId))
+            {
+                _context.Surveys.Add(
+                    new Survey
+                    {
+                        PatientId = patientId,
+                        Data = surveyData
+                    }
+                );
+
+                _context.SaveChanges();
+
+                return Ok();
+            }
+            return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
+        }
+
         private static DateTime FromUnixTime(long time)
         {
             time = time / 1000;
@@ -418,6 +464,13 @@ namespace mobilityAI.Controllers
         {
             TimeSpan diff = time.ToUniversalTime() - epoch;
             return (long)Math.Floor(diff.TotalSeconds);
+        }
+
+        private bool patientExists(int patientId)
+        {
+            return (from patient in _context.Patients
+                where patient.Id == patientId
+                select new {patient.Id}).SingleOrDefault() != null;
         }
     }
 }
