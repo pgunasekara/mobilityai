@@ -136,4 +136,35 @@ export function GetObservations(patientId) {
         .catch((error) => console.log(JSON.stringify(error)));
 }
 
+export function AddSurvey(patientId, survey) {
+    const route = "api/Patients/" + patientId + "/Surveys?surveyData=" + survey;
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("Make put request to: " + url);
+
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('PUT', url)
+        .then((response) => console.log(JSON.stringify(response)))
+        .catch((error) => console.log(JSON.stringify(error)));
+}
+
+export function GetSurveys(patientId) {
+    const route = "api/Patients/" + patientId + "/Surveys";
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("Make get request to: " + url);
+
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('GET', url)
+        .then((response) => {
+            console.log(JSON.stringify(response));
+            return response.json();
+        })
+        .catch((error) => console.log(JSON.stringify(error)));
+}
+
 export default { AddPatientData, GetPatients, GetPatientActivities, GetPatientAchievements, AddPatientAchievements, PatientData, UserSignUp, AddObservations, GetObservations }

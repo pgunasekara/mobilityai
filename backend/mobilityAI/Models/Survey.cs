@@ -8,7 +8,14 @@ namespace mobilityAI.Models
     public class Survey
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id
+        {
+            get; set;
+        }
+
+        [ForeignKey("Patients")]
+        public int PatientId
         {
             get; set;
         }

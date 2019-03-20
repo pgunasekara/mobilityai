@@ -417,7 +417,7 @@ namespace mobilityAI.Controllers
         public IActionResult GetPatientSurveys(int patientId)
         {
             var data = (from survey in _context.Surveys
-                        where survey.Id == patientId
+                        where survey.PatientId == patientId
                         select new {survey.Data}).ToList();
 
             if (data != null)
@@ -442,7 +442,7 @@ namespace mobilityAI.Controllers
                 _context.Surveys.Add(
                     new Survey
                     {
-                        Id = patientId,
+                        PatientId = patientId,
                         Data = surveyData
                     }
                 );
