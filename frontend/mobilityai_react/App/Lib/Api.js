@@ -14,6 +14,20 @@ export function AddPatientData(patientData) {
         .catch((error) => console.log(JSON.stringify(error)));
 };
 
+export function updatePatientData(patientId, patientData) {
+    const route = `api/Patients/${patientId}?patientData=` + patientData;
+
+    let url = encodeURI(SERVER_URL + route);
+    console.log("UpdatePatient: Make a put request to: " + url);
+
+    return RNFetchBlob.config({
+        trusty: true
+    })
+        .fetch('PUT', url)
+        .then((response) => console.log(JSON.stringify(response)))
+        .catch((error) => console.log(JSON.stringify(error)));
+}
+
 export function GetPatients() {
     const route = "api/Patients/";
     let url = encodeURI(SERVER_URL + route);
