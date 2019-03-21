@@ -11,9 +11,10 @@ export default class PatientForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: props.id,
-            firstName: "",
-            lastName: "",
+            id: this.props.navigation.getParam('id'),
+            firstName: this.props.navigation.getParam('firstName') ? this.props.navigation.getParam('firstName') : "",
+            lastName: this.props.navigation.getParam('lastName') ? this.props.navigation.getParam('lastName') : "",
+            update: this.props.navigation.getParam('update'),
             formAssistantName : "",
             baselineWalk: 0,
             baselineSit: 0,
@@ -38,9 +39,9 @@ export default class PatientForm extends React.Component {
             difficultyWithBasicMobility: "",
             difficultyWithDailyAcitity: "",
             steps: "",
-            update: this.props.navigation.getParam('update'),
             consent: false,
         }
+        console.log(this.state)
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -87,8 +88,12 @@ export default class PatientForm extends React.Component {
             return false;
         }
 
-
-        let response = CreatePatient(JSON.stringify(this.state));
+        let response = null;
+        if (this.state.update){
+            response = AddPatientData(JSON.stringify(this.state));
+        }else{
+            response = UpdatePatientData(this.state.id, JSON.stringify(this.state))
+        }
         console.log(JSON.stringify(response));
     }
 
@@ -177,11 +182,13 @@ export default class PatientForm extends React.Component {
                         <Field onChangeText={(firstName) => this.setState({ firstName })}
                             value={this.state.firstName}
                             placeholder="Enter First Name..."
+                            editable={!this.state.update}
                         />
                         <Text style={styles.sliderText}>Last Name:</Text>
                         <Field onChangeText={(lastName) => this.setState({ lastName })}
                             placeholder="Enter Last Name..."
                             value={this.state.lastName}
+                            editable={!this.state.update}
                         />
                         <Text style={styles.sliderText}>Average minutes spent standing per hour:</Text>
                         <Field 
@@ -362,8 +369,7 @@ export default class PatientForm extends React.Component {
                             /> : <View />
                         }
                         <Button style={styles.submit} onPress={() => this.submitForm()}
-                            title="Submit"
-                        />
+                                title={this.props.update ? "Update" : "Submit"}/>
                     </View>
                 </ScrollView>
             </View>
