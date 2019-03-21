@@ -270,13 +270,10 @@ namespace mobilityAI.Controllers
         }
 
         [HttpGet("{patientId}/Steps")]
-        public IActionResult GetSteps(int patientId, String startDate, String endDate)
+        public IActionResult GetSteps(int patientId, long startDate, long endDate)
         {
-            long startEpoch = ToUnixTime(DateTime.Parse(startDate));
-            long endEpoch = ToUnixTime(DateTime.Parse(endDate));
-
             var data = (from steps in _context.Steps
-                        where steps.Epoch >= startEpoch && steps.Epoch <= endEpoch && steps.PatientId == patientId
+                        where steps.Epoch >= startDate && steps.Epoch <= endDate && steps.PatientId == patientId
                         orderby steps.Epoch ascending
                         select new { steps.Epoch })
                         .ToList();
