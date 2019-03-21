@@ -269,7 +269,7 @@ namespace mobilityAI.Controllers
             return new JsonResult(data);
         }
 
-        [HttpGet("{patientId}/GetSteps")]
+        [HttpGet("{patientId}/Steps")]
         public IActionResult GetSteps(int patientId, String startDate, String endDate)
         {
             long startEpoch = ToUnixTime(DateTime.Parse(startDate));
