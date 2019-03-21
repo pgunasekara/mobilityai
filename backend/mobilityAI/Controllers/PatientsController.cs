@@ -142,7 +142,8 @@ namespace mobilityAI.Controllers
 
                     activityTotals[element.Type][currentHourBucket] += (nextElement.Start - element.Start) / 1000f;
 
-                    if (nextElement.Start - startOfHourBucket >= lengthOfHourBucket) {
+                    if (nextElement.Start - startOfHourBucket >= lengthOfHourBucket)
+                    {
                         currentHourBucket++;
                         startOfHourBucket = nextElement.Start;
                     }
@@ -197,7 +198,7 @@ namespace mobilityAI.Controllers
                 return Ok(JsonConvert.SerializeObject(retObj));
             }
 
-            return BadRequest(String.Format("Could not find any activity data for patient with id: {0} between the dates {1} and {2} UTC", 
+            return BadRequest(String.Format("Could not find any activity data for patient with id: {0} between the dates {1} and {2} UTC",
                                 patientId,
                                 startDate,
                                 endDate));
@@ -250,17 +251,31 @@ namespace mobilityAI.Controllers
         [HttpPost("{patientId}/Achievements")]
         public IActionResult NewPatientAchievement(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
         {
-            _context.ActivityGoals.Add(new ActivityGoal
+            var data = (from a in _context.ActivityGoals
+                        where a.Id == patientId
+                        select a).SingleOrDefault();
+
+            if (data == null)
             {
-                Id = patientId,
-                Steps = steps,
-                ActiveMinutes = activeMinutes,
-                WalkingMinutes = walkingMiutes,
-                StandingMinutes = standingMinutes
-            });
+                _context.ActivityGoals.Add(new ActivityGoal
+                {
+                    Id = patientId,
+                    Steps = steps,
+                    ActiveMinutes = activeMinutes,
+                    WalkingMinutes = walkingMiutes,
+                    StandingMinutes = standingMinutes
+                });
+            }
+            else
+            {
+                data.Id = patientId;
+                data.Steps = steps;
+                data.ActiveMinutes = activeMinutes;
+                data.WalkingMinutes = walkingMiutes;
+                data.StandingMinutes = standingMinutes;
+            }
 
             _context.SaveChanges();
-
             return Ok();
         }
 
@@ -398,7 +413,7 @@ namespace mobilityAI.Controllers
             var data = (from obs in _context.Observations
                         join users in _context.Users on obs.UserId equals users.Id
                         where obs.PatientId == patientId
-                        select new {users.FirstName, users.LastName, obs.Comment, obs.Timestamp}).ToList();
+                        select new { users.FirstName, users.LastName, obs.Comment, obs.Timestamp }).ToList();
 
             if (data != null)
             {
@@ -418,7 +433,7 @@ namespace mobilityAI.Controllers
         {
             var data = (from survey in _context.Surveys
                         where survey.PatientId == patientId
-                        select new {survey.Data}).ToList();
+                        select new { survey.Data }).ToList();
 
             if (data != null)
             {
@@ -469,8 +484,8 @@ namespace mobilityAI.Controllers
         private bool patientExists(int patientId)
         {
             return (from patient in _context.Patients
-                where patient.Id == patientId
-                select new {patient.Id}).SingleOrDefault() != null;
+                    where patient.Id == patientId
+                    select new { patient.Id }).SingleOrDefault() != null;
         }
     }
 }
