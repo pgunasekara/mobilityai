@@ -191,7 +191,7 @@ export default class PatientData extends Component {
             this.setState({ activityGoals: achievementsJson });
         });
 
-        GetSteps(this.props.id).then((stepsArray) => {
+        GetSteps(this.props.id, startDate.utc().valueOf(), endDate.utc().valueOf()).then((stepsArray) => {
             this.setState({ steps: stepsArray });
         });
 
