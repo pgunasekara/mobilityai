@@ -205,41 +205,6 @@ namespace mobilityAI.Controllers
         }
 
         /// <summary>
-        /// Update patients achievement information
-        /// </summary>
-        /// <param name="patientId">Patient Id you want to update</param>
-        /// <param name="steps">The goal for the number of steps per day</param>
-        /// <param name="activeMinutes">The goal for the number of active minutes per hour</param>
-        /// <param name="walkingMiutes">The goal for the number of walking minutes per hour</param>
-        /// <param name="standingMinutes">The goal for the number of standing minutes per hour</param>
-        /// <returns>
-        /// 200 if successful
-        /// </returns>
-        [HttpPut("{patientId}/Achievements")]
-        public IActionResult PatientAchievements(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
-        {
-            ActivityGoal dataQuery = (from a in _context.ActivityGoals
-                                      where (a.Id == patientId)
-                                      select a).SingleOrDefault();
-
-            if (dataQuery != null)
-            {
-                dataQuery.Id = patientId;
-                dataQuery.Steps = steps;
-                dataQuery.ActiveMinutes = activeMinutes;
-                dataQuery.WalkingMinutes = walkingMiutes;
-                dataQuery.StandingMinutes = standingMinutes;
-
-                _context.SaveChanges();
-                return Ok();
-            }
-            else
-            {
-                return BadRequest(String.Format("Patient ID: {0} not found.", patientId));
-            }
-        }
-
-        /// <summary>
         /// Create new patient activity
         /// </summary>
         /// <param name="patientId">Patient Id you want to update</param>
@@ -249,7 +214,7 @@ namespace mobilityAI.Controllers
         /// <param name="standingMinutes">The goal for the number of standing minutes per hour</param>
         /// <returns></returns>
         [HttpPost("{patientId}/Achievements")]
-        public IActionResult NewPatientAchievement(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
+        public IActionResult PatientAchievement(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
         {
             var data = (from a in _context.ActivityGoals
                         where a.Id == patientId

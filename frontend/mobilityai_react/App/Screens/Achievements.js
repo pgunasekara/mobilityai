@@ -28,21 +28,28 @@ export default class PatientAchievements extends React.Component {
 
     componentDidMount() {
         GetPatientAchievements(this.state.id).then((achievementsJson) => {
-            console.log("WE GOT PATIENT ACHIEVEMENTS");
-            console.log(achievementsJson);
-            this.setState({ steps: achievementsJson.steps });
-            // this.setState({ sitting: achievementsJson.sitting });
-            this.setState({ standing: achievementsJson.standingMinutes });
-            // this.setState({ lyingDown: achievementsJson.lyingDown });
-            this.setState({ walking: achievementsJson.walkingMinutes });
-            this.setState({ activeTime: achievementsJson.activeMinutes });
+            if (achievementsJson == null) {
+                this.setState({ steps: 0 });
+                this.setState({ standing: 0 });
+                this.setState({ walking: 0 });
+                this.setState({ activeTime: 0 });
+            } else {
+                console.log("WE GOT PATIENT ACHIEVEMENTS");
+                console.log(achievementsJson);
+                this.setState({ steps: achievementsJson.steps });
+                // this.setState({ sitting: achievementsJson.sitting });
+                this.setState({ standing: achievementsJson.standingMinutes });
+                // this.setState({ lyingDown: achievementsJson.lyingDown });
+                this.setState({ walking: achievementsJson.walkingMinutes });
+                this.setState({ activeTime: achievementsJson.activeMinutes });
+            }    
         });
     };
 
     saveAchievements() {
-        // AddPatientAchievements(this.state.id, this.state.steps, this.state.activityGoal);
-        alert("Saved");
-    }
+        let response = AddPatientAchievements(this.state.id, this.state.steps, this.state.activeTime, this.state.standing, this.state.walking);
+        console.log(JSON.stringify(response));
+    };
 
     render() {
         if (this.state.steps === undefined
@@ -98,8 +105,6 @@ export default class PatientAchievements extends React.Component {
                                     placeholder='Standing'
                                 />
                             </View>
-                        </View>
-                        <View style={styles.boxLayout2}>
                             <View>
                                 <Text>Walking</Text>
                                 <TextInput
@@ -117,8 +122,7 @@ export default class PatientAchievements extends React.Component {
                 <View style={styles.saveBtn}>
                     <Button
                         title='Save'
-                        // onPress={() => saveAchievements.bind(this)}
-                        onPress={() => alert('Saved!!')}
+                        onPress={() => {this.saveAchievements(); alert("Achievements saved")}}                    
                         color="#5DACBD"
                     />
                 </View>

@@ -1,5 +1,5 @@
 import RNFetchBlob from 'rn-fetch-blob';
-import { SERVER_URL} from 'react-native-dotenv';
+import { SERVER_URL } from 'react-native-dotenv';
 
 export function AddPatientData(patientData) {
     const route = "api/Patients?patientData=" + patientData;
@@ -62,8 +62,8 @@ export function GetPatientAchievements(patientId) {
         .catch((error) => console.log(JSON.stringify(error)));
 }
 
-export function AddPatientAchievements(patientId, steps, activityTime) {
-    const route = "api/Patients/" + patientId + "/Achievements?steps=" + steps + "&activityTime=" + activityTime;
+export function AddPatientAchievements(patientId, steps, activeMinutes, walkingMinutes, standingMinutes) {
+    const route = "api/Patients/" + patientId + "/Achievements?steps=" + steps + "&activeMinutes=" + activeMinutes + "&walkingMinutes=" + walkingMinutes + "&standingMinutes=" + standingMinutes;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("AddPatientAchievements: Make a post request to: " + url);
