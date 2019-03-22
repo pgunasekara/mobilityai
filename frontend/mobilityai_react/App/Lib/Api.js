@@ -1,5 +1,5 @@
 import RNFetchBlob from 'rn-fetch-blob';
-import { SERVER_URL } from 'react-native-dotenv';
+import { SERVER_URL} from 'react-native-dotenv';
 
 export function AddPatientData(patientData) {
     const route = "api/Patients?patientData=" + patientData;
@@ -166,8 +166,8 @@ export function GetSurveys(patientId) {
           .catch((error) => console.log(JSON.stringify(error)));
 }
 
-export function GetSteps(patientId, startDate, endDate) {
-    const route = "api/Patients/" + patientId + "/Steps?startDate=" + startDate + "&endDate=" + endDate;
+export function GetSteps(patientId) {
+    const route = "api/Patients/" + patientId + "/Steps";
 
     let url = encodeURI(SERVER_URL + route);
     console.log("GetObservations: Make get request to: " + url);
