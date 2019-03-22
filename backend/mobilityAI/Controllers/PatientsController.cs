@@ -214,7 +214,7 @@ namespace mobilityAI.Controllers
         /// <param name="standingMinutes">The goal for the number of standing minutes per hour</param>
         /// <returns></returns>
         [HttpPost("{patientId}/Achievements")]
-        public IActionResult PatientAchievement(int patientId, int steps, int activeMinutes, int walkingMiutes, int standingMinutes)
+        public IActionResult PatientAchievement(int patientId, int steps, int activeMinutes, int walkingMinutes, int standingMinutes)
         {
             var data = (from a in _context.ActivityGoals
                         where a.Id == patientId
@@ -227,7 +227,7 @@ namespace mobilityAI.Controllers
                     Id = patientId,
                     Steps = steps,
                     ActiveMinutes = activeMinutes,
-                    WalkingMinutes = walkingMiutes,
+                    WalkingMinutes = walkingMinutes,
                     StandingMinutes = standingMinutes
                 });
             }
@@ -236,7 +236,7 @@ namespace mobilityAI.Controllers
                 data.Id = patientId;
                 data.Steps = steps;
                 data.ActiveMinutes = activeMinutes;
-                data.WalkingMinutes = walkingMiutes;
+                data.WalkingMinutes = walkingMinutes;
                 data.StandingMinutes = standingMinutes;
             }
 
