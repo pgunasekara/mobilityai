@@ -5,16 +5,17 @@ const Field = (props) => <TextInput style={styles.field} {...props} />;
 import { CheckBox } from 'react-native-elements'
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
-import { PatientData } from '../Lib/Api';
+import { AddPatientData, UpdatePatientData, PatientData } from '../Lib/Api';
 
 export default class PatientForm extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = {
-            id: this.props.navigation.getParam('id'),
+            id: this.props.navigation.getParam('id') ? this.props.navigation.getParam('id') : null,
             firstName: this.props.navigation.getParam('firstName') ? this.props.navigation.getParam('firstName') : "",
             lastName: this.props.navigation.getParam('lastName') ? this.props.navigation.getParam('lastName') : "",
-            update: this.props.navigation.getParam('update'),
+            update: this.props.navigation.getParam('update') ? true : false,
             formAssistantName : "",
             baselineWalk: 0,
             baselineSit: 0,
@@ -33,13 +34,20 @@ export default class PatientForm extends React.Component {
             },
             onsetOfCondition: "",
             previousSurgery: false,
-            severityOfCondition: "",
-            livingSituation: "",
-            walkingSituation: "",
-            difficultyWithBasicMobility: "",
-            difficultyWithDailyAcitity: "",
-            steps: "",
-            consent: false,
+            severityOfCondition: "Not severe",
+            livingSituation: "community",
+            walkingSituation: "Never",
+            difficultyWithBasicMobility: "Unable",
+            difficultyWithDailyAcitity: "Unable",
+            steps: 0,
+            consent: this.props.navigation.getParam('update') ? true : false,
+        }
+
+        this.loadStateFromApi = this.loadStateFromApi.bind(this);
+
+        if (this.props.navigation.getParam('id') && this.props.navigation.getParam('update')){
+            PatientData(this.props.navigation.getParam('id'))
+            .then(this.loadStateFromApi);
         }
         console.log(this.state)
     }
@@ -74,13 +82,38 @@ export default class PatientForm extends React.Component {
         // }
     }
 
+    loadStateFromApi(json){
+        const data = JSON.parse(json.data);
+        console.log(data)
+        this.setState({
+            formAssistantName : data["formAssistantName"],
+            baselineWalk: data["baselineWalk"],
+            baselineSit: data["baselineSit"],
+            baselineLay: data["baselineLay"],
+            baselineStand: data["baselineStand"],
+            conditionThatBroughtThem: data['conditionThatBroughtThem'],
+            bodyPartsInvolved: data["bodyPartsInvolved"],
+            severityOfCondition : data["severityOfCondition"],
+            onsetOfCondition : data["onsetOfCondition"],
+            previousSurgery : data["previousSurgery"],
+            livingSituation: data["livingSituation"],
+            walkingSituation: data["walkingSituation"],
+            difficultyWithBasicMobility: data["difficultyWithBasicMobility"],
+            difficultyWithDailyAcitity: data["difficultyWithDailyAcitity"],
+            steps: data["steps"]
+        });
+        console.log(this.state)
+    }
+
     componentDidMount() {
         this.getSurveyData();
     };
 
     submitForm() {
-        const totalTimeSpent = this.state.baselineLay + this.state.baselineStand 
-            + this.state.baselineWalk + this.state.baselineSit;
+        const totalTimeSpent = parseInt(this.state.baselineLay) + parseInt(this.state.baselineStand)
+            + parseInt(this.state.baselineWalk) + parseInt(this.state.baselineSit);
+
+        console.log("Total time spent " + totalTimeSpent);
 
         if (totalTimeSpent > 60){
             Alert.alert("Hourly Baseline mobility measurements values add up to over 60!",
@@ -89,7 +122,7 @@ export default class PatientForm extends React.Component {
         }
 
         let response = null;
-        if (this.state.update){
+        if (!this.state.update){
             response = AddPatientData(JSON.stringify(this.state));
         }else{
             response = UpdatePatientData(this.state.id, JSON.stringify(this.state))
@@ -347,8 +380,8 @@ export default class PatientForm extends React.Component {
                             <TextInput
                                 style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
                                 keyboardType='numeric'
-                                onChangeText={(text) => this.onChanged(text)}
-                                value={this.state.steps}
+                                onChangeText={(steps) => this.setState({steps})}
+                                value={this.state.steps ? this.state.steps.toString() : ""}
                             />
                         </View>
 
@@ -369,7 +402,7 @@ export default class PatientForm extends React.Component {
                             /> : <View />
                         }
                         <Button style={styles.submit} onPress={() => this.submitForm()}
-                                title={this.props.update ? "Update" : "Submit"}/>
+                                title={this.state.update ? "Update" : "Submit"}/>
                     </View>
                 </ScrollView>
             </View>
