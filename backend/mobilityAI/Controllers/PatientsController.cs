@@ -74,7 +74,7 @@ namespace mobilityAI.Controllers
         [HttpPost]
         public IActionResult CreatePatient(string patientData)
         {
-            JObject parsedPatientData = new JObject(patientData);
+            JObject parsedPatientData = JObject.Parse(patientData);
 
             Patient p = new Patient()
             {
@@ -90,7 +90,7 @@ namespace mobilityAI.Controllers
             Patient_Impl data = new Patient_Impl()
             {
                 Id = p.Id,
-                Data = patientData
+                Data = parsedPatientData.ToString()
             };
 
             _context.Patients_Impl.Add(data);
