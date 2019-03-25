@@ -47,7 +47,7 @@ export default class PatientAchievements extends React.Component {
     };
 
     saveAchievements() {
-        let response = AddPatientAchievements(this.state.id, this.state.steps, this.state.activeTime, this.state.standing, this.state.walking);
+        let response = AddPatientAchievements(this.state.id, this.state.steps, this.state.activeTime, this.state.walking, this.state.standing);
         console.log(JSON.stringify(response));
     };
 
