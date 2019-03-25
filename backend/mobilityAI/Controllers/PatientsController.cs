@@ -74,7 +74,7 @@ namespace mobilityAI.Controllers
         [HttpPost]
         public IActionResult CreatePatient(string patientData)
         {
-            JObject parsedPatientData = new JObject(patientData);
+            JObject parsedPatientData = JObject.Parse(patientData);
 
             Patient p = new Patient()
             {
@@ -90,7 +90,7 @@ namespace mobilityAI.Controllers
             Patient_Impl data = new Patient_Impl()
             {
                 Id = p.Id,
-                Data = patientData
+                Data = parsedPatientData.ToString()
             };
 
             _context.Patients_Impl.Add(data);
@@ -269,14 +269,11 @@ namespace mobilityAI.Controllers
             return new JsonResult(data);
         }
 
-        [HttpGet("{patientId}/GetSteps")]
-        public IActionResult GetSteps(int patientId, String startDate, String endDate)
+        [HttpGet("{patientId}/Steps")]
+        public IActionResult GetSteps(int patientId, long startDate, long endDate)
         {
-            long startEpoch = ToUnixTime(DateTime.Parse(startDate));
-            long endEpoch = ToUnixTime(DateTime.Parse(endDate));
-
             var data = (from steps in _context.Steps
-                        where steps.Epoch >= startEpoch && steps.Epoch <= endEpoch && steps.PatientId == patientId
+                        where steps.Epoch >= startDate && steps.Epoch <= endDate && steps.PatientId == patientId
                         orderby steps.Epoch ascending
                         select new { steps.Epoch })
                         .ToList();

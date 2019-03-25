@@ -180,8 +180,8 @@ export function GetSurveys(patientId) {
           .catch((error) => console.log(JSON.stringify(error)));
 }
 
-export function GetSteps(patientId) {
-    const route = "api/Patients/" + patientId + "/Steps";
+export function GetSteps(patientId, startDate, endDate) {
+    const route = "api/Patients/" + patientId + "/Steps?startDate=" + startDate + "&endDate=" + endDate;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("GetObservations: Make get request to: " + url);
