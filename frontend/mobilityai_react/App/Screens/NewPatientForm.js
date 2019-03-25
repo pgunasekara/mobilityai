@@ -124,10 +124,11 @@ export default class PatientForm extends React.Component {
         let response = null;
         if (!this.state.update){
             response = AddPatientData(JSON.stringify(this.state));
+            this.props.navigation.state.params.onGoBack();
         }else{
-            response = UpdatePatientData(this.state.id, JSON.stringify(this.state))
+            response = UpdatePatientData(this.state.id, JSON.stringify(this.state));
         }
-        console.log(JSON.stringify(response));
+        this.props.navigation.goBack();
     }
 
     onChanged(text) {
