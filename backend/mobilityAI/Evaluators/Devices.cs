@@ -15,7 +15,7 @@ namespace mobilityAI.Evaluators {
         public IActionResult GetDevice(string deviceId)
         {
             var data = (from a in _context.Devices
-                        join b in _context.Users on a.PatientID equals b.Id
+                        join b in _context.Patients on a.PatientID equals b.Id
                         where (a.Id == deviceId)
                         select new { a.Id, a.PatientID, a.FriendlyName, b.FirstName, b.LastName, a.LastSync }).SingleOrDefault();
 

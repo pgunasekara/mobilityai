@@ -12,6 +12,9 @@ jobs:
     - script: dotnet build
       workingDirectory: backend/mobilityAI
       displayName: 'Build'
+    - script: dotnet test
+      workingDirectory: backend
+      displayName: 'Tests'
   - job: Frontend
     pool:
       vmImage: 'vs2017-win2016'
