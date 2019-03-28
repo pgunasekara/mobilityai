@@ -13,11 +13,11 @@ namespace mobilityAI.Tests {
     using System.Threading.Tasks;
     using System.Threading;
     using System.Text;
-    public class SensorsEvaluatorsTests {
+    public class SensorsEvaluatorTests {
         MobilityAIContext context = FakeDbContext.InMemoryContext();
         const int patientId = 1;
 
-        public SensorsEvaluatorsTests()
+        public SensorsEvaluatorTests()
         {
         }
 
