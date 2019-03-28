@@ -26,7 +26,7 @@ jobs:
     - task: PublishCodeCoverageResults@1
       inputs: 
         codeCoverageTool: Cobertura
-        summaryFileLocation: 'backend/mobilityAI.Tests/cobertura-coverage.xml'
+        summaryFileLocation: 'backend/mobilityAI.Tests/coverage.cobertura.xml'
   - job: Frontend
     pool:
       vmImage: 'vs2017-win2016'
