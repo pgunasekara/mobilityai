@@ -11,16 +11,20 @@ namespace mobilityAI.Evaluators {
 
     public class SensorsEvaluator {
         private readonly MobilityAIContext _context;
-        private static readonly HttpClient client = new HttpClient();
+        private HttpClient client = new HttpClient();
         const string ML_SERVER_URL = "http://ml:6000/";
         const string SERVER_URL = "http://web:5000/";
         const string SERVER_SECURE_URL = "https://web:5001/";
         private static ConcurrentDictionary<string, int> mlCallbackIds = new ConcurrentDictionary<string, int>();
-        public SensorsEvaluator(MobilityAIContext context)
+        public SensorsEvaluator(MobilityAIContext context, HttpClient client = null)
         {
             _context = context;
+            if (client != null)
+            {
+                this.client = client;
+            }
         }
-        public async void AddSensorData(int patientId, IFormFile accelerometerFile, IFormFile gyroscopeFile)
+        public void AddSensorData(int patientId, IFormFile accelerometerFile, IFormFile gyroscopeFile)
         {
             var result = readData(accelerometerFile);
             var AccelerometerObjects = result.Skip(1)
@@ -59,7 +63,11 @@ namespace mobilityAI.Evaluators {
             _context.GyroscopeData.AddRange(GyroscopeObjects);
             _context.SaveChanges();
 
+            sendDataToMlService(patientId, accelerometerFile, gyroscopeFile);
+        }
 
+        private async void sendDataToMlService(int patientId, IFormFile accelerometerFile, IFormFile gyroscopeFile)
+        {
             var accelMs = new MemoryStream();
             accelerometerFile.OpenReadStream().CopyTo(accelMs);
 
