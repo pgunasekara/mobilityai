@@ -19,9 +19,10 @@ jobs:
       workingDirectory: backend
       displayName: 'Tests'
     - task: PublishTestResults@2
-        inputs:
-          testRunner: xUnit
-          testResultsFiles: 'backend/mobilityAI.Tests/xunit_results.xml'
+      condition: succeededOrFailed()
+      inputs:
+        testRunner: xUnit
+        testResultsFiles: 'backend/mobilityAI.Tests/xunit_results.xml'
     - task: PublishCodeCoverageResults@1
       inputs: 
         codeCoverageTool: Cobertura
