@@ -13,7 +13,7 @@ jobs:
       workingDirectory: backend/mobilityAI
       displayName: 'Build'
     - script: dotnet restor
-      workngDirectory: backend/mobilityAI.Tests
+      workingDirectory: backend/mobilityAI.Tests
       displayName: 'Restore test dependencies'
     - script: dotnet test mobilityAI.Tests.csproj  --logger:"nunit;LogFilePath=xunit_results.xml" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[xunit*]*"
       workingDirectory: backend
