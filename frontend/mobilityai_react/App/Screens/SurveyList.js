@@ -15,6 +15,12 @@ export default class SurveyList extends Component {
         }
     }
 
+    static navigationOptions = ({ navigation }) => {
+        return {
+            title: "Surveys"
+        };
+    }
+
     componentDidMount() {
         GetSurveys(this.state.id).then((surveys) => {
             this.setState({ surveys });
@@ -23,11 +29,9 @@ export default class SurveyList extends Component {
 
     render() {
         if (this.state.surveys == undefined) {
-            return (
-                <Text>Fetching the latest survey data...</Text>
-            );
+            return <LoadingComponent message="Fetching the latest survey data..."/>;
         }
-        console.log(this.state.surveys);
+        
         return (
             <View style={{flex: 1}}>
                 <ScrollView>

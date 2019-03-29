@@ -30,18 +30,16 @@ export default class PatientListItem extends Component {
                                 lastName: this.state.lastName,
                                 navigation: this.props.navigation
                             }
-                    );}}
+                    )}}
                     underlayColor="rgba(0, 0, 0, 0.1)"
                 >
 
-                {/* Displaying the user information */}
                 <View style={this.state.firstRow ?  styles.firstRow : styles.row}>
                     <View style={styles.rowContent}>
                         <Avatar
                             size="medium"
                             rounded
                             title={this.state.firstName[0] + this.state.lastName[0]}
-                            onPress={() => console.log("Works!")}
                             activeOpacity={0.7}
                         />
                         <View style={styles.textContainer}>

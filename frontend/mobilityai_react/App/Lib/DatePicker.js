@@ -6,17 +6,17 @@ import moment from 'moment';
 
 
 // Getting the current date
-export default class GetDate extends Component {
+export default class DatePicker extends Component {
 
     _showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true });
     _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
     _handleDatePicked = (date) => {
-        console.log('A date has been picked: ', date);
-        this._hideDateTimePicker();
         this.props.dateCallback(date);
-        this.setState({date: date});
-        var fDate = moment(this.state.date).format('MMMM Do YYYY');
-        this.setState({formattedDate: fDate});
+        this.setState({
+            isDateTimePickerVisible : false,
+            date: date,
+            formattedDate: moment(this.state.date).format('MMMM Do YYYY')
+        });
     };
 
     constructor(props) {
@@ -29,7 +29,7 @@ export default class GetDate extends Component {
 
     render() {
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{flex: 1}}>
                 <Button 
                     onPress={this._showDateTimePicker} 
                     title={moment(this.state.date).format('MMMM Do YYYY')}

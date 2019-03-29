@@ -42,7 +42,6 @@ export default class PatientList extends React.Component {
 
     reloadList(){
         GetPatients().then((patientsJson) => {
-            console.log(patientsJson);
             this.setState({ patients: patientsJson });
         });
     }

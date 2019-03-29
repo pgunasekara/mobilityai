@@ -6,20 +6,7 @@ export default class SignIn extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            patients: [
-                {
-                    key: "1",
-                    firstName: "Joe",
-                    lastName: "Johnson",
-                    bandId: "",
-                },
-                {
-                    key: "2",
-                    firstName: "Ruth",
-                    lastName: "Reynolds",
-                    bandId: "",
-                }
-            ]
+            patients: []
         }
 
     }
@@ -32,7 +19,6 @@ export default class SignIn extends React.Component {
                     <Text style={[styles.titleText, styles.regText, styles.boldText]}>MobilityAI</Text>
                     <Text style={styles.regText}>Sign in below to access your account</Text>
 
-                    {/* Generating the sign in form */}
                     <View style={styles.containerBorder}>
                         <View style={styles.container}>
                             <View style={[styles.formStyle, styles.formBorder]}>
@@ -57,7 +43,6 @@ export default class SignIn extends React.Component {
                                     underlineColorAndroid = "black"
                                     leftIcon={
                                         <Icon
-
                                             name='lock'
                                             size={24}
                                             type={'font-awesome'}

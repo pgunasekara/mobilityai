@@ -31,6 +31,19 @@ export default class SignUp extends React.Component {
 
     render() {
         const { navigate } = this.props.navigation;
+        const InputIcon = () => <Icon name='user-circle' size={24} type={'font-awesome'}/>
+
+        /*const InputField = ({title, ...props}) => (
+            <Text>{title}</Text>
+            <TextInput
+                placeholder={title}
+                underlineColorAndroid="black"
+                leftIcon={props.icon}
+                onChangeText={props.onChangeText}
+                value={props.value}
+            />
+        )*/
+
         return (
             <ScrollView>
                 <View>
@@ -41,32 +54,13 @@ export default class SignUp extends React.Component {
                     <View style={styles.containerBorder}>
                         <View style={styles.container}>
                             <View style={[styles.formStyle, styles.formBorder]}>
-                                <Text>Email</Text>
-                                <TextInput
-                                    onChangeText={(email) => this.setState({ email })}
-                                    value={this.state.email}
-                                    placeholder='Email'
-                                    underlineColorAndroid="black"
-                                    leftIcon={
-                                        <Icon
-                                            name='email'
-                                            size={24}
-                                        />
-                                    }
-                                />
                                 <Text>First Name</Text>
                                 <TextInput
                                     onChangeText={(firstName) => this.setState({ firstName })}
                                     value={this.state.firstName}
                                     placeholder='First Name'
                                     underlineColorAndroid="black"
-                                    leftIcon={
-                                        <Icon
-                                            name='user-circle'
-                                            size={24}
-                                            type={'font-awesome'}
-                                        />
-                                    }
+                                    leftIcon={<InputIcon/>}
                                 />
                                 <Text>Last Name</Text>
                                 <TextInput
@@ -74,13 +68,7 @@ export default class SignUp extends React.Component {
                                     value={this.state.lastName}
                                     placeholder='Last Name'
                                     underlineColorAndroid="black"
-                                    leftIcon={
-                                        <Icon
-                                            name='user-circle'
-                                            size={24}
-                                            type={'font-awesome'}
-                                        />
-                                    }
+                                    leftIcon={<InputIcon/>}
                                 />
                                 <Text>Password</Text>
                                 <TextInput

@@ -5,16 +5,14 @@ const { Group, Shape, Surface } = ART;
 
 import * as d3 from 'd3'
 
-import GetDate from './GetDate.js';
+import DatePicker from '../Lib/DatePicker.js';
 import Circle from './PatientCircles';
 import BarGraph from './PatientBarGraphs';
 
 import { GetPatientActivities, GetPatientAchievements, GetPatientData, GetSteps } from '../Lib/Api';
 import moment from 'moment';
 import { _ } from 'lodash';
-
-//TODO: Remove temporary data once we get proper data from the server
-//TODO: Add better error logging if data cannot be found
+import { LoadingComponent } from '../Lib/GenericComponents.js';
 
 const activityTypes = {
     sitting: 'sitting',
@@ -66,7 +64,6 @@ export default class PatientData extends Component {
     };
 
     _onPressButton(newActivityType, newData) {
-        console.log(`Setting new activity type ${newActivityType}`);
         this.setState({ 
             activityType: newActivityType, 
             singleBarView: true,
@@ -163,11 +160,10 @@ export default class PatientData extends Component {
 
         }
 
-        this.setState({ xLabels: xLabels });
-        this.setState({ yLabels: yLabels });
-
-        console.log("props: " + this.props.tabView + ", " + this.props.date);
-        console.log('endDate: ' + endDate);
+        this.setState({
+            xLabels: xLabels, 
+            yLabels: yLabels
+        });
 
         GetPatientActivities(startDate.utc().valueOf(), endDate.utc().valueOf(), this.props.id).then((activitiesJson) => {
             if (activitiesJson === undefined) {
@@ -180,10 +176,11 @@ export default class PatientData extends Component {
                     activitiesJson.standing.bar = this.hourlyIntoDays(activitiesJson.standing.bar);
                     activitiesJson.unknown.bar = this.hourlyIntoDays(activitiesJson.unknown.bar);
                 }
-                this.setState({ movementPercentages: activitiesJson });
-                this.setState({ data: activitiesJson.sitting.bar });
-                this.setState({ error: null });
-                console.log(this.state.movementPercentages)
+                this.setState({ 
+                    movementPercentages: activitiesJson,
+                    data: activitiesJson.sitting.bar,
+                    error: null
+                });
             }
         });
 
@@ -207,45 +204,34 @@ export default class PatientData extends Component {
 
     setDate(rDate) {
         this.setState({ date: moment(rDate) });
-        console.log(this.state.date);
         this.getPatientData(moment(rDate));
     }
 
     render() {
         if (this.state.error) {
             return (
-                // <ScrollView>
-                // {/* <View style={[styles.center, styles.widthSize, {flexDirection: 'column'}]}> */}
                 <ScrollView>
                     <View>
                         <Text style={styles.errorText}>{this.state.error}</Text>
                         <View style={[styles.center, styles.widthSize]}>
-                            <GetDate
+                            <DatePicker
                                 dateCallback={this.setDate.bind(this)}
                                 date={this.state.date.toDate()}
                             />
                         </View>
                     </View>
                 </ScrollView>
-                // </ScrollView>
             );
         }
 
         if (!this.state.data) {
-            return (
-                <View>
-                    {/* TODO: replace this with a loading screen */}
-                    <Text>Still downloading patient data...</Text>
-                </View>
-            );
+            return <LoadingComponent message="Still downloading patient data..."/>
         }
 
         const width = 250;
         const height = 250;
         const sedentaryTotal = this.state.movementPercentages.lyingDown.total + this.state.movementPercentages.sitting.total;
         const activeTotal = this.state.movementPercentages.walking.total + this.state.movementPercentages.standing.total;
-        
-        
 
         const userActivities = [
             {
@@ -295,8 +281,6 @@ export default class PatientData extends Component {
             }
         }
 
-        console.log(`Requires goal line: ${requiresGoalLine} goal line: ${goalLine}`);
-
         return (
             <ScrollView>
                 <View>
@@ -304,13 +288,12 @@ export default class PatientData extends Component {
                         <Text style={[styles.flexDir, styles.tabInfo]}>
                             {this.props.tabTitle}
                         </Text>
-                        <GetDate
+                        <DatePicker
                             dateCallback={this.setDate.bind(this)}
                             date={this.state.date.toDate()}
                         />
                     </View>
 
-                    {/* Displaying the pie chart of all the activities */}
                     <View style={styles.center}>
                         <View style={styles.stepsContainer}>
                             <Text style={styles.stepsText}>{this.state.steps.length}</Text>
@@ -478,7 +461,7 @@ const styles = StyleSheet.create({
     textInline: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        alignItems: 'center',
     },
 
     widthSize: {
@@ -491,6 +474,5 @@ const styles = StyleSheet.create({
         fontSize: 15,
         marginLeft: 10,
         marginTop: 10,
-    }
-
+    },
 });

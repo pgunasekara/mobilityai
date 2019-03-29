@@ -76,8 +76,8 @@ export function GetPatientAchievements(patientId) {
         .catch((error) => console.log(JSON.stringify(error)));
 }
 
-export function AddPatientAchievements(patientId, steps, activeMinutes, walkingMinutes, standingMinutes) {
-    const route = "api/Patients/" + patientId + "/Achievements?steps=" + steps + "&activeMinutes=" + activeMinutes + "&walkingMinutes=" + walkingMinutes + "&standingMinutes=" + standingMinutes;
+export function AddPatientAchievements({id, steps, activeTime, walking, standing, ...props}) {
+    const route = "api/Patients/" + id + "/Achievements?steps=" + steps + "&activeMinutes=" + activeTime + "&walkingMinutes=" + walking + "&standingMinutes=" + standing;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("AddPatientAchievements: Make a post request to: " + url);

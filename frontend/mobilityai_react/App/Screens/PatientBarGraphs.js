@@ -9,7 +9,7 @@ export default class BarGraph extends Component {
         super(props);
 
         this.state = {
-            graphWidth: Math.max(this.props.data.length * 28.3, Dimensions.get('window').width)
+            graphWidth: Math.max(this.props.data.length * 50, Dimensions.get('window').width)
         }
     }
 
@@ -28,9 +28,6 @@ export default class BarGraph extends Component {
             this._mergeDataWithXLabels(data,this.props.xLabels);
         }
 
-        console.log(data);
-        //alert(this.props.keys)
-
         const Labels = ({ x, y, bandwidth, data }) => (
             data.map((value, index) => (
                 <Text
@@ -42,7 +39,7 @@ export default class BarGraph extends Component {
                     alignmentBaseline={ 'bottom' }
                     textAnchor={ 'middle' }
                 >
-                    _______
+                    ____________________
                 </Text>
             ))
         );
@@ -59,7 +56,7 @@ export default class BarGraph extends Component {
                     style={styles.graphHeight}
                 />
                 <ScrollView horizontal={true} style={styles.bargraph}>
-                    <View style={{ width: 500 }}>
+                    <View style={{ width: this.state.graphWidth }}>
                         {this.props.singleBarView 
                             ? <BarChart
                                 style={styles.graphHeight}

@@ -4,18 +4,15 @@ import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'reac
 
 import { AddSurvey } from '../Lib/Api';
 
-const Field = (props) => <TextInput style={styles.field} {...props} />;
-
 export default class Survey extends Component {
     constructor(props) {
         super(props);
 
-        var existingState = this.props.navigation.getParam('surveyState');
+        const existingState = this.props.navigation.getParam('surveyState');
 
         if (existingState) {
             this.state = {...existingState, usesExisting: true};
-        }
-        else {
+        } else {
             this.state = {
                 id: this.props.navigation.getParam("id"),
                 sensorAccuracy: "Neutral",
@@ -26,6 +23,8 @@ export default class Survey extends Component {
             }
         }
     }
+
+    static navigationOptions = ({ navigation }) => { title: "Create a New Survey" };
 
     submitForm() {
         AddSurvey(this.state.id, JSON.stringify({ ...this.state, dateCompleted: new Date()}));
@@ -43,6 +42,7 @@ export default class Survey extends Component {
     }
 
     render() {
+        const Field = (props) => <TextInput style={styles.field} {...props} />;
         const radio_props = [
             { label: "Strongly Disagree", value: "Strongly Disagree" },
             { label: "Disagree", value: "Disagree" },
