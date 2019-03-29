@@ -101,7 +101,17 @@ export default class PatientForm extends React.Component {
             response = AddPatientData(JSON.stringify(this.state));
             this.props.navigation.state.params.onGoBack();
         }else{
-            response = UpdatePatientData(this.state.id, JSON.stringify(this.state));
+            const removeEmpty = (obj) => {
+                Object.keys(obj).forEach((key) => (obj[key] == null || obj[key] === '') && delete obj[key]);
+            }
+
+            let copy = JSON.parse(JSON.stringify(this.state));
+            removeEmpty(copy);
+
+            console.log(copy)
+
+            response = UpdatePatientData(this.state.id, JSON.stringify(copy));
+            console.log(response)
         }
         this.props.navigation.goBack();
     }
@@ -250,12 +260,14 @@ export default class PatientForm extends React.Component {
                             />
                         </View>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.inputText}>Previous surgery for the primary condiition that brought them to therapy</Text>
+                            <Text style={styles.inputText}>Previous surgery for the primary condition that brought them to therapy</Text>
                             <RadioForm
                                 radio_props={radio_props}
                                 formHorizontal={true}
-                                initial={0}
-                                onPress={(value) => { this.setState({ previousSurgery: value }) }}
+                                initial={this.state.previousSurgery ? 0 : 1}
+                                onPress={(opt) => { 
+                                    this.setState({ previousSurgery: opt }) 
+                                }}
                                 style={{ justifyContent: 'space-evenly' }}
                             />
                         </View>
