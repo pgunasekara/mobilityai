@@ -12,10 +12,14 @@ export default class PatientDataContainer extends Component {
         super(props);
     };
 
+    /**
+     * Set's the title of the Navbar and adds a navigation dropdown that
+     * includes options for Observations, Information, Achievements and Surveys.
+     */
     static navigationOptions = ({ navigation }) => {
-        var id = navigation.getParam('id');
-        var firstName = navigation.getParam('firstName');
-        var lastName = navigation.getParam('lastName');
+        const id = navigation.getParam('id');
+        const firstName = navigation.getParam('firstName');
+        const lastName = navigation.getParam('lastName');
         const redirectOptions = [
             {
                 title: "Observations",
@@ -63,11 +67,14 @@ export default class PatientDataContainer extends Component {
             }
         ]
         return {
-            title: firstName + ' ' + lastName,
+            title: `${firstName} ${lastName}`,
             headerRight: <NavigatorMenu options={redirectOptions}/>
         };
     };
 
+    /*
+        Swipe View Containing Four PatientData Views for Daily, Weekly, Monthly and Overall Patient Activity.
+     */
     render() {
         const navigation = this.props.navigation;
         return (

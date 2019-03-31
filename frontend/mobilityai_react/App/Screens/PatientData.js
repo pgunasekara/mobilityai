@@ -25,6 +25,9 @@ const activityTypes = {
     stacked : 'stacked'
 }
 
+/**
+ * Map containing the color we are using in the bar char for each of the actions.
+ */
 const arrayColours = {
     standing: '#3498DB',
     sitting: '#1ABC9C',
@@ -37,6 +40,10 @@ const arrayColours = {
     toggle: '#000000',
 };
 
+/**
+ * The different tab views and their page position in the ScrollView.
+ * 
+ */
 const Tabs = {
     daily: 0,
     weekly: 1,
@@ -63,6 +70,11 @@ export default class PatientData extends Component {
         }
     };
 
+    /*
+        Handler for when you select a new activity type.
+
+        New Activity 
+     */
     _onPressButton(newActivityType, newData) {
         this.setState({ 
             activityType: newActivityType, 
@@ -72,6 +84,12 @@ export default class PatientData extends Component {
         });
     };
 
+    /**
+     * @param  {Array<String>} - the keys for the stack view option you selected.
+     *      For example, if you selected to display active, the keys will be standing and walking.
+     * @return {Array<JSON>} - List of JSON objects which contain the values for all of the keys passed
+     *      in.
+     */
     extractDataForStackView(keys){
         let bars = [];
 
@@ -85,6 +103,11 @@ export default class PatientData extends Component {
         return bars;
     }
 
+    /**
+     * @param  {String} - Handler for when you press a button in the stacked view.
+     *      This requires extra processing because the stacked view graphs contain a combination
+     *      of multiple previous states
+     */
     _onPressStackedButton(newActivityType){
         this.setState({ activityType: newActivityType });
         const activeKeys = ['standing', 'walking'];
@@ -120,6 +143,9 @@ export default class PatientData extends Component {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    /*
+    Load a patients data for a given date.
+     */
     getPatientData(startDate) {
         var endDate = moment(startDate);
         var xLabels = [];
@@ -198,10 +224,16 @@ export default class PatientData extends Component {
         return _.chunk(data, 24).map((c) => { return _.sum(c) / 60; });
     }
 
+    /**
+     * On Component Mount, load the patient data for the current date.
+     */
     componentDidMount() {
         this.getPatientData(this.state.date);
     };
 
+    /*
+        Set a new date and load the patient's data for that date.
+     */
     setDate(rDate) {
         this.setState({ date: moment(rDate) });
         this.getPatientData(moment(rDate));

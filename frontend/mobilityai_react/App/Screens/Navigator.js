@@ -6,6 +6,9 @@ import Menu, {
   MenuTrigger,
 } from 'react-native-popup-menu';
 
+/*
+  Three line menu icon to be used for the Navigator Menu bar.
+ */
 const MenuIcon = () => <Icon 
     name='dots-three-vertical' 
     size={25} 
@@ -27,6 +30,13 @@ const optionsStyles = {
   },
 };
 
+/**
+ * @param  {options} - Array of Json Objects, with the keys "title" and "handler". These are the items that get 
+ * displayed when you press the Menu Icon. Each item has a title that is displayed and a handler that is called
+ * when you press that option.
+ * 
+ * @return the Navigator with the options passed in as the options when you press the Menu Icon
+ ***/
 const NavigatorMenu = ({options}) => {
 	const renderedOptions = options.map((opt,idx) => <MenuOption key={idx} onSelect={opt.handler} text={opt.title} />)
 

@@ -11,6 +11,11 @@ import { GetPatients } from '../Lib/Api';
 
 export default class PatientList extends React.Component {
 
+    /*
+        Set The Navbar title, and add a Navigation Menu with the options for Bands, 
+        Options and to Sign Out. The Bands and Options are unimplemented and there
+        for show, however the Sign out redirects to Home.
+     */
     static navigationOptions = ({ navigation }) => {
         redirectOptions = [
             {
@@ -40,12 +45,18 @@ export default class PatientList extends React.Component {
         this.reloadList = this.reloadList.bind(this);
     }
 
+    /**
+     * Reload the patient list and set the state to include the patients
+     */
     reloadList(){
         GetPatients().then((patientsJson) => {
             this.setState({ patients: patientsJson });
         });
     }
 
+    /*
+        Default method that gets called when the component is first mounted to be rendered.
+     */
     componentDidMount() {
         this.reloadList();
     }

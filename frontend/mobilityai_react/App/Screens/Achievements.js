@@ -1,14 +1,19 @@
 import React from 'react';
-import { TouchableOpacity, Button, ScrollView, StyleSheet, Text, View, TextInput } from 'react-native';
+import { Alert, TouchableOpacity, Button, ScrollView, StyleSheet, Text, View, TextInput } from 'react-native';
 import { Input, Icon } from 'react-native-elements'
 import { GetPatientAchievements, AddPatientAchievements } from '../Lib/Api';
 import { LoadingComponent} from '../Lib/GenericComponents';
 
 export default class PatientAchievements extends React.Component {
+    
+    /*
+        Put "Patient's Achievements" as title with the patient's first name and last name
+        taking the place of Patient.
+     */
     static navigationOptions = ({ navigation }) => {
-        var fname = navigation.getParam('firstName');
-        var lname = navigation.getParam('lastName');
-        var t = fname + " " + lname + '\'';
+        const fname = navigation.getParam('firstName');
+        const lname = navigation.getParam('lastName');
+        let t = `${fname} ${lname}'`;
 
         if (lname.substring(lname.length - 1) != 's') {
             t += 's'
@@ -27,6 +32,10 @@ export default class PatientAchievements extends React.Component {
         }
     }
 
+    /*
+        Attempt to load the Patients achievements. if you get a result, set the patient's achievements
+        to be the loaded result. Otherwise, Set the achievements to 0.
+     */
     componentDidMount() {
         GetPatientAchievements(this.state.id).then((achievementsJson) => {
             if (achievementsJson == null) {
@@ -49,9 +58,12 @@ export default class PatientAchievements extends React.Component {
         });
     };
 
+    /*
+        Save the Patient's Achievements and create an alert saying that you have saved the achievements.
+     */
     saveAchievements() {
         AddPatientAchievements(this.state);
-        alert("Achievements saved");
+        Alert.alert("Achievements saved");
     };
 
     render() {

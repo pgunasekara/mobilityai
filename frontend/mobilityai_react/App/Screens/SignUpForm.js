@@ -17,32 +17,27 @@ export default class SignUp extends React.Component {
 
     }
 
+    /*
+        Sign up the the user and redirect to the Sign In page
+     */
     submitForm() {
         if (this.state.terms) {
             let response = UserSignUp(this.state.email, this.state.firstName, this.state.lastName, this.state.password);
-            console.log(JSON.stringify(response));
-            //TODO: Navigate to the Sign In page 
-            // this.props.navigation.navigate('SignUp', {});
+            this.props.navigation.navigate('SignIn', {});
         } else {
-            alert("Please agree to the terms and conditions");
+            Alert.alert("Please agree to the terms and conditions");
         }
     }
 
 
+    /*
+        Render sign up form with field for first name, last name, password and terms of condition check.
+
+        There is also a submit button and a button to redirect to Sign In if you have an account.
+     */
     render() {
         const { navigate } = this.props.navigation;
-        const InputIcon = () => <Icon name='user-circle' size={24} type={'font-awesome'}/>
-
-        /*const InputField = ({title, ...props}) => (
-            <Text>{title}</Text>
-            <TextInput
-                placeholder={title}
-                underlineColorAndroid="black"
-                leftIcon={props.icon}
-                onChangeText={props.onChangeText}
-                value={props.value}
-            />
-        )*/
+        const NameIcon = () => <Icon name='user-circle' size={24} type={'font-awesome'}/>
 
         return (
             <ScrollView>
@@ -50,7 +45,6 @@ export default class SignUp extends React.Component {
                     <Text style={[styles.titleText, styles.regText, styles.boldText]}>MobilityAI</Text>
                     <Text style={styles.regText}>Sign up below and create your account</Text>
 
-                    {/* Generating the sign up form */}
                     <View style={styles.containerBorder}>
                         <View style={styles.container}>
                             <View style={[styles.formStyle, styles.formBorder]}>
@@ -60,7 +54,7 @@ export default class SignUp extends React.Component {
                                     value={this.state.firstName}
                                     placeholder='First Name'
                                     underlineColorAndroid="black"
-                                    leftIcon={<InputIcon/>}
+                                    leftIcon={<NameIcon/>}
                                 />
                                 <Text>Last Name</Text>
                                 <TextInput
@@ -68,7 +62,7 @@ export default class SignUp extends React.Component {
                                     value={this.state.lastName}
                                     placeholder='Last Name'
                                     underlineColorAndroid="black"
-                                    leftIcon={<InputIcon/>}
+                                    leftIcon={<NameIcon/>}
                                 />
                                 <Text>Password</Text>
                                 <TextInput
@@ -78,7 +72,6 @@ export default class SignUp extends React.Component {
                                     underlineColorAndroid="black"
                                     leftIcon={
                                         <Icon
-
                                             name='lock'
                                             size={24}
                                             type={'font-awesome'}
@@ -98,17 +91,14 @@ export default class SignUp extends React.Component {
                             </View>
                         </View>
 
-                        {/* Button for users to submit their information */}
                         <View style={[styles.container, styles.btn]}>
                             <Button
                                 title='Sign Up'
-                                // onPress={() => this.submitForm()}
                                 onPress={() => this.submitForm()}
                                 color="#5DACBD"
                             />
                         </View>
 
-                        {/* Redirecting to users to sign in page, if they already have an existing account */}
                         <View >
                             <TouchableHighlight onPress={() => navigate('SignIn', {})}>
                                 <View>

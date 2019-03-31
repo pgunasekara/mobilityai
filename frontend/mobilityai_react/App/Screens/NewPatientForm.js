@@ -51,6 +51,10 @@ export default class PatientForm extends React.Component {
         }
     }
 
+    /*
+        If you are creating a New Patient, the menu bar title will be "Create New Patient", otherwise it will
+        be "Patient Information".
+     */
     static navigationOptions = ({ navigation }) => {
         if (navigation.getParam('update')) {
             return {
@@ -64,6 +68,10 @@ export default class PatientForm extends React.Component {
         
     }
 
+    /*
+        Given the Response from the API, attempt to parse the data (as it is stored as a json string),
+        and then update the state with the new keys.
+     */
     loadStateFromApi(json){
         const data = JSON.parse(json.data);
         this.setState({
@@ -85,6 +93,10 @@ export default class PatientForm extends React.Component {
         });
     }
 
+    /*
+        Validate that the total time spent per hour is less than 60 (as there is 60 minutes per hour).
+        Afterwards, either update a patient or insert a new patient and then return to the previous screen.
+     */
     submitForm() {
         const totalTimeSpent = parseInt(this.state.baselineLay) + parseInt(this.state.baselineStand)
             + parseInt(this.state.baselineWalk) + parseInt(this.state.baselineSit);
@@ -113,6 +125,11 @@ export default class PatientForm extends React.Component {
         this.props.navigation.goBack();
     }
 
+    /**
+     * @param  {AnyType} - input from time field
+     * @return {Int} - return the parsed number value if it is a valid number. If it is invalid, return -1.
+     * Invalid can mean that it is out of the range for 60 min time or if it is not a number.
+     */
     validateSixtyMinuteTime(val){
         const intRep = parseInt(val, 10) || -1
 
@@ -131,6 +148,7 @@ export default class PatientForm extends React.Component {
             { label: "No", value: false },
         ];
 
+        // check list for Bodyparts involved if you select Orthopedic for the condition that brought you in.
         const BodyPartsInvolvedCheckList = (props) => {
             return <View>
                 <CheckBox

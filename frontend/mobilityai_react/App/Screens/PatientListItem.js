@@ -10,14 +10,15 @@ export default class PatientListItem extends Component {
 
         this.state = {
             id: props.id,
-            deviceId: props.deviceId,
-            name: props.name,
             firstRow: props.firstRow,
             firstName: props.firstName,
             lastName: props.lastName,
         };
     }
 
+    /*
+        Render a row of the Patient List, given a patient's first name, last name, and ID.
+     */
     render() {
         const {navigate} = this.props.navigation;
         return (
@@ -43,7 +44,7 @@ export default class PatientListItem extends Component {
                             activeOpacity={0.7}
                         />
                         <View style={styles.textContainer}>
-                            <Text style={styles.text}>{this.state.firstName + " " + this.state.lastName}</Text>
+                            <Text style={styles.text}>{`${this.state.firstName} ${this.state.lastName}`}</Text>
                         </View>
                     </View>
                 </View>

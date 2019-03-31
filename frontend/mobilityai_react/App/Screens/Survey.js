@@ -5,6 +5,11 @@ import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'reac
 import { AddSurvey } from '../Lib/Api';
 
 export default class Survey extends Component {
+    /*
+        If you are loading an existant survey you are editing, set the current state to the 
+        state from the survey and set a flag to show that you are editing an existing survey. 
+        Otherwise, set the default values for the survey.
+     */
     constructor(props) {
         super(props);
 
@@ -30,6 +35,9 @@ export default class Survey extends Component {
         AddSurvey(this.state.id, JSON.stringify({ ...this.state, dateCompleted: new Date()}));
     }
 
+    /*
+    Map a Radio button value to an integer corresponding value.
+     */
     radioValueToInt(value) {
         switch (value) {
             case "Strongly Disagree": return 0;

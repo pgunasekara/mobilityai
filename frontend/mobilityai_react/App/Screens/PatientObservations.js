@@ -8,12 +8,11 @@ import { AddObservations, GetObservations } from '../Lib/Api';
 
 export default class PatientObservations extends React.Component {
     static navigationOptions = ({ navigation }) => {
-        var id = navigation.getParam('id');
-
         return {
             title: "Nurse's Observations"
         };
     }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -25,6 +24,9 @@ export default class PatientObservations extends React.Component {
         };
     }
 
+    /*
+        Load observation when the component is mounted on rendering.
+     */
     componentDidMount() {
         this.updateObs();
     }
@@ -33,25 +35,31 @@ export default class PatientObservations extends React.Component {
         this.setState({ isDialogVisible: show });
     }
 
+    /*
+        Reload list of observations to render 
+     */
     updateObs() {
+        const observation = ({firstName, lastName, comment}) => (
+            <View style={[styles.obsBoxesDir, styles.box]}>
+                <Text style={[styles.obsBox, styles.nameText]}>
+                    {`${firstName} ${lastName}`}
+                </Text>
+                <Text style={[styles.obsBox, styles.commentText]}>
+                    {comment}
+                </Text>
+            </View>
+        );
+
         GetObservations(this.props.navigation.getParam('id')).then((observationJson) => {
-            const obsList = observationJson.map((json) =>{
-                return (
-                    <View style={[styles.obsBoxesDir, styles.box]}>
-                        <Text style={[styles.obsBox, styles.nameText]}>
-                            {json['firstName'] + ' ' + json['lastName']}
-                        </Text>
-                        <Text style={[styles.obsBox, styles.commentText]}>
-                            {json['comment']}
-                        </Text>
-                    </View>
-                )
-            });
+            const obsList = observationJson.map((json) => <Observation {...json} />);
 
             this.setState({ obsList: obsList });
         })
     }
 
+    /*
+        Insert a new Observation and then reload the observations.
+     */
     addObs(comment) {
         const pID = this.props.navigation.getParam('id');
         const uID = this.props.navigation.getParam('userId');

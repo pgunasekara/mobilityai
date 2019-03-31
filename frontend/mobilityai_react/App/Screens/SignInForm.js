@@ -5,12 +5,13 @@ import { Input, Icon } from 'react-native-elements'
 export default class SignIn extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            patients: []
-        }
-
+        this.state = {};
     }
 
+    /*
+        Render the Sign in form, with an email and password fields, as well as a sign in button
+        and a button to redirect to sign up if you don't have an account.
+     */
     render() {
         const { navigate } = this.props.navigation;
         return (
@@ -54,7 +55,6 @@ export default class SignIn extends React.Component {
                             </View>
                         </View>
 
-                        {/* Button to navigate after signing in */}
                         <View style={[styles.formBorder, styles.btn]}>
                             <Button
                                 title='Sign In'
@@ -63,7 +63,6 @@ export default class SignIn extends React.Component {
                             />
                         </View>
 
-                        {/* Redirect users to sign up form, if they do not have an existing account */}
                         <View >
                             <TouchableHighlight onPress={() => navigate('SignUp', {})}>
                                 <View>

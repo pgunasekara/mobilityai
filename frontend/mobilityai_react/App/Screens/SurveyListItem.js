@@ -6,6 +6,7 @@ import moment from 'moment';
 
 export default class SurveyListItem extends Component {
 
+    // A single row in the Survey List.
     render() {
         const {navigate} = this.props.navigation;
         return (

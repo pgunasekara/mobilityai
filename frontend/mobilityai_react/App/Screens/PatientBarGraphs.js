@@ -13,6 +13,13 @@ export default class BarGraph extends Component {
         }
     }
 
+    /**
+     * @param  {Array<Json>} - Array of JSON data for the stacked bar view. Each JSON object has keys which are the
+     *      values present in the stacked bar view and how much the value for it is for the current spot on the graph
+     * @param  {Array<Date>} - Array of the same size as the data array with Hours. we assign all the times to the
+     *      json data so when you render it, each stacked bar has a time associated. We use the field "month" as that
+     *      is what is used in the demo for the library.
+     */
     _mergeDataWithXLabels(data, labels){
         labels.forEach((label, idx) => {
             data[idx]['month'] = label;
