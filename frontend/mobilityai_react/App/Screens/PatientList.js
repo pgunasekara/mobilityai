@@ -37,13 +37,18 @@ export default class PatientList extends React.Component {
     constructor(props){
         super(props);
         this.state = {};
+        this.reloadList = this.reloadList.bind(this);
     }
 
-    componentDidMount() {
+    reloadList(){
         GetPatients().then((patientsJson) => {
             console.log(patientsJson);
             this.setState({ patients: patientsJson });
         });
+    }
+
+    componentDidMount() {
+        this.reloadList();
     }
 
     render() {
@@ -69,6 +74,7 @@ export default class PatientList extends React.Component {
                     onPress={() => {
                         navigate('PatientForm', {
                             update: false,
+                            onGoBack : () => this.reloadList()
                         })
                     }}
                     degrees={0}>
