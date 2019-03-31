@@ -108,10 +108,7 @@ export default class PatientForm extends React.Component {
             let copy = JSON.parse(JSON.stringify(this.state));
             removeEmpty(copy);
 
-            console.log(copy)
-
             response = UpdatePatientData(this.state.id, JSON.stringify(copy));
-            console.log(response)
         }
         this.props.navigation.goBack();
     }
