@@ -9,7 +9,6 @@ namespace mobilityAI.Evaluators {
     using Newtonsoft.Json.Linq;
     public class PatientsEvaluator {
         private readonly MobilityAIContext _context;
-        private static bool isFirstRun = true;
         private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private readonly int NumberOfActivities = Enum.GetNames(typeof(ActivityType)).Length;
@@ -21,29 +20,6 @@ namespace mobilityAI.Evaluators {
 
         public JsonResult GetPatients()
         {
-            if (isFirstRun)
-            {
-                var demoPatients = new List<Patient> {
-                    new Patient {
-                        DeviceId = "1",
-                        FirstName = "Joe",
-                        LastName = "Johnson"
-                    },
-                    new Patient {
-                        DeviceId = "2",
-                        FirstName = "Ruth",
-                        LastName = "Reynolds",
-                    },
-                    new Patient {
-                        DeviceId = "3",
-                        FirstName = "Marie",
-                        LastName = "Anderson"
-                    }
-                };
-                _context.Patients.AddRange(demoPatients);
-                _context.SaveChanges();
-                isFirstRun = false;
-            }
             return new JsonResult(_context.Patients.ToList());
         }
 
@@ -85,7 +61,7 @@ namespace mobilityAI.Evaluators {
 
             if (data.Count != 0)
             {
-                var totalHourBuckets = (int)Math.Ceiling((endDate - startDate).TotalHours);
+                var totalHourBuckets = Math.Max((int)Math.Ceiling((endDate - startDate).TotalHours), 1);
 
                 float[] count = new float[NumberOfActivities];
                 float[] total = new float[NumberOfActivities];
@@ -305,6 +281,7 @@ namespace mobilityAI.Evaluators {
                 );
 
                 _context.SaveChanges();
+                return;
             }
             throw new Exception(String.Format("Patient ID: {0} not found.", patientId));
         }
