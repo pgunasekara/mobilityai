@@ -79,7 +79,7 @@ export default class PatientAchievements extends React.Component {
 
                 <View style={styles.container}>
                     <View style={{ paddingBottom: 10 }}>
-                        <View style={styles.boxLayout2}>
+                        <View style={styles.boxLayout}>
                             <View>
                                 <Text>Steps</Text>
                                 <TextInput
@@ -101,7 +101,7 @@ export default class PatientAchievements extends React.Component {
                                 />
                             </View>
                         </View>
-                        <View style={styles.boxLayout2}>
+                        <View style={styles.boxLayout}>
                             <View>
                                 <Text>Standing</Text>
                                 <TextInput
@@ -146,13 +146,6 @@ const styles = StyleSheet.create({
     },
 
     boxLayout: {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-    },
-
-    boxLayout2: {
         flexDirection: 'row',
         justifyContent: 'space-evenly',
     },

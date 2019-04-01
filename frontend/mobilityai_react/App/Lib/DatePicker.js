@@ -21,9 +21,11 @@ export default class DatePicker extends Component {
 
     constructor(props) {
         super(props);
+        const dateFormat = "MMMM Do YYYY";
         this.state = {
             date: props.date,
-            formattedDate: moment(props.date).format('MMMM Do YYYY'),
+            formattedDate: moment(props.date).format(dateFormat),
+            formatString : dateFormat
         };
     }
 
@@ -32,7 +34,7 @@ export default class DatePicker extends Component {
             <View style={{flex: 1}}>
                 <Button 
                     onPress={this._showDateTimePicker} 
-                    title={moment(this.state.date).format('MMMM Do YYYY')}
+                    title={moment(this.state.date).format(this.state.formatString)}
                     color="#5DACBD"    
                 >
                 </Button>

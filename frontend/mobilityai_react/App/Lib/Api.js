@@ -2,7 +2,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import { SERVER_URL } from 'react-native-dotenv';
 
 export function AddPatientData(patientData) {
-    const route = "api/Patients?patientData=" + patientData;
+    const route = `api/Patients?patientData=${patientData}`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("CreatePatient: Make a post request to: " + url);
@@ -14,8 +14,8 @@ export function AddPatientData(patientData) {
         .catch((error) => console.log(JSON.stringify(error)));
 };
 
-export function updatePatientData(patientId, patientData) {
-    const route = `api/Patients/${patientId}?patientData=` + patientData;
+export function UpdatePatientData(patientId, patientData) {
+    const route = `api/Patients/${patientId}?patientData=${patientData}`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("UpdatePatient: Make a put request to: " + url);
@@ -45,7 +45,7 @@ export function GetPatients() {
 };
 
 export function GetPatientActivities(start, end, patientId) {
-    const route = "api/Patients/" + patientId + "/Activity?start=" + start + "&end=" + end;
+    const route = `api/Patients/${patientId}/Activity?start=${start}&end=${end}`;
     let url = encodeURI(SERVER_URL + route);
     console.log("GetPatientActivities: Make get request to: " + url);
 
@@ -61,7 +61,7 @@ export function GetPatientActivities(start, end, patientId) {
 }
 
 export function GetPatientAchievements(patientId) {
-    const route = "api/Patients/" + patientId + "/Achievements";
+    const route = `api/Patients/${patientId}/Achievements`;
     let url = encodeURI(SERVER_URL + route);
     console.log("GetPatientAchievements: Make get request to: " + url);
 
@@ -77,7 +77,7 @@ export function GetPatientAchievements(patientId) {
 }
 
 export function AddPatientAchievements({id, steps, activeTime, walking, standing, ...props}) {
-    const route = "api/Patients/" + id + "/Achievements?steps=" + steps + "&activeMinutes=" + activeTime + "&walkingMinutes=" + walking + "&standingMinutes=" + standing;
+    const route = `api/Patients/${id}/Achievements?steps=${steps}&activeMinutes=${activeTime}&walkingMinutes=${walking}&standingMinutes=${standing}`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("AddPatientAchievements: Make a post request to: " + url);
@@ -90,7 +90,7 @@ export function AddPatientAchievements({id, steps, activeTime, walking, standing
 };
 
 export function PatientData(patientId) {
-    const route = "api/Patients/" + patientId;
+    const route = `api/Patients/${patientId}`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("GetPatientData: Make get request to: " + url);
@@ -106,7 +106,7 @@ export function PatientData(patientId) {
 }
 
 export function UserSignUp(email, firstName, lastName, password) {
-    const route = "api/Users?email=" + email + "&firstName=" + firstName + "&lastName=" + lastName + "&password=" + password;
+    const route = `api/Users?email=${email}&firstName=${firstName}&lastName=${lastName}&password=${password}`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("SignUp: Make post request to: " + url);
@@ -120,7 +120,7 @@ export function UserSignUp(email, firstName, lastName, password) {
 }
 
 export function AddObservations(userId, patientId, comment) {
-    const route = "api/Patients/" + patientId + "/Observations?userId=" + userId + "&comment=" + comment;
+    const route = `api/Patients/${patientId}/Observations?userId=${userId}&comment=${comment}`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("AddObservations: Make put request to: " + url);
@@ -134,7 +134,7 @@ export function AddObservations(userId, patientId, comment) {
 }
 
 export function GetObservations(patientId) {
-    const route = "api/Patients/" + patientId + "/Observations";
+    const route = `api/Patients/${patientId}/Observations`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("GetObservations: Make get request to: " + url);
@@ -151,7 +151,7 @@ export function GetObservations(patientId) {
 }
 
 export function AddSurvey(patientId, survey) {
-    const route = "api/Patients/" + patientId + "/Surveys?surveyData=" + survey;
+    const route = `api/Patients/${patientId}/Surveys?surveyData=${survey}`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("Make put request to: " + url);
@@ -165,7 +165,7 @@ export function AddSurvey(patientId, survey) {
 }
 
 export function GetSurveys(patientId) {
-    const route = "api/Patients/" + patientId + "/Surveys";
+    const route = `api/Patients/${patientId}/Surveys`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("Make get request to: " + url);
@@ -181,7 +181,7 @@ export function GetSurveys(patientId) {
 }
 
 export function GetSteps(patientId, startDate, endDate) {
-    const route = "api/Patients/" + patientId + "/Steps?startDate=" + startDate + "&endDate=" + endDate;
+    const route = `api/Patients/${patientId}/Steps?startDate=${startDate}&endDate=${endDate}`;
 
     let url = encodeURI(SERVER_URL + route);
     console.log("GetObservations: Make get request to: " + url);

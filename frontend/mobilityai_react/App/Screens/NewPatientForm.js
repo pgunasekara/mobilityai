@@ -102,7 +102,7 @@ export default class PatientForm extends React.Component {
             + parseInt(this.state.baselineWalk) + parseInt(this.state.baselineSit);
 
         if (totalTimeSpent > 60){
-            Alert.alert('Please make sure add valid baseline mobility measurements!',
+            Alert.alert('Please make sure to add valid baseline mobility measurements!',
                 "Hourly Baseline mobility measurements values must add up to below 60 and cannot contain negatives!");
             return false;
         }
