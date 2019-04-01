@@ -15,7 +15,7 @@ export default class DatePicker extends Component {
         this.setState({
             isDateTimePickerVisible : false,
             date: date,
-            formattedDate: moment(this.state.date).format('MMMM Do YYYY')
+            formattedDate: moment(this.state.date).format(this.state.formatString)
         });
     };
 
