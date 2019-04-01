@@ -5,6 +5,7 @@ import ActionButton from 'react-native-action-button';
 
 import { GetSurveys } from '../Lib/Api';
 import SurveyListItem from './SurveyListItem';
+import { LoadingComponent} from '../Lib/GenericComponents';
 
 export default class SurveyList extends Component {
     constructor(props) {

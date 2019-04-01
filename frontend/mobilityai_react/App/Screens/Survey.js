@@ -33,6 +33,7 @@ export default class Survey extends Component {
 
     submitForm() {
         AddSurvey(this.state.id, JSON.stringify({ ...this.state, dateCompleted: new Date()}));
+        this.props.navigation.goBack();
     }
 
     /*
@@ -94,7 +95,8 @@ export default class Survey extends Component {
                         />
                     </View>
                     <Text style={styles.sliderText}>Name of the person completing this survey:</Text>
-                    <Field onChangeText={(completingSurveyName) => this.setState({ completingSurveyName })}
+                    <Field 
+                        onChangeText={(completingSurveyName) => this.setState({ completingSurveyName })}
                         value={this.state.completingSurveyName}
                         placeholder="Enter Name..."
                     />
