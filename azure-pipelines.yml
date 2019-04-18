@@ -12,6 +12,21 @@ jobs:
     - script: dotnet build
       workingDirectory: backend/mobilityAI
       displayName: 'Build'
+    - script: dotnet restore
+      workingDirectory: backend/mobilityAI.Tests
+      displayName: 'Restore test dependencies'
+    - script: dotnet test mobilityAI.Tests.csproj  --logger:"nunit;LogFilePath=xunit_results.xml" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[xunit*]*"
+      workingDirectory: backend/mobilityAI.Tests
+      displayName: 'Tests'
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testRunner: xUnit
+        testResultsFiles: 'backend/mobilityAI.Tests/xunit_results.xml'
+    - task: PublishCodeCoverageResults@1
+      inputs: 
+        codeCoverageTool: Cobertura
+        summaryFileLocation: 'backend/mobilityAI.Tests/coverage.cobertura.xml'
   - job: Frontend
     pool:
       vmImage: 'vs2017-win2016'
