@@ -64,7 +64,7 @@ To get started with the server and database side of this project, checkout the [
 ## Setup instructions
 The following are instructions on how to set up the entire backend, including the machine learning portion using docker on a server.
 
-1. Install ![Docker CE](https://docs.docker.com/install/) and ![Docker Compose](https://docs.docker.com/compose/install/)
+1. Install [Docker CE](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
 2. Install Nginx and start it.
 3. Edit /etc/nginx/sites-available/default (your configuration file might have a different name or a different location) and set the following for port 80:
 ```
@@ -79,11 +79,12 @@ location / {
     proxy_set_header   X-Forwarded-Proto $scheme;                 
 }                                                                 
 ```
-4. Test the changes by running `sudo nginx -t` and reload nginx `sudo nginx -s reload`
+4. Test the changes by running `sudo nginx -t` and reload nginx `sudo nginx -s reload`.
 5. Clone this repository anywhere on the machine.
-6. To start the docker services run `sudo docker-compose up -d --build web`
-7. Once completed the status of the container can be checked by using `sudo docker logs <name of image>`
-    a. To get the name of the image (there are 3 running, the dotnet server, the ML server, and the postgres instance) run `sudo docker ps` and look under the "IMAGE" column (the names at the time of writing this are: dotnet server: 'mobilityai_web', ML server: 'mobilityai_ml', and Postgres: 'postgres').
+6. To start the docker services run `sudo docker-compose up -d --build web`.
+7. Once completed the status of the container can be checked by using `sudo docker logs <name of image>`.
+    * To get the name of the image (there are 3 running, the dotnet server, the ML server, and the postgres instance) run `sudo docker ps` and look under the "IMAGE" column 
+    * The names at the time of writing this are: dotnet server: 'mobilityai_web', ML server: 'mobilityai_ml', and Postgres: 'postgres'.
  8. To create a bash shell into one of the instances, use `sudo docker ps` to get the "CONTAINER ID" for the desired instance, then run `sudo docker exec -it <container ID> bash'
 
 ## Screenshots
