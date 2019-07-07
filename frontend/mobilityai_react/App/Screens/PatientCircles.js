@@ -8,7 +8,6 @@ export default class Circle extends Component {
          return (
              <View>
                  <View style={[styles.center,  { color: this.props.color }]}>
-                     {/* Displaying corresponding icons with the activity */}
                      <Icon
                          raised
                          reverse

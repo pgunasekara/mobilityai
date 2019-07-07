@@ -49,42 +49,31 @@ export default class PatientForm extends React.Component {
             PatientData(this.props.navigation.getParam('id'))
             .then(this.loadStateFromApi);
         }
-        console.log(this.state)
     }
 
+    /*
+        If you are creating a New Patient, the menu bar title will be "Create New Patient", otherwise it will
+        be "Patient Information".
+     */
     static navigationOptions = ({ navigation }) => {
-        var update = navigation.getParam('update')
-
-        if (update) {
+        if (navigation.getParam('update')) {
             return {
                 title: "Patient Information"
-            }
-        } else {
-            return {
-                title: "Create New Patient"
-            }
+            };
         }
+
+        return {
+            title: "Create New Patient"
+        };
+        
     }
 
-    getSurveyData() {
-        var update = this.props.navigation.getParam('update');
-
-        // if (update) {
-        //     PatientData(this.props.id).then((patientJson) => {
-        //         this.setState({ surveyInfo: patientJson })
-
-        //         this.setState({
-
-        //         })
-        //     })
-        // } else {
-
-        // }
-    }
-
+    /*
+        Given the Response from the API, attempt to parse the data (as it is stored as a json string),
+        and then update the state with the new keys.
+     */
     loadStateFromApi(json){
         const data = JSON.parse(json.data);
-        console.log(data)
         this.setState({
             formAssistantName : data["formAssistantName"],
             baselineWalk: data["baselineWalk"],
@@ -102,51 +91,45 @@ export default class PatientForm extends React.Component {
             difficultyWithDailyAcitity: data["difficultyWithDailyAcitity"],
             steps: data["steps"]
         });
-        console.log(this.state)
     }
 
-    componentDidMount() {
-        this.getSurveyData();
-    };
-
+    /*
+        Validate that the total time spent per hour is less than 60 (as there is 60 minutes per hour).
+        Afterwards, either update a patient or insert a new patient and then return to the previous screen.
+     */
     submitForm() {
         const totalTimeSpent = parseInt(this.state.baselineLay) + parseInt(this.state.baselineStand)
             + parseInt(this.state.baselineWalk) + parseInt(this.state.baselineSit);
 
-        console.log("Total time spent " + totalTimeSpent);
-
         if (totalTimeSpent > 60){
-            Alert.alert("Hourly Baseline mobility measurements values add up to over 60!",
-                'Please make sure add valid baseline mobility measurements.');
+            Alert.alert('Please make sure to add valid baseline mobility measurements!',
+                "Hourly Baseline mobility measurements values must add up to below 60 and cannot contain negatives!");
             return false;
         }
 
         let response = null;
+
         if (!this.state.update){
             response = AddPatientData(JSON.stringify(this.state));
             this.props.navigation.state.params.onGoBack();
         }else{
-            response = UpdatePatientData(this.state.id, JSON.stringify(this.state));
+            const removeEmpty = (obj) => {
+                Object.keys(obj).forEach((key) => (obj[key] == null || obj[key] === '') && delete obj[key]);
+            }
+
+            let copy = JSON.parse(JSON.stringify(this.state));
+            removeEmpty(copy);
+
+            response = UpdatePatientData(this.state.id, JSON.stringify(copy));
         }
         this.props.navigation.goBack();
     }
 
-    onChanged(text) {
-        let newText = '';
-        let numbers = '0123456789';
-
-        for (var i = 0; i < text.length; i++) {
-            if (numbers.indexOf(text[i]) > -1) {
-                newText = newText + text[i];
-            }
-            else {
-                // your call back function
-                alert("please enter numbers only");
-            }
-        }
-        this.setState({ onsetOfCondition: newText });
-    }
-
+    /**
+     * @param  {AnyType} - input from time field
+     * @return {Int} - return the parsed number value if it is a valid number. If it is invalid, return -1.
+     * Invalid can mean that it is out of the range for 60 min time or if it is not a number.
+     */
     validateSixtyMinuteTime(val){
         const intRep = parseInt(val, 10) || -1
 
@@ -159,18 +142,13 @@ export default class PatientForm extends React.Component {
     render() {
         const maxHours = 24;
         const baselineStepSize = 0.25;
-        const SliderField = (props) => {
-            return <Slider style={styles.slider}
-                {...props}
-                onAfterChange={() => this.props.update(this.state)}
-            />;
-        }
         
         const radio_props = [
             { label: "Yes", value: true },
             { label: "No", value: false },
         ];
 
+        // check list for Bodyparts involved if you select Orthopedic for the condition that brought you in.
         const BodyPartsInvolvedCheckList = (props) => {
             return <View>
                 <CheckBox
@@ -212,19 +190,19 @@ export default class PatientForm extends React.Component {
             <View style={styles.container}>
                 <ScrollView contentContainerStyle={styles.scrollable}>
                     <View style={{ paddingBottom: 100 }}>
-                        <Text style={styles.sliderText}>First Name:</Text>
+                        <Text style={styles.inputText}>First Name:</Text>
                         <Field onChangeText={(firstName) => this.setState({ firstName })}
                             value={this.state.firstName}
                             placeholder="Enter First Name..."
                             editable={!this.state.update}
                         />
-                        <Text style={styles.sliderText}>Last Name:</Text>
+                        <Text style={styles.inputText}>Last Name:</Text>
                         <Field onChangeText={(lastName) => this.setState({ lastName })}
                             placeholder="Enter Last Name..."
                             value={this.state.lastName}
                             editable={!this.state.update}
                         />
-                        <Text style={styles.sliderText}>Average minutes spent standing per hour:</Text>
+                        <Text style={styles.inputText}>Average minutes spent standing per hour:</Text>
                         <Field 
                             placeholder="Hourly minutes spent standing..."
                             keyboardType='numeric'
@@ -235,11 +213,7 @@ export default class PatientForm extends React.Component {
                             }}
                             value={this.state.baselineStand && this.state.baselineStand != -1 ? this.state.baselineStand.toString() : null}
                         />
-                        { this.state.baselineStand == -1
-                            ? <Text style={styles.errorMessage}>Please enter valid value for baseline standing</Text>
-                            : null
-                        }
-                        <Text style={styles.sliderText}>Average minutes spent walking per hour:</Text>
+                        <Text style={styles.inputText}>Average minutes spent walking per hour:</Text>
                         <Field 
                             placeholder="Hourly minutes spent walking..."
                             keyboardType='numeric'
@@ -250,11 +224,7 @@ export default class PatientForm extends React.Component {
                             }}
                             value={this.state.baselineWalk && this.state.baselineWalk != -1 ? this.state.baselineWalk.toString() : null}
                         />
-                        { this.state.baselineWalk == -1
-                            ? <Text style={styles.errorMessage}>Please enter valid value for baseline walking</Text>
-                            : null
-                        }
-                        <Text style={styles.sliderText}>Average minutes spent sitting per hour:</Text>
+                        <Text style={styles.inputText}>Average minutes spent sitting per hour:</Text>
                         <Field 
                             placeholder="Hourly minutes spent sitting..."
                             keyboardType='numeric'
@@ -265,11 +235,7 @@ export default class PatientForm extends React.Component {
                             }}
                             value={this.state.baselineSit && this.state.baselineSit != -1 ? this.state.baselineSit.toString() : null}
                         />
-                        { this.state.baselineSit == -1
-                            ? <Text style={styles.errorMessage}>Please enter valid value for baseline sitting</Text>
-                            : null
-                        }
-                        <Text style={styles.sliderText}>Average minutes spent lying down per hour:</Text>
+                        <Text style={styles.inputText}>Average minutes spent lying down per hour:</Text>
                         <Field 
                             placeholder="Hourly minutes spent lying down..."
                             keyboardType='numeric'
@@ -280,12 +246,8 @@ export default class PatientForm extends React.Component {
                             }}
                             value={this.state.baselineLay && this.state.baselineLay != -1 ? this.state.baselineLay.toString() : null}
                         />
-                        { this.state.baselineLay == -1
-                            ? <Text style={styles.errorMessage}>Please enter valid value for baseline lying down</Text>
-                            : null
-                        }
                         <View style={styles.inputGroup}>
-                            <Text style={styles.sliderText}>Type of condition that brought them to therapy</Text>
+                            <Text style={styles.inputText}>Type of condition that brought them to therapy</Text>
                             <Picker
                                 selectedValue={this.state.conditionThatBroughtThem}
                                 onValueChange={(itemValue, itemIndex) => this.setState({ conditionThatBroughtThem: itemValue })}>
@@ -298,32 +260,34 @@ export default class PatientForm extends React.Component {
                         </View>
                         {this.state.conditionThatBroughtThem == "Orthopedic" ?
                             <View style={styles.inputGroup}>
-                                <Text style={styles.sliderText}>Body parts involved</Text>
+                                <Text style={styles.inputText}>Body parts involved</Text>
                                 <BodyPartsInvolvedCheckList />
                             </View>
                             : null
                         }
                         <View style={styles.inputGroup}>
-                            <Text style={styles.sliderText}>Time since onset of the condition that brought them to therapy (in days)</Text>
+                            <Text style={styles.inputText}>Time since onset of the condition that brought them to therapy (in days)</Text>
                             <TextInput
                                 style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
                                 keyboardType='numeric'
-                                onChangeText={(text) => this.onChanged(text)}
+                                onChangeText={(text) => this.setState({ onsetOfCondition: text })}
                                 value={this.state.onsetOfCondition}
                             />
                         </View>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.sliderText}>Previous surgery for the primary condiition that brought them to therapy</Text>
+                            <Text style={styles.inputText}>Previous surgery for the primary condition that brought them to therapy</Text>
                             <RadioForm
                                 radio_props={radio_props}
                                 formHorizontal={true}
-                                initial={0}
-                                onPress={(value) => { this.setState({ previousSurgery: value }) }}
+                                initial={this.state.previousSurgery ? 0 : 1}
+                                onPress={(opt) => { 
+                                    this.setState({ previousSurgery: opt }) 
+                                }}
                                 style={{ justifyContent: 'space-evenly' }}
                             />
                         </View>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.sliderText}>Severity of the primary condition that brought them to therapy</Text>
+                            <Text style={styles.inputText}>Severity of the primary condition that brought them to therapy</Text>
                             <Picker
                                 selectedValue={this.state.severityOfCondition}
                                 onValueChange={(itemValue, itemIndex) => this.setState({ severityOfCondition: itemValue })}>
@@ -334,7 +298,7 @@ export default class PatientForm extends React.Component {
                             </Picker>
                         </View>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.sliderText}>Living situation</Text>
+                            <Text style={styles.inputText}>Living situation</Text>
                             <Picker
                                 selectedValue={this.state.livingSituation}
                                 onValueChange={(itemValue, itemIndex) => this.setState({ livingSituation: itemValue })}>
@@ -343,7 +307,7 @@ export default class PatientForm extends React.Component {
                             </Picker>
                         </View>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.sliderText}>Which sentence is the best to describe you walking situation?</Text>
+                            <Text style={styles.inputText}>Which sentence is the best to describe you walking situation?</Text>
                             <Picker
                                 selectedValue={this.state.walkingSituation}
                                 onValueChange={(itemValue, itemIndex) => this.setState({ walkingSituation: itemValue })}>
@@ -354,7 +318,7 @@ export default class PatientForm extends React.Component {
                             </Picker>
                         </View>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.sliderText}>How much DIFFICULTY do you currently have bending over from a standing position to pick up a piece of clothing from the floor without holding onto anything?</Text>
+                            <Text style={styles.inputText}>How much DIFFICULTY do you currently have bending over from a standing position to pick up a piece of clothing from the floor without holding onto anything?</Text>
                             <Picker
                                 selectedValue={this.state.difficultyWithBasicMobility}
                                 onValueChange={(itemValue, itemIndex) => this.setState({ difficultyWithBasicMobility: itemValue })}>
@@ -365,7 +329,7 @@ export default class PatientForm extends React.Component {
                             </Picker>
                         </View>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.sliderText}>How much DIFFICULTY do you currently have chopping or slicing vegetables (eg: onions or peppers)?</Text>
+                            <Text style={styles.inputText}>How much DIFFICULTY do you currently have chopping or slicing vegetables (eg: onions or peppers)?</Text>
                             <Picker
                                 selectedValue={this.state.difficultyWithDailyAcitity}
                                 onValueChange={(itemValue, itemIndex) => this.setState({ difficultyWithDailyAcitity: itemValue })}>
@@ -377,7 +341,7 @@ export default class PatientForm extends React.Component {
                         </View>
 
                         <View style={styles.inputGroup}>
-                            <Text style={styles.sliderText}>Step Goal</Text>
+                            <Text style={styles.inputText}>Step Goal</Text>
                             <TextInput
                                 style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
                                 keyboardType='numeric'
@@ -386,7 +350,7 @@ export default class PatientForm extends React.Component {
                             />
                         </View>
 
-                        <Text style={styles.sliderText}>Who is filling out this form?</Text>
+                        <Text style={styles.inputText}>Who is filling out this form?</Text>
                         <Field onChangeText={(formAssistantName) => this.setState({ formAssistantName })}
                             placeholder="Enter First and Last Name..."
                             value={this.state.formAssistantName}
@@ -448,7 +412,7 @@ const styles = StyleSheet.create({
         marginLeft: 15,
         marginBottom: 20
     },
-    sliderText: {
+    inputText: {
         fontSize: 20,
         color: '#555333',
         fontWeight: '500',

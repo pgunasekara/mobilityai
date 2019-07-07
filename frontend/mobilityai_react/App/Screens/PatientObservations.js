@@ -8,12 +8,11 @@ import { AddObservations, GetObservations } from '../Lib/Api';
 
 export default class PatientObservations extends React.Component {
     static navigationOptions = ({ navigation }) => {
-        var id = navigation.getParam('id');
-
         return {
             title: "Nurse's Observations"
         };
     }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -25,6 +24,9 @@ export default class PatientObservations extends React.Component {
         };
     }
 
+    /*
+        Load observation when the component is mounted on rendering.
+     */
     componentDidMount() {
         this.updateObs();
     }
@@ -33,39 +35,42 @@ export default class PatientObservations extends React.Component {
         this.setState({ isDialogVisible: show });
     }
 
+    /*
+        Reload list of observations to render 
+     */
     updateObs() {
-        GetObservations(this.props.navigation.getParam('id')).then((observationJson) => {
-            var i;
-            var obsList2 = [];
-            for (i = 0; i < observationJson.length; i++) {
-                console.log(observationJson[i]);
+        const observation = ({firstName, lastName, comment}) => (
+            <View style={[styles.obsBoxesDir, styles.box]}>
+                <Text style={[styles.obsBox, styles.nameText]}>
+                    {`${firstName} ${lastName}`}
+                </Text>
+                <Text style={[styles.obsBox, styles.commentText]}>
+                    {comment}
+                </Text>
+            </View>
+        );
 
-                obsList2.push(
-                    <View style={[styles.obsBoxesDir, styles.box]}>
-                        <Text style={[styles.obsBox, styles.nameText]}>
-                            {observationJson[i]['firstName'] + ' ' + observationJson[i]['lastName']}
-                        </Text>
-                        <Text style={[styles.obsBox, styles.commentText]}>
-                            {observationJson[i]['comment']}
-                        </Text>
-                    </View>
-                );
-            }
-            this.setState({ obsList: obsList2 });
+        GetObservations(this.props.navigation.getParam('id')).then((observationJson) => {
+            const obsList = observationJson.map((json) => <Observation {...json} />);
+
+            this.setState({ obsList: obsList });
         })
     }
 
+    /*
+        Insert a new Observation and then reload the observations.
+     */
     addObs(comment) {
-        var pID = this.props.navigation.getParam('id');
-        var uID = this.props.navigation.getParam('userId');
+        const pID = this.props.navigation.getParam('id');
+        const uID = this.props.navigation.getParam('userId');
 
-        let response = AddObservations(uID, pID, comment).then(() => {
-            this.updateObs()
-        })
-        console.log(JSON.stringify(response));
-        this.setState({ comment: "" });
+        AddObservations(uID, pID, comment)
+            .then(() => this.updateObs());
 
-        this.setState({ isDialogVisible: false });
+        this.setState({ 
+            comment: "",
+            isDialogVisible: false
+        });
     }
 
     render() {
@@ -82,14 +87,11 @@ export default class PatientObservations extends React.Component {
                         title={"Observations"}
                         message={"Enter any additional observations below: "}
                         submitInput={(inputText) => { this.addObs(inputText) }}
-                        closeDialog={() => { this.showDialog(false) }}>
+                        closeDialog={() => this.showDialog(false) }>
                     </DialogInput>
 
                     <ActionButton buttonColor="rgba(231,76,60,1)"
-                        onPress={() => {
-                            this.showDialog(true);
-                            console.log("SHOWING BOX");
-                        }}
+                        onPress={() => this.showDialog(true)}
                         degrees={0}>
                         <Icon name="md-create" style={styles.actionButtonIcon} />
                     </ActionButton>

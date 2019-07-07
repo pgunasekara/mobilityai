@@ -5,16 +5,14 @@ const { Group, Shape, Surface } = ART;
 
 import * as d3 from 'd3'
 
-import GetDate from './GetDate.js';
+import DatePicker from '../Lib/DatePicker.js';
 import Circle from './PatientCircles';
 import BarGraph from './PatientBarGraphs';
 
 import { GetPatientActivities, GetPatientAchievements, GetPatientData, GetSteps } from '../Lib/Api';
 import moment from 'moment';
 import { _ } from 'lodash';
-
-//TODO: Remove temporary data once we get proper data from the server
-//TODO: Add better error logging if data cannot be found
+import { LoadingComponent } from '../Lib/GenericComponents.js';
 
 const activityTypes = {
     sitting: 'sitting',
@@ -27,6 +25,9 @@ const activityTypes = {
     stacked : 'stacked'
 }
 
+/**
+ * Map containing the color we are using in the bar char for each of the actions.
+ */
 const arrayColours = {
     standing: '#3498DB',
     sitting: '#1ABC9C',
@@ -39,6 +40,10 @@ const arrayColours = {
     toggle: '#000000',
 };
 
+/**
+ * The different tab views and their page position in the ScrollView.
+ * 
+ */
 const Tabs = {
     daily: 0,
     weekly: 1,
@@ -65,8 +70,12 @@ export default class PatientData extends Component {
         }
     };
 
+    /*
+        Handler for when you select a new activity type.
+
+        New Activity 
+     */
     _onPressButton(newActivityType, newData) {
-        console.log(`Setting new activity type ${newActivityType}`);
         this.setState({ 
             activityType: newActivityType, 
             singleBarView: true,
@@ -75,6 +84,12 @@ export default class PatientData extends Component {
         });
     };
 
+    /**
+     * @param  {Array<String>} - the keys for the stack view option you selected.
+     *      For example, if you selected to display active, the keys will be standing and walking.
+     * @return {Array<JSON>} - List of JSON objects which contain the values for all of the keys passed
+     *      in.
+     */
     extractDataForStackView(keys){
         let bars = [];
 
@@ -88,6 +103,11 @@ export default class PatientData extends Component {
         return bars;
     }
 
+    /**
+     * @param  {String} - Handler for when you press a button in the stacked view.
+     *      This requires extra processing because the stacked view graphs contain a combination
+     *      of multiple previous states
+     */
     _onPressStackedButton(newActivityType){
         this.setState({ activityType: newActivityType });
         const activeKeys = ['standing', 'walking'];
@@ -123,6 +143,9 @@ export default class PatientData extends Component {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    /*
+    Load a patients data for a given date.
+     */
     getPatientData(startDate) {
         var endDate = moment(startDate);
         var xLabels = [];
@@ -163,11 +186,10 @@ export default class PatientData extends Component {
 
         }
 
-        this.setState({ xLabels: xLabels });
-        this.setState({ yLabels: yLabels });
-
-        console.log("props: " + this.props.tabView + ", " + this.props.date);
-        console.log('endDate: ' + endDate);
+        this.setState({
+            xLabels: xLabels, 
+            yLabels: yLabels
+        });
 
         GetPatientActivities(startDate.utc().valueOf(), endDate.utc().valueOf(), this.props.id).then((activitiesJson) => {
             if (activitiesJson === undefined) {
@@ -180,10 +202,11 @@ export default class PatientData extends Component {
                     activitiesJson.standing.bar = this.hourlyIntoDays(activitiesJson.standing.bar);
                     activitiesJson.unknown.bar = this.hourlyIntoDays(activitiesJson.unknown.bar);
                 }
-                this.setState({ movementPercentages: activitiesJson });
-                this.setState({ data: activitiesJson.sitting.bar });
-                this.setState({ error: null });
-                console.log(this.state.movementPercentages)
+                this.setState({ 
+                    movementPercentages: activitiesJson,
+                    data: activitiesJson.sitting.bar,
+                    error: null
+                });
             }
         });
 
@@ -201,51 +224,46 @@ export default class PatientData extends Component {
         return _.chunk(data, 24).map((c) => { return _.sum(c) / 60; });
     }
 
+    /**
+     * On Component Mount, load the patient data for the current date.
+     */
     componentDidMount() {
         this.getPatientData(this.state.date);
     };
 
+    /*
+        Set a new date and load the patient's data for that date.
+     */
     setDate(rDate) {
         this.setState({ date: moment(rDate) });
-        console.log(this.state.date);
         this.getPatientData(moment(rDate));
     }
 
     render() {
         if (this.state.error) {
             return (
-                // <ScrollView>
-                // {/* <View style={[styles.center, styles.widthSize, {flexDirection: 'column'}]}> */}
                 <ScrollView>
                     <View>
                         <Text style={styles.errorText}>{this.state.error}</Text>
                         <View style={[styles.center, styles.widthSize]}>
-                            <GetDate
+                            <DatePicker
                                 dateCallback={this.setDate.bind(this)}
                                 date={this.state.date.toDate()}
                             />
                         </View>
                     </View>
                 </ScrollView>
-                // </ScrollView>
             );
         }
 
         if (!this.state.data) {
-            return (
-                <View>
-                    {/* TODO: replace this with a loading screen */}
-                    <Text>Still downloading patient data...</Text>
-                </View>
-            );
+            return <LoadingComponent message="Still downloading patient data..."/>
         }
 
         const width = 250;
         const height = 250;
         const sedentaryTotal = this.state.movementPercentages.lyingDown.total + this.state.movementPercentages.sitting.total;
         const activeTotal = this.state.movementPercentages.walking.total + this.state.movementPercentages.standing.total;
-        
-        
 
         const userActivities = [
             {
@@ -295,8 +313,6 @@ export default class PatientData extends Component {
             }
         }
 
-        console.log(`Requires goal line: ${requiresGoalLine} goal line: ${goalLine}`);
-
         return (
             <ScrollView>
                 <View>
@@ -304,13 +320,12 @@ export default class PatientData extends Component {
                         <Text style={[styles.flexDir, styles.tabInfo]}>
                             {this.props.tabTitle}
                         </Text>
-                        <GetDate
+                        <DatePicker
                             dateCallback={this.setDate.bind(this)}
                             date={this.state.date.toDate()}
                         />
                     </View>
 
-                    {/* Displaying the pie chart of all the activities */}
                     <View style={styles.center}>
                         <View style={styles.stepsContainer}>
                             <Text style={styles.stepsText}>{this.state.steps.length}</Text>
@@ -478,7 +493,7 @@ const styles = StyleSheet.create({
     textInline: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        alignItems: 'center',
     },
 
     widthSize: {
@@ -491,6 +506,5 @@ const styles = StyleSheet.create({
         fontSize: 15,
         marginLeft: 10,
         marginTop: 10,
-    }
-
+    },
 });

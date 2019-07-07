@@ -1,13 +1,19 @@
 import React from 'react';
-import { TouchableOpacity, Button, ScrollView, StyleSheet, Text, View, TextInput } from 'react-native';
+import { Alert, TouchableOpacity, Button, ScrollView, StyleSheet, Text, View, TextInput } from 'react-native';
 import { Input, Icon } from 'react-native-elements'
 import { GetPatientAchievements, AddPatientAchievements } from '../Lib/Api';
+import { LoadingComponent} from '../Lib/GenericComponents';
 
 export default class PatientAchievements extends React.Component {
+    
+    /*
+        Put "Patient's Achievements" as title with the patient's first name and last name
+        taking the place of Patient.
+     */
     static navigationOptions = ({ navigation }) => {
-        var fname = navigation.getParam('firstName');
-        var lname = navigation.getParam('lastName');
-        var t = fname + " " + lname + '\'';
+        const fname = navigation.getParam('firstName');
+        const lname = navigation.getParam('lastName');
+        let t = `${fname} ${lname}'`;
 
         if (lname.substring(lname.length - 1) != 's') {
             t += 's'
@@ -26,44 +32,45 @@ export default class PatientAchievements extends React.Component {
         }
     }
 
+    /*
+        Attempt to load the Patients achievements. if you get a result, set the patient's achievements
+        to be the loaded result. Otherwise, Set the achievements to 0.
+     */
     componentDidMount() {
         GetPatientAchievements(this.state.id).then((achievementsJson) => {
             if (achievementsJson == null) {
-                this.setState({ steps: 0 });
-                this.setState({ standing: 0 });
-                this.setState({ walking: 0 });
-                this.setState({ activeTime: 0 });
+                this.setState({
+                    steps: 0,
+                    standing: 0,
+                    walking: 0,
+                    activeTime: 0,
+                    dataLoaded: true
+                });
             } else {
-                console.log("WE GOT PATIENT ACHIEVEMENTS");
-                console.log(achievementsJson);
-                this.setState({ steps: achievementsJson.steps });
-                // this.setState({ sitting: achievementsJson.sitting });
-                this.setState({ standing: achievementsJson.standingMinutes });
-                // this.setState({ lyingDown: achievementsJson.lyingDown });
-                this.setState({ walking: achievementsJson.walkingMinutes });
-                this.setState({ activeTime: achievementsJson.activeMinutes });
+                this.setState({
+                    steps: achievementsJson.steps,
+                    standing: achievementsJson.standingMinutes,
+                    walking: achievementsJson.walkingMinutes,
+                    activeTime: achievementsJson.activeMinutes,
+                    dataLoaded: true
+                });
             }    
         });
     };
 
+    /*
+        Save the Patient's Achievements and create an alert saying that you have saved the achievements.
+     */
     saveAchievements() {
-        let response = AddPatientAchievements(this.state.id, this.state.steps, this.state.activeTime, this.state.walking, this.state.standing);
-        console.log(JSON.stringify(response));
+        AddPatientAchievements(this.state);
+        Alert.alert("Achievements saved");
     };
 
     render() {
-        if (this.state.steps === undefined
-            || this.state.standing === undefined
-            || this.state.walking === undefined
-            || this.state.activeTime === undefined) {
-            // TODO: replace this with a loading screen
-            return (
-                <View>
-                    <Text> Fetching patient's achievements </Text>
-                </View>
-            );
+        if (!this.state.dataLoaded) {
+            return <LoadingComponent message="Fetching patient's achievements"/>
         }
-        console.log(this.state);
+
         return (
             <View style={styles.container}>
                 <View>
@@ -72,7 +79,7 @@ export default class PatientAchievements extends React.Component {
 
                 <View style={styles.container}>
                     <View style={{ paddingBottom: 10 }}>
-                        <View style={styles.boxLayout2}>
+                        <View style={styles.boxLayout}>
                             <View>
                                 <Text>Steps</Text>
                                 <TextInput
@@ -94,7 +101,7 @@ export default class PatientAchievements extends React.Component {
                                 />
                             </View>
                         </View>
-                        <View style={styles.boxLayout2}>
+                        <View style={styles.boxLayout}>
                             <View>
                                 <Text>Standing</Text>
                                 <TextInput
@@ -122,7 +129,7 @@ export default class PatientAchievements extends React.Component {
                 <View style={styles.saveBtn}>
                     <Button
                         title='Save'
-                        onPress={() => {this.saveAchievements(); alert("Achievements saved")}}                    
+                        onPress={() => {this.saveAchievements()}}                    
                         color="#5DACBD"
                     />
                 </View>
@@ -139,13 +146,6 @@ const styles = StyleSheet.create({
     },
 
     boxLayout: {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-    },
-
-    boxLayout2: {
         flexDirection: 'row',
         justifyContent: 'space-evenly',
     },
@@ -160,9 +160,10 @@ const styles = StyleSheet.create({
 
     saveBtn: {
         position: 'absolute',
-        bottom: 20,
+        bottom: 40,
         right: 20,
         borderRadius: 100,
+        width: 150,
     },
 
     title: {

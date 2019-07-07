@@ -4,18 +4,20 @@ import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'reac
 
 import { AddSurvey } from '../Lib/Api';
 
-const Field = (props) => <TextInput style={styles.field} {...props} />;
-
 export default class Survey extends Component {
+    /*
+        If you are loading an existant survey you are editing, set the current state to the 
+        state from the survey and set a flag to show that you are editing an existing survey. 
+        Otherwise, set the default values for the survey.
+     */
     constructor(props) {
         super(props);
 
-        var existingState = this.props.navigation.getParam('surveyState');
+        const existingState = this.props.navigation.getParam('surveyState');
 
         if (existingState) {
             this.state = {...existingState, usesExisting: true};
-        }
-        else {
+        } else {
             this.state = {
                 id: this.props.navigation.getParam("id"),
                 sensorAccuracy: "Neutral",
@@ -27,10 +29,16 @@ export default class Survey extends Component {
         }
     }
 
+    static navigationOptions = ({ navigation }) => { title: "Create a New Survey" };
+
     submitForm() {
         AddSurvey(this.state.id, JSON.stringify({ ...this.state, dateCompleted: new Date()}));
+        this.props.navigation.goBack();
     }
 
+    /*
+    Map a Radio button value to an integer corresponding value.
+     */
     radioValueToInt(value) {
         switch (value) {
             case "Strongly Disagree": return 0;
@@ -43,6 +51,7 @@ export default class Survey extends Component {
     }
 
     render() {
+        const Field = (props) => <TextInput style={styles.field} {...props} />;
         const radio_props = [
             { label: "Strongly Disagree", value: "Strongly Disagree" },
             { label: "Disagree", value: "Disagree" },
@@ -86,7 +95,8 @@ export default class Survey extends Component {
                         />
                     </View>
                     <Text style={styles.sliderText}>Name of the person completing this survey:</Text>
-                    <Field onChangeText={(completingSurveyName) => this.setState({ completingSurveyName })}
+                    <Field 
+                        onChangeText={(completingSurveyName) => this.setState({ completingSurveyName })}
                         value={this.state.completingSurveyName}
                         placeholder="Enter Name..."
                     />

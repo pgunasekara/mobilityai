@@ -5,6 +5,7 @@ import ActionButton from 'react-native-action-button';
 
 import { GetSurveys } from '../Lib/Api';
 import SurveyListItem from './SurveyListItem';
+import { LoadingComponent} from '../Lib/GenericComponents';
 
 export default class SurveyList extends Component {
     constructor(props) {
@@ -15,19 +16,31 @@ export default class SurveyList extends Component {
         }
     }
 
+    static navigationOptions = ({ navigation }) => {
+        return {
+            title: "Surveys"
+        };
+    }
+
+    /*
+        Load the surveys for the a specific user id and then set the state to contain the new data.
+     */
     componentDidMount() {
         GetSurveys(this.state.id).then((surveys) => {
             this.setState({ surveys });
         });
     }
 
+    /*
+        Render the survey list if any items exist in the list, otherwise show a message saying there are no items in the list.
+
+        Display a loading component while you are fetching data from the server.
+     */
     render() {
         if (this.state.surveys == undefined) {
-            return (
-                <Text>Fetching the latest survey data...</Text>
-            );
+            return <LoadingComponent message="Fetching the latest survey data..."/>;
         }
-        console.log(this.state.surveys);
+        
         return (
             <View style={{flex: 1}}>
                 <ScrollView>

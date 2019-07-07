@@ -5,25 +5,13 @@ import { Input, Icon } from 'react-native-elements'
 export default class SignIn extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            patients: [
-                {
-                    key: "1",
-                    firstName: "Joe",
-                    lastName: "Johnson",
-                    bandId: "",
-                },
-                {
-                    key: "2",
-                    firstName: "Ruth",
-                    lastName: "Reynolds",
-                    bandId: "",
-                }
-            ]
-        }
-
+        this.state = {};
     }
 
+    /*
+        Render the Sign in form, with an email and password fields, as well as a sign in button
+        and a button to redirect to sign up if you don't have an account.
+     */
     render() {
         const { navigate } = this.props.navigation;
         return (
@@ -32,7 +20,6 @@ export default class SignIn extends React.Component {
                     <Text style={[styles.titleText, styles.regText, styles.boldText]}>MobilityAI</Text>
                     <Text style={styles.regText}>Sign in below to access your account</Text>
 
-                    {/* Generating the sign in form */}
                     <View style={styles.containerBorder}>
                         <View style={styles.container}>
                             <View style={[styles.formStyle, styles.formBorder]}>
@@ -57,7 +44,6 @@ export default class SignIn extends React.Component {
                                     underlineColorAndroid = "black"
                                     leftIcon={
                                         <Icon
-
                                             name='lock'
                                             size={24}
                                             type={'font-awesome'}
@@ -69,7 +55,6 @@ export default class SignIn extends React.Component {
                             </View>
                         </View>
 
-                        {/* Button to navigate after signing in */}
                         <View style={[styles.formBorder, styles.btn]}>
                             <Button
                                 title='Sign In'
@@ -78,7 +63,6 @@ export default class SignIn extends React.Component {
                             />
                         </View>
 
-                        {/* Redirect users to sign up form, if they do not have an existing account */}
                         <View >
                             <TouchableHighlight onPress={() => navigate('SignUp', {})}>
                                 <View>

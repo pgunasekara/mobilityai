@@ -9,10 +9,17 @@ export default class BarGraph extends Component {
         super(props);
 
         this.state = {
-            graphWidth: Math.max(this.props.data.length * 28.3, Dimensions.get('window').width)
+            graphWidth: Math.max(this.props.data.length * 50, Dimensions.get('window').width)
         }
     }
 
+    /**
+     * @param  {Array<Json>} - Array of JSON data for the stacked bar view. Each JSON object has keys which are the
+     *      values present in the stacked bar view and how much the value for it is for the current spot on the graph
+     * @param  {Array<Date>} - Array of the same size as the data array with Hours. we assign all the times to the
+     *      json data so when you render it, each stacked bar has a time associated. We use the field "month" as that
+     *      is what is used in the demo for the library.
+     */
     _mergeDataWithXLabels(data, labels){
         labels.forEach((label, idx) => {
             data[idx]['month'] = label;
@@ -28,9 +35,6 @@ export default class BarGraph extends Component {
             this._mergeDataWithXLabels(data,this.props.xLabels);
         }
 
-        console.log(data);
-        //alert(this.props.keys)
-
         const Labels = ({ x, y, bandwidth, data }) => (
             data.map((value, index) => (
                 <Text
@@ -42,7 +46,7 @@ export default class BarGraph extends Component {
                     alignmentBaseline={ 'bottom' }
                     textAnchor={ 'middle' }
                 >
-                    _______
+                    ____________________
                 </Text>
             ))
         );
@@ -59,7 +63,7 @@ export default class BarGraph extends Component {
                     style={styles.graphHeight}
                 />
                 <ScrollView horizontal={true} style={styles.bargraph}>
-                    <View style={{ width: 500 }}>
+                    <View style={{ width: this.state.graphWidth }}>
                         {this.props.singleBarView 
                             ? <BarChart
                                 style={styles.graphHeight}
